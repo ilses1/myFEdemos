@@ -1,6 +1,9 @@
 import { defineConfig } from '@umijs/max';
 import routes from './routes';
 
+const isProd = process.env.NODE_ENV === 'production';
+const repo = '/myFEdemos/';
+
 export default defineConfig({
   antd: {},
   access: {},
@@ -13,7 +16,8 @@ export default defineConfig({
   history: {
     type: 'hash',
   },
-  publicPath: process.env.NODE_ENV === 'production' ? './' : '/',
+  base: isProd ? repo : '/',
+  publicPath: isProd ? repo : '/',
   routes,
   npmClient: 'pnpm',
 });
