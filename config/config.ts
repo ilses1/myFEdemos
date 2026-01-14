@@ -10,6 +10,10 @@ export default defineConfig({
   layout: {
     title: '@umijs/max',
   },
+  history: {
+    type: 'hash',
+  },
+  publicPath: process.env.NODE_ENV === 'production' ? './' : '/',
   routes,
   npmClient: 'pnpm',
 });
