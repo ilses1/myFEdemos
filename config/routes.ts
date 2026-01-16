@@ -4,6 +4,11 @@ export default [
     redirect: '/home',
   },
   {
+    name: '开发工具',
+    path: '/dev-tools',
+    component: './DevTools',
+  },
+  {
     name: '首页',
     path: '/home',
     component: './Home',
