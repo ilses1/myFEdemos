@@ -9,6 +9,11 @@ export default [
     component: './Home',
   },
   {
+    name: '前端卡片',
+    path: '/frontend-card',
+    component: './FrontendCard',
+  },
+  {
     name: '权限演示',
     path: '/access',
     component: './Access',
