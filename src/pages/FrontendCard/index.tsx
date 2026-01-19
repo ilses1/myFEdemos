@@ -1,6 +1,6 @@
 import { PageContainer } from '@ant-design/pro-components';
 import React from 'react';
-import styles from '../Home/index.less';
+import styles from './index.less';
 
 const FrontendCardPage: React.FC = () => {
   return (
