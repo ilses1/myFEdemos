@@ -26,6 +26,18 @@
   border-radius: 2px;
 }
 
+@property --th-linear-color {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: rgba(255, 239, 212, 0.4);
+}
+
+@property --th-radial-color {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: #ffdFAA;
+}
+
 .etfCard {
   width: 100%;
   max-width: 420px;
@@ -42,6 +54,7 @@
   font-size: 16px;
   font-weight: 500;
   color: #262626;
+  
 }
 
 .etfTitle {
@@ -58,12 +71,18 @@
   margin-top: 16px;
   padding-bottom: 8px;
   border-bottom: 1px solid #ffe7ba;
-  transition: background-color 3s ease;
+  --th-linear-color: rgba(255, 239, 212, 0.4);
+  --th-radial-color: #ffdFAA;
+  background:
+    linear-gradient(0deg, var(--th-linear-color), var(--th-linear-color)),
+    radial-gradient(94% 100% at 80% 0%, var(--th-radial-color) 0%, rgba(255, 255, 255, 0) 100%);
+  transition: --th-linear-color 0.4s ease, --th-radial-color 0.4s ease;
 }
 
 .etfCard:hover .tableHeader {
-  background-color: #fff1b8;
   border-bottom-color: #ffd591;
+  --th-linear-color: rgba(255, 212, 212, 0.4);
+  --th-radial-color: #ffaaaa;
 }
 
 .tableHeaderCell {
