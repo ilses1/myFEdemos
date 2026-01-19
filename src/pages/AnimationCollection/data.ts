@@ -1,7 +1,7 @@
 export interface AnimationItem {
   id: string;
   title: string;
-  type: 'button' | 'loader' | 'toggle' | 'card' | 'text';
+  type: 'button' | 'loader' | 'toggle' | 'card' | 'text' | 'art';
   description: string;
   html: string;
   css: string;
@@ -170,92 +170,105 @@ export const animations: AnimationItem[] = [
 }`,
   },
   {
-    id: 'toggle-switch',
-    title: '平滑胶囊开关',
+    id: 'theme-toggle-v2',
+    title: '精致昼夜开关',
     type: 'toggle',
-    description: '极简风格的 iOS 风格开关。',
-    html: `<label class="toggle-switch">
-  <input type="checkbox" class="toggle-input">
-  <span class="toggle-slider"></span>
+    description: '带有日月变换和云朵动画的精致开关。',
+    html: `<label class="day-night-switch">
+  <input type="checkbox" class="dn-checkbox">
+  <div class="dn-slider">
+    <div class="dn-moon">
+      <div class="dn-star dn-star-1"></div>
+      <div class="dn-star dn-star-2"></div>
+    </div>
+    <div class="dn-sun"></div>
+    <div class="dn-cloud"></div>
+  </div>
 </label>`,
-    css: `.toggle-switch {
-  position: relative;
-  width: 50px;
-  height: 26px;
-}
-.toggle-input { 
-  opacity: 0; 
-  width: 0; 
-  height: 0; 
-}
-.toggle-slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-color: #ccc;
-  transition: .4s;
-  border-radius: 34px;
-}
-.toggle-slider:before {
-  position: absolute;
-  content: "";
-  height: 20px;
-  width: 20px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  transition: .4s;
-  border-radius: 50%;
-}
-.toggle-input:checked + .toggle-slider {
-  background-color: #2196F3;
-}
-.toggle-input:checked + .toggle-slider:before {
-  transform: translateX(24px);
-}`,
-  },
-  {
-    id: 'theme-toggle',
-    title: '日月切换开关',
-    type: 'toggle',
-    description: '切换时图标会有旋转和颜色变化，模拟昼夜交替。',
-    html: `<label class="theme-toggle">
-  <input type="checkbox">
-  <span class="theme-slider"></span>
-</label>`,
-    css: `.theme-toggle {
+    css: `.day-night-switch {
   position: relative;
   display: inline-block;
-  width: 60px;
-  height: 30px;
+  width: 70px;
+  height: 34px;
 }
-.theme-toggle input { opacity: 0; width: 0; height: 0; }
-.theme-slider {
+.dn-checkbox {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.dn-slider {
   position: absolute;
   cursor: pointer;
   top: 0; left: 0; right: 0; bottom: 0;
-  background-color: #87CEEB; /* Sky Blue */
+  background-color: #87CEEB; /* Day Sky */
   transition: .4s;
   border-radius: 34px;
+  overflow: hidden;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
 }
-.theme-slider:before {
+.dn-slider:before {
   position: absolute;
   content: "";
-  height: 24px;
-  width: 24px;
-  left: 3px;
-  bottom: 3px;
-  background-color: #FFD700; /* Sun Yellow */
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: #FFD700; /* Sun */
   transition: .4s;
   border-radius: 50%;
+  z-index: 2;
+  box-shadow: 0 0 5px rgba(0,0,0,0.2);
 }
-input:checked + .theme-slider {
-  background-color: #2c3e50; /* Night Blue */
+.dn-checkbox:checked + .dn-slider {
+  background-color: #2c3e50; /* Night Sky */
 }
-input:checked + .theme-slider:before {
-  transform: translateX(30px);
-  background-color: #f1c40f; /* Moon Color */
-  box-shadow: inset -3px -2px 0 0px #f39c12; /* Crater effect */
+.dn-checkbox:checked + .dn-slider:before {
+  transform: translateX(36px);
+  background-color: #f1c40f; /* Moon */
+  box-shadow: inset -4px -2px 0 0px #e67e22; /* Crater */
+}
+/* Sun Rays / Decoration (Optional simpler version) */
+.dn-sun { opacity: 1; transition: 0.4s; }
+.dn-checkbox:checked ~ .dn-sun { opacity: 0; }
+
+/* Stars for Night */
+.dn-star {
+  position: absolute;
+  background-color: white;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  opacity: 0;
+  transition: 0.4s;
+}
+.dn-star-1 { top: 8px; left: 15px; }
+.dn-star-2 { top: 20px; left: 25px; }
+
+.dn-checkbox:checked + .dn-slider .dn-star {
+  opacity: 1;
+  animation: twinkle 2s infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Cloud for Day */
+.dn-cloud {
+  position: absolute;
+  top: 15px;
+  right: 10px;
+  width: 20px;
+  height: 8px;
+  background: white;
+  border-radius: 10px;
+  opacity: 0.8;
+  transition: 0.4s;
+}
+.dn-checkbox:checked + .dn-slider .dn-cloud {
+  transform: translateX(20px);
+  opacity: 0;
 }`,
   },
   {
@@ -373,61 +386,185 @@ input:checked + .theme-slider:before {
 }`,
   },
   {
-    id: 'float-action-btn',
-    title: '悬浮操作按钮',
-    type: 'button',
-    description: '点击或悬停时旋转并弹出子菜单。',
-    html: `<div class="fab-container">
-  <div class="fab-main">+</div>
-  <div class="fab-item item-1">A</div>
-  <div class="fab-item item-2">B</div>
+    id: 'sleeping-cat',
+    title: '慵懒睡猫',
+    type: 'art',
+    description: '纯 CSS 绘制的呼吸睡眠小猫动画。',
+    html: `<div class="cat-container">
+  <div class="cat-body"></div>
+  <div class="cat-head">
+    <div class="cat-ear left"></div>
+    <div class="cat-ear right"></div>
+    <div class="cat-face">
+      <div class="cat-eye left"></div>
+      <div class="cat-eye right"></div>
+      <div class="cat-nose"></div>
+    </div>
+  </div>
+  <div class="cat-tail"></div>
+  <div class="zzz">Z</div>
 </div>`,
-    css: `.fab-container {
+    css: `.cat-container {
   position: relative;
-  width: 50px;
-  height: 50px;
+  width: 100px;
+  height: 100px;
+  margin: 20px auto;
 }
-.fab-main {
-  width: 50px;
-  height: 50px;
-  background: #2ed573;
-  border-radius: 50%;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  cursor: pointer;
-  position: relative;
-  z-index: 2;
-  transition: transform 0.3s;
-}
-.fab-item {
-  width: 40px;
-  height: 40px;
-  background: #ffa502;
-  border-radius: 50%;
-  color: white;
+.cat-body {
   position: absolute;
-  top: 5px;
-  left: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: 0.3s;
-  opacity: 0;
-  z-index: 1;
+  width: 80px;
+  height: 50px;
+  background: #FFAB91;
+  border-radius: 50px 50px 20px 20px;
+  bottom: 10px;
+  left: 10px;
+  animation: breathe 3s infinite ease-in-out;
 }
-.fab-container:hover .fab-main {
+.cat-head {
+  position: absolute;
+  width: 40px;
+  height: 35px;
+  background: #FFAB91;
+  border-radius: 50%;
+  bottom: 35px;
+  left: 15px;
+}
+.cat-ear {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 15px solid #FFAB91;
+  top: -10px;
+}
+.cat-ear.left { left: 0; transform: rotate(-15deg); }
+.cat-ear.right { right: 0; transform: rotate(15deg); }
+.cat-tail {
+  position: absolute;
+  width: 10px;
+  height: 30px;
+  background: #FFAB91;
+  border-radius: 5px;
+  bottom: 15px;
+  right: 5px;
+  transform-origin: bottom center;
   transform: rotate(45deg);
+  animation: tail-wag 3s infinite ease-in-out;
 }
-.fab-container:hover .item-1 {
-  transform: translateY(-50px);
-  opacity: 1;
+.zzz {
+  position: absolute;
+  top: 0;
+  right: 20px;
+  font-family: monospace;
+  font-weight: bold;
+  color: #333;
+  opacity: 0;
+  animation: sleep 2s infinite;
 }
-.fab-container:hover .item-2 {
-  transform: translateY(-100px);
-  opacity: 1;
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+@keyframes tail-wag {
+  0%, 100% { transform: rotate(45deg); }
+  50% { transform: rotate(25deg); }
+}
+@keyframes sleep {
+  0% { transform: translateY(0) scale(0.5); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateY(-20px) scale(1.2); opacity: 0; }
 }`,
-  }
+  },
+  {
+    id: 'mountain-sunrise',
+    title: '山间日出',
+    type: 'art',
+    description: '宁静的山景日出动画效果。',
+    html: `<div class="scene-container">
+  <div class="sky"></div>
+  <div class="sun-anim"></div>
+  <div class="mountain m-1"></div>
+  <div class="mountain m-2"></div>
+</div>`,
+    css: `.scene-container {
+  position: relative;
+  width: 150px;
+  height: 100px;
+  background: #87CEEB;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  animation: sky-change 5s infinite alternate;
+}
+.sky {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+}
+.sun-anim {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: #FFD700;
+  border-radius: 50%;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -40px;
+  animation: sunrise 5s infinite alternate;
+  box-shadow: 0 0 15px #FFD700;
+}
+.mountain {
+  position: absolute;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  border-left: 50px solid transparent;
+  border-right: 50px solid transparent;
+  border-bottom: 60px solid #795548;
+}
+.m-1 { left: -20px; border-bottom-color: #5D4037; z-index: 2; }
+.m-2 { right: -20px; border-bottom-color: #4E342E; z-index: 1; transform: scale(1.2); }
+
+@keyframes sunrise {
+  0% { bottom: -40px; background: #FF4500; }
+  100% { bottom: 60px; background: #FFD700; }
+}
+@keyframes sky-change {
+  0% { background: #2c3e50; }
+  100% { background: #87CEEB; }
+}`,
+  },
+  {
+    id: 'pixel-invader',
+    title: '像素入侵者',
+    type: 'art',
+    description: '8-bit 风格的像素外星人动画。',
+    html: `<div class="pixel-box">
+  <div class="invader"></div>
+</div>`,
+    css: `.pixel-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60px;
+}
+.invader {
+  width: 4px;
+  height: 4px;
+  background: transparent;
+  box-shadow: 
+    0 0 0 4px #000,
+    -8px 4px 0 0 #000, 8px 4px 0 0 #000,
+    -12px 8px 0 0 #000, -8px 8px 0 0 #000, -4px 8px 0 0 #000, 0 8px 0 0 #000, 4px 8px 0 0 #000, 8px 8px 0 0 #000, 12px 8px 0 0 #000,
+    -16px 12px 0 0 #000, -12px 12px 0 0 #000, -4px 12px 0 0 #000, 4px 12px 0 0 #000, 12px 12px 0 0 #000, 16px 12px 0 0 #000,
+    -16px 16px 0 0 #000, -16px 20px 0 0 #000, -4px 16px 0 0 #000, -4px 20px 0 0 #000, 4px 16px 0 0 #000, 4px 20px 0 0 #000, 16px 16px 0 0 #000, 16px 20px 0 0 #000;
+  animation: invader-move 1s steps(2) infinite;
+}
+
+@keyframes invader-move {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}`,
+  },
 ];

@@ -23,9 +23,49 @@ const AnimationCollection: React.FC = () => {
   };
 
   const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text).then(() => {
-      message.success('复制成功！');
-    });
+    // 优先使用 navigator.clipboard
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          message.success('复制成功！');
+        })
+        .catch((err) => {
+          console.error('Clipboard API failed:', err);
+          fallbackCopy(text);
+        });
+    } else {
+      fallbackCopy(text);
+    }
+  };
+
+  // 兼容性回退方案：使用 textarea + execCommand
+  const fallbackCopy = (text: string) => {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+
+    // 避免页面滚动
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-9999px';
+    textArea.style.top = '0';
+    document.body.appendChild(textArea);
+
+    textArea.focus();
+    textArea.select();
+
+    try {
+      const successful = document.execCommand('copy');
+      if (successful) {
+        message.success('复制成功！');
+      } else {
+        message.error('复制失败，请手动复制');
+      }
+    } catch (err) {
+      console.error('Fallback copy failed:', err);
+      message.error('复制失败，请手动复制');
+    }
+
+    document.body.removeChild(textArea);
   };
 
   const renderAnimation = (item: AnimationItem) => {
