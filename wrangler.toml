@@ -1,0 +1,6 @@
+name = "worker-name"
+compatibility_date = "2026-01-16"
+
+# Serve the built static assets from Umi's build output
+assets = { directory = "./dist" }
+

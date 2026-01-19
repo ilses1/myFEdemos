@@ -6,6 +6,9 @@ const FrontendCardPage: React.FC = () => {
   return (
     <PageContainer ghost>
       <div className={styles.container}>
+        <div className={styles.historyTitleWrapper}>
+          <span className={styles.historyTitle}>历史走势</span>
+        </div>
         <div className={styles.etfCard}>
           <div className={styles.header}>
             <span className={styles.etfTitle}>ETF名称</span>
@@ -34,4 +37,3 @@ const FrontendCardPage: React.FC = () => {
 };
 
 export default FrontendCardPage;
-

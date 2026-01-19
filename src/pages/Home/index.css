@@ -3,12 +3,10 @@
   display: flex;
   justify-content: center;
 }
-
 .historyTitleWrapper {
   width: 100%;
   max-width: 420px;
 }
-
 .historyTitle {
   display: inline-block;
   font-size: 16px;
@@ -16,16 +14,9 @@
   color: #262626;
   line-height: 1.2;
   padding: 0 4px 4px;
-  background-image: linear-gradient(
-    to bottom,
-    transparent 0,
-    transparent 55%,
-    #ffd6e7 55%,
-    #ffd6e7 100%
-  );
+  background-image: linear-gradient(to bottom, transparent 0, transparent 55%, #ffd6e7 55%, #ffd6e7 100%);
   border-radius: 2px;
 }
-
 .etfCard {
   width: 100%;
   max-width: 420px;
@@ -35,7 +26,6 @@
   box-sizing: border-box;
   padding: 16px 20px 20px;
 }
-
 .header {
   display: flex;
   align-items: baseline;
@@ -43,16 +33,13 @@
   font-weight: 500;
   color: #262626;
 }
-
 .etfTitle {
   margin-right: 8px;
 }
-
 .etfCode {
   font-size: 14px;
   color: #bfbfbf;
 }
-
 .tableHeader {
   display: flex;
   margin-top: 16px;
@@ -60,18 +47,15 @@
   border-bottom: 1px solid #ffe7ba;
   transition: background-color 3s ease;
 }
-
 .etfCard:hover .tableHeader {
   background-color: #fff1b8;
   border-bottom-color: #ffd591;
 }
-
 .tableHeaderCell {
   flex: 1;
   display: flex;
   align-items: center;
 }
-
 .bullet {
   width: 6px;
   height: 6px;
@@ -79,18 +63,15 @@
   background: #ffc069;
   transform: rotate(45deg);
 }
-
 .cellTitle {
   font-size: 12px;
   color: #8c8c8c;
 }
-
 .contentRow {
   display: flex;
   align-items: flex-start;
   margin-top: 12px;
 }
-
 .positionValue {
   flex: 0 0 auto;
   margin-right: 24px;
@@ -99,7 +80,6 @@
   font-weight: 600;
   color: #ff4d4f;
 }
-
 .description {
   flex: 1;
   font-size: 12px;
@@ -110,20 +90,16 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
 }
-
 @media (max-width: 576px) {
   .container {
     padding-top: 40px;
   }
-
   .etfCard {
     padding: 12px 16px 16px;
   }
-
   .contentRow {
     flex-direction: column;
   }
-
   .positionValue {
     margin-right: 0;
     margin-bottom: 8px;
