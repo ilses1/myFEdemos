@@ -10,8 +10,9 @@ export default defineConfig({
   initialState: {},
   request: {},
   layout: {
-    title: '@umijs/max',
+    title: 'isles',
   },
+  favicons: ['/island-logo.svg'],
   history: {
     type: 'hash',
   },
