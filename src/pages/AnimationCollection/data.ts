@@ -275,53 +275,158 @@ export const animations: AnimationItem[] = [
     id: 'glass-card',
     title: '毛玻璃卡片',
     type: 'card',
-    description: '流行的毛玻璃效果，背景模糊且带有透光感。',
-    html: `<div class="glass-card">
-  <h3>Glassmorphism</h3>
-  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+    description: '增强版毛玻璃效果，增加了漂浮装饰和更强的透视感。',
+    html: `<div class="glass-container">
+  <div class="glass-circle c1"></div>
+  <div class="glass-circle c2"></div>
+  <div class="glass-card">
+    <h3>Glassmorphism</h3>
+    <p>Elegant & Modern</p>
+  </div>
 </div>`,
-    css: `.glass-card {
+    css: `.glass-container {
+  width: 100%;
+  height: 100%;
+  padding: 30px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  z-index: 0;
+}
+.glass-circle {
+  position: absolute;
+  border-radius: 50%;
+  z-index: -1;
+}
+.c1 {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(#ff9a9e, #fad0c4);
+  top: 20px;
+  left: 20%;
+  animation: move1 5s infinite alternate;
+}
+.c2 {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(#a18cd1, #fbc2eb);
+  bottom: 20px;
+  right: 20%;
+  animation: move2 6s infinite alternate;
+}
+.glass-card {
   width: 200px;
   padding: 20px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 16px;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: #333;
-  transition: transform 0.3s;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-top: 1px solid rgba(255, 255, 255, 0.5);
+  border-left: 1px solid rgba(255, 255, 255, 0.5);
+  color: white;
+  transition: transform 0.3s, box-shadow 0.3s;
 }
 .glass-card h3 {
   margin: 0 0 10px 0;
-  color: #333;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+.glass-card p {
+  color: rgba(255, 255, 255, 0.9);
 }
 .glass-card:hover {
   transform: translateY(-5px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+@keyframes move1 {
+  from { transform: translateY(0); }
+  to { transform: translateY(20px); }
+}
+@keyframes move2 {
+  from { transform: translateY(0); }
+  to { transform: translateY(-20px); }
 }`,
   },
   {
     id: 'typing-text',
-    title: '打字机效果',
+    title: '终端打字机',
     type: 'text',
-    description: '模拟打字机逐字显示文本的效果。',
-    html: `<div class="typing-text">Hello World...</div>`,
-    css: `.typing-text {
-  width: 14ch;
+    description: '模拟终端窗口的打字效果，字符逐个显示并循环播放。',
+    html: `<div class="typing-wrapper">
+  <div class="terminal-window">
+    <div class="terminal-header">
+      <div class="t-btn red"></div>
+      <div class="t-btn yellow"></div>
+      <div class="t-btn green"></div>
+    </div>
+    <div class="terminal-body">
+      <span class="prompt">~</span> <div class="typing-text">npm start</div>
+    </div>
+  </div>
+</div>`,
+    css: `.typing-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+.terminal-window {
+  width: 240px;
+  background: #282a36;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  overflow: hidden;
+  font-family: 'Consolas', 'Monaco', monospace;
+}
+.terminal-header {
+  background: #44475a;
+  padding: 8px 12px;
+  display: flex;
+  gap: 6px;
+}
+.t-btn {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.red { background: #ff5555; }
+.yellow { background: #f1fa8c; }
+.green { background: #50fa7b; }
+.terminal-body {
+  padding: 15px;
+  color: #f8f8f2;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+.prompt {
+  color: #bd93f9;
+  margin-right: 8px;
+  font-weight: bold;
+}
+.typing-text {
+  width: 0;
   white-space: nowrap;
   overflow: hidden;
-  border-right: 2px solid;
-  font-family: monospace;
-  font-size: 1.2em;
-  animation: typing 2s steps(14), blink .5s step-end infinite alternate;
+  border-right: 2px solid #50fa7b;
+  animation: typing 4s steps(9) infinite, blink 0.8s step-end infinite;
 }
 
 @keyframes typing {
-  from { width: 0 }
+  0% { width: 0 }
+  40% { width: 9ch } /* 打字完成 */
+  90% { width: 9ch } /* 停留展示 */
+  100% { width: 0 }  /* 瞬间重置 */
 }
 
 @keyframes blink {
-  50% { border-color: transparent }
+  from, to { border-color: transparent }
+  50% { border-color: #50fa7b }
 }`,
   },
   {
@@ -387,11 +492,13 @@ export const animations: AnimationItem[] = [
   },
   {
     id: 'sleeping-cat',
-    title: '慵懒睡猫',
+    title: '卡通奶牛猫',
     type: 'art',
-    description: '纯 CSS 绘制的呼吸睡眠小猫动画。',
+    description: 'Q版卡通风格的奶牛猫，带有呼吸和尾巴摆动动画。',
     html: `<div class="cat-container">
-  <div class="cat-body"></div>
+  <div class="cat-body">
+    <div class="cat-patch"></div>
+  </div>
   <div class="cat-head">
     <div class="cat-ear left"></div>
     <div class="cat-ear right"></div>
@@ -399,64 +506,161 @@ export const animations: AnimationItem[] = [
       <div class="cat-eye left"></div>
       <div class="cat-eye right"></div>
       <div class="cat-nose"></div>
+      <div class="cat-mouth"></div>
+      <div class="cat-whisker left"></div>
+      <div class="cat-whisker right"></div>
     </div>
   </div>
   <div class="cat-tail"></div>
+  <div class="cat-paws">
+    <div class="cat-paw left"></div>
+    <div class="cat-paw right"></div>
+  </div>
   <div class="zzz">Z</div>
 </div>`,
     css: `.cat-container {
   position: relative;
-  width: 100px;
+  width: 120px;
   height: 100px;
   margin: 20px auto;
 }
 .cat-body {
   position: absolute;
   width: 80px;
-  height: 50px;
-  background: #FFAB91;
-  border-radius: 50px 50px 20px 20px;
+  height: 55px;
+  background: #212121; /* Black Body */
+  border-radius: 40px 40px 30px 30px;
   bottom: 10px;
-  left: 10px;
+  left: 20px;
+  z-index: 1;
   animation: breathe 3s infinite ease-in-out;
+}
+.cat-patch {
+  position: absolute;
+  top: 15px;
+  left: 25px;
+  width: 30px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  opacity: 1;
 }
 .cat-head {
   position: absolute;
-  width: 40px;
-  height: 35px;
-  background: #FFAB91;
-  border-radius: 50%;
+  width: 50px;
+  height: 45px;
+  background: #212121;
+  border-radius: 45% 45% 40% 40%;
   bottom: 35px;
-  left: 15px;
+  left: 10px;
+  z-index: 3;
 }
 .cat-ear {
   position: absolute;
+  top: -8px;
   width: 0;
   height: 0;
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  border-bottom: 15px solid #FFAB91;
-  top: -10px;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 18px solid #212121;
 }
-.cat-ear.left { left: 0; transform: rotate(-15deg); }
-.cat-ear.right { right: 0; transform: rotate(15deg); }
+.cat-ear.left { left: -2px; transform: rotate(-25deg); }
+.cat-ear.right { right: -2px; transform: rotate(25deg); }
+
+.cat-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 4;
+}
+.cat-face::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 10px;
+  width: 30px;
+  height: 18px;
+  background: white;
+  border-radius: 15px 15px 10px 10px;
+}
+
+.cat-eye {
+  position: absolute;
+  top: 20px;
+  width: 8px;
+  height: 4px;
+  border-bottom: 2px solid #fff; /* Closed eye (white line on black) */
+  border-radius: 50%;
+}
+.cat-eye.left { left: 10px; }
+.cat-eye.right { right: 10px; }
+
+.cat-nose {
+  position: absolute;
+  top: 28px;
+  left: 22px;
+  width: 6px;
+  height: 4px;
+  background: pink;
+  border-radius: 50%;
+  z-index: 5;
+}
+.cat-whisker {
+  position: absolute;
+  top: 30px;
+  width: 15px;
+  height: 1px;
+  background: rgba(255,255,255,0.5);
+  z-index: 5;
+}
+.cat-whisker.left { left: -5px; transform: rotate(10deg); }
+.cat-whisker.right { right: -5px; transform: rotate(-10deg); }
+
 .cat-tail {
   position: absolute;
-  width: 10px;
-  height: 30px;
-  background: #FFAB91;
-  border-radius: 5px;
   bottom: 15px;
-  right: 5px;
+  right: 15px;
+  width: 12px;
+  height: 45px;
+  background: #212121;
+  border-radius: 10px;
   transform-origin: bottom center;
-  transform: rotate(45deg);
+  transform: rotate(35deg);
   animation: tail-wag 3s infinite ease-in-out;
+  z-index: 0;
 }
-.zzz {
+.cat-tail::after {
+  content: '';
   position: absolute;
   top: 0;
-  right: 20px;
-  font-family: monospace;
+  left: 0;
+  width: 100%;
+  height: 15px;
+  background: white;
+  border-radius: 10px 10px 0 0;
+}
+
+.cat-paws {
+  position: absolute;
+  bottom: 10px;
+  left: 40px;
+  z-index: 4;
+}
+.cat-paw {
+  position: absolute;
+  width: 12px;
+  height: 8px;
+  background: white;
+  border-radius: 10px;
+}
+.cat-paw.left { left: 0; }
+.cat-paw.right { left: 15px; }
+
+.zzz {
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
   font-weight: bold;
   color: #333;
   opacity: 0;
@@ -465,16 +669,16 @@ export const animations: AnimationItem[] = [
 
 @keyframes breathe {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  50% { transform: scale(1.03); }
 }
 @keyframes tail-wag {
-  0%, 100% { transform: rotate(45deg); }
-  50% { transform: rotate(25deg); }
+  0%, 100% { transform: rotate(35deg); }
+  50% { transform: rotate(15deg); }
 }
 @keyframes sleep {
-  0% { transform: translateY(0) scale(0.5); opacity: 0; }
-  50% { opacity: 1; }
-  100% { transform: translateY(-20px) scale(1.2); opacity: 0; }
+  0% { transform: translateY(0) scale(0.5) rotate(-10deg); opacity: 0; }
+  50% { opacity: 0.8; }
+  100% { transform: translateY(-25px) scale(1.2) rotate(10deg); opacity: 0; }
 }`,
   },
   {

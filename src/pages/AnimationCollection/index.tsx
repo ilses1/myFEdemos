@@ -89,6 +89,7 @@ const AnimationCollection: React.FC = () => {
                 </div>
                 <Card
                   bordered={false}
+                  style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
                   bodyStyle={{
                     padding: '16px',
                     flex: 1,

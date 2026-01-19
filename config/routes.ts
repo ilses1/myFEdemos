@@ -9,13 +9,13 @@ export default [
     component: './DevTools',
   },
   {
-    name: '前端草稿',
-    path: '/frontend-card',
-    component: './FrontendCard',
-  },
-  {
     name: '动画集锦',
     path: '/animations',
     component: './AnimationCollection',
+  },
+  {
+    name: '前端草稿',
+    path: '/frontend-card',
+    component: './FrontendCard',
   },
 ];
