@@ -12,6 +12,154 @@ export interface Category {
 
 export const toolsData: Category[] = [
   {
+    title: 'AI 开发',
+    items: [
+      {
+        name: 'OpenAI',
+        icon: 'https://openai.com/favicon.ico',
+        desc: 'AI 模型与 API 平台',
+        url: 'https://openai.com/',
+      },
+      {
+        name: 'Anthropic',
+        icon: 'https://www.anthropic.com/favicon.ico',
+        desc: 'Claude AI 模型开发商',
+        url: 'https://www.anthropic.com/',
+      },
+      {
+        name: 'Google Gemini',
+        icon: 'https://www.gstatic.com/lamda/images/gemini_favicon_f069958c85030456e93de685481c559f160ea06b.png',
+        desc: 'Google 最强大的 AI 模型',
+        url: 'https://deepmind.google/technologies/gemini/',
+      },
+      {
+        name: 'Hugging Face',
+        icon: 'https://huggingface.co/favicon.ico',
+        desc: '模型与数据集社区及工具链',
+        url: 'https://huggingface.co/',
+      },
+      {
+        name: 'LangChain',
+        icon: 'https://langchain.com/favicon.ico',
+        desc: '构建 LLM 应用的工具链',
+        url: 'https://langchain.com/',
+      },
+      {
+        name: 'TensorFlow',
+        icon: 'https://www.tensorflow.org/favicon.ico',
+        desc: '开源机器学习框架',
+        url: 'https://www.tensorflow.org/',
+      },
+      {
+        name: 'PyTorch',
+        icon: 'https://pytorch.org/assets/images/favicon.png',
+        desc: '灵活易用的深度学习框架',
+        url: 'https://pytorch.org/',
+      },
+      {
+        name: 'Keras',
+        icon: 'https://keras.io/favicon.ico',
+        desc: '为人类设计的深度学习 API',
+        url: 'https://keras.io/',
+      },
+      {
+        name: 'Scikit-learn',
+        icon: 'https://scikit-learn.org/stable/_static/favicon.ico',
+        desc: 'Python 机器学习工具',
+        url: 'https://scikit-learn.org/',
+      },
+      {
+        name: 'Ollama',
+        icon: 'https://ollama.com/public/ollama.png',
+        desc: '在本地运行大型语言模型',
+        url: 'https://ollama.com/',
+      },
+      {
+        name: 'Midjourney',
+        icon: 'https://www.midjourney.com/favicon.ico',
+        desc: 'AI 艺术生成工具',
+        url: 'https://www.midjourney.com/',
+      },
+    ],
+  },
+  {
+    title: '区块链开发',
+    items: [
+      {
+        name: 'Solidity',
+        icon: 'https://docs.soliditylang.org/en/latest/_static/logo.svg',
+        desc: '以太坊智能合约语言',
+        url: 'https://soliditylang.org/',
+      },
+      {
+        name: 'Hardhat',
+        icon: 'https://hardhat.org/favicon.ico',
+        desc: '以太坊开发环境与任务运行器',
+        url: 'https://hardhat.org/',
+      },
+      {
+        name: 'Truffle',
+        icon: 'https://trufflesuite.com/img/favicon.ico',
+        desc: '区块链应用开发框架',
+        url: 'https://trufflesuite.com/',
+      },
+      {
+        name: 'Foundry',
+        icon: 'https://book.getfoundry.sh/favicon.ico',
+        desc: '现代以太坊开发工具套件',
+        url: 'https://getfoundry.sh/',
+      },
+      {
+        name: 'Ethers.js',
+        icon: 'https://docs.ethers.org/favicon.ico',
+        desc: '与以太坊交互的 JavaScript 库',
+        url: 'https://docs.ethers.org/',
+      },
+      {
+        name: 'Web3.js',
+        icon: 'https://web3js.readthedocs.io/en/v1.7.0/_static/favicon.ico',
+        desc: '以太坊 JavaScript API',
+        url: 'https://web3js.readthedocs.io/',
+      },
+      {
+        name: 'MetaMask',
+        icon: 'https://metamask.io/images/favicon-32x32.png',
+        desc: '浏览器加密钱包与 dApp 网关',
+        url: 'https://metamask.io/',
+      },
+      {
+        name: 'Solana',
+        icon: 'https://solana.com/favicon.ico',
+        desc: '高性能区块链平台',
+        url: 'https://solana.com/',
+      },
+      {
+        name: 'Polkadot',
+        icon: 'https://polkadot.network/favicon.ico',
+        desc: '多链互操作性平台',
+        url: 'https://polkadot.network/',
+      },
+      {
+        name: 'Chainlink',
+        icon: 'https://chain.link/favicon.ico',
+        desc: '去中心化预言机网络',
+        url: 'https://chain.link/',
+      },
+      {
+        name: 'IPFS',
+        icon: 'https://ipfs.tech/favicon.ico',
+        desc: '星际文件系统',
+        url: 'https://ipfs.tech/',
+      },
+      {
+        name: 'Remix IDE',
+        icon: 'https://remix.ethereum.org/favicon.ico',
+        desc: '以太坊智能合约在线 IDE',
+        url: 'https://remix.ethereum.org/',
+      },
+    ],
+  },
+  {
     title: '前端框架',
     items: [
       {
