@@ -2,9 +2,10 @@ import { CodeOutlined, CopyOutlined, EyeOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-components';
 import { Button, Card, Col, Drawer, message, Modal, Row, Tooltip } from 'antd';
 import React, { Suspense, useState } from 'react';
-import CodeViewer from './CodeViewer';
 import { AnimationItem, animations } from './data';
 import styles from './index.less';
+
+const CodeViewer = React.lazy(() => import('./CodeViewer'));
 
 const AnimationCollection: React.FC = () => {
   const [detailModalVisible, setDetailModalVisible] = useState(false);
