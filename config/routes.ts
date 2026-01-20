@@ -17,10 +17,12 @@ export default [
     name: '前端草稿',
     path: '/frontend-card',
     component: './FrontendCard',
+    devOnly: true,
   },
   {
     name: '图表',
     path: '/chart',
+    devOnly: true,
     routes: [
       {
         path: '/chart',

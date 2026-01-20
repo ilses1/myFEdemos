@@ -3,6 +3,20 @@ import routes from './routes';
 
 const isProd = process.env.NODE_ENV === 'production';
 
+const filterRoutes = (routesList: any[]): any[] => {
+  return routesList
+    .filter((route) => !route.devOnly)
+    .map((route) => {
+      if (route.routes) {
+        return {
+          ...route,
+          routes: filterRoutes(route.routes),
+        };
+      }
+      return route;
+    });
+};
+
 export default defineConfig({
   antd: {},
   access: {},
@@ -18,6 +32,6 @@ export default defineConfig({
   },
   base: '/',
   publicPath: isProd ? './' : '/',
-  routes,
+  routes: isProd ? filterRoutes(routes) : routes,
   npmClient: 'pnpm',
 });
