@@ -215,7 +215,7 @@ const LineChart: React.FC = () => {
         left: '2%',
         right: '2%',
         bottom: '12%',
-        top: '12%',
+        top: '10%',
         containLabel: true,
       },
       dataZoom: [
@@ -243,7 +243,7 @@ const LineChart: React.FC = () => {
         axisLine: { lineStyle: { color: '#f0f0f0' } },
         axisTick: { show: false },
         axisLabel: {
-          color: '#999',
+          color: '#777B8C',
           interval: 0,
           formatter: (value: string) => {
             const [y, m] = value.split('-');
@@ -251,6 +251,7 @@ const LineChart: React.FC = () => {
             if (monthInt === 1) return `${monthInt}月\n${y}`;
             return `${monthInt}月`;
           },
+
           showMinLabel: true,
           showMaxLabel: true,
         },
@@ -264,7 +265,7 @@ const LineChart: React.FC = () => {
           max: (value) => Math.ceil(value.max / 50) * 50,
           axisLabel: { color: '#777B8C' },
           splitLine: { lineStyle: { type: 'dashed', color: '#D7DAE0' } },
-          nameTextStyle: { color: '#777B8C', padding: [0, 0, 0, 10] },
+          nameTextStyle: { color: '#777B8C', padding: [0, 0, 0, -40] },
         },
         {
           type: 'value',
