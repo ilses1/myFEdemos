@@ -193,7 +193,7 @@ const LineChart: React.FC = () => {
         textStyle: { color: '#333', fontSize: 12 },
         formatter: (params: any) => {
           const date = params[0].axisValue;
-          let res = `<div style="font-weight:600;margin-bottom:12px;color:#333;">${date}</div>`;
+          let res = `<div style="font-weight:600;margin-bottom:8px;color:#1D1E26;">${date}</div>`;
           params.forEach((item: any) => {
             if (
               item.value !== null &&
@@ -242,8 +242,6 @@ const LineChart: React.FC = () => {
           show: true,
           height: 16,
           bottom: 10,
-          left: '0%',
-          right: '0%',
           start: 0,
           end: 100,
           borderColor: 'transparent',
