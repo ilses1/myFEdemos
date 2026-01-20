@@ -168,6 +168,24 @@ const LineChart: React.FC = () => {
       backgroundColor: '#fff',
       tooltip: {
         trigger: 'axis',
+        axisPointer: {
+          type: 'cross',
+          lineStyle: {
+            type: 'dashed',
+            width: 1,
+            color: '#A1A5B2',
+          },
+          label: {
+            backgroundColor: '#AEB5BF',
+            borderRadius: 2,
+            fontFamily: '苹方-简',
+            fontSize: 12,
+            fontWeight: 'normal',
+            lineHeight: 18,
+            color: '#FFFFFF',
+            padding: [4, 6],
+          },
+        },
         backgroundColor: 'rgba(255, 255, 255, 0.95)',
         borderColor: '#f0f0f0',
         borderWidth: 1,
@@ -224,6 +242,8 @@ const LineChart: React.FC = () => {
           show: true,
           height: 16,
           bottom: 10,
+          left: '0%',
+          right: '0%',
           start: 0,
           end: 100,
           borderColor: 'transparent',
@@ -244,6 +264,7 @@ const LineChart: React.FC = () => {
         axisTick: { show: false },
         axisLabel: {
           color: '#777B8C',
+          lineHeight: 18,
           interval: 0,
           formatter: (value: string) => {
             const [y, m] = value.split('-');
@@ -285,11 +306,15 @@ const LineChart: React.FC = () => {
           data: fullData.indexData,
           smooth: true,
           symbol: 'circle',
-          symbolSize: 1,
+          symbolSize: 8,
           showSymbol: false,
           yAxisIndex: 0,
-          lineStyle: { color: '#763FAF', width: 2.5 },
-          itemStyle: { color: '#763FAF' },
+          lineStyle: { color: '#763FAF', width: 2 },
+          itemStyle: {
+            color: '#FFFFFF',
+            borderColor: '#763FAF',
+            borderWidth: 2,
+          },
         },
         {
           name: '规模趋势',
@@ -297,11 +322,15 @@ const LineChart: React.FC = () => {
           data: fullData.scaleData,
           smooth: true,
           symbol: 'circle',
-          symbolSize: 6,
+          symbolSize: 8,
           showSymbol: false,
           yAxisIndex: 1,
-          lineStyle: { color: '#BF0008', width: 2.5 },
-          itemStyle: { color: '#BF0008' },
+          lineStyle: { color: '#BF0008', width: 2 },
+          itemStyle: {
+            color: '#FFFFFF',
+            borderColor: '#BF0008',
+            borderWidth: 2,
+          },
           areaStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
               { offset: 0, color: 'rgba(191, 0, 8, 0.1)' },
@@ -315,7 +344,7 @@ const LineChart: React.FC = () => {
           stack: 'holding',
           data: fullData.instHoldings,
           yAxisIndex: 1,
-          barWidth: 16,
+          barWidth: 32,
           itemStyle: { color: '#005E91' },
         },
         {
@@ -324,7 +353,7 @@ const LineChart: React.FC = () => {
           stack: 'holding',
           data: fullData.personalHoldings,
           yAxisIndex: 1,
-          barWidth: 16,
+          barWidth: 32,
           itemStyle: { color: '#D6AE6D' },
         },
       ],
