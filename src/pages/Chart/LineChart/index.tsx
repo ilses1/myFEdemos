@@ -167,6 +167,7 @@ const LineChart: React.FC = () => {
     const option: echarts.EChartsOption = {
       backgroundColor: '#fff',
       tooltip: {
+        confine: true,
         trigger: 'axis',
         axisPointer: {
           type: 'cross',
@@ -263,7 +264,6 @@ const LineChart: React.FC = () => {
         axisLabel: {
           color: '#777B8C',
           lineHeight: 18,
-          interval: 0,
           formatter: (value: string) => {
             const [y, m] = value.split('-');
             const monthInt = parseInt(m);
@@ -431,7 +431,7 @@ const LineChart: React.FC = () => {
 
   return (
     <PageContainer ghost>
-      <Card bodyStyle={{ padding: '20px 20px' }}>
+      <Card className={styles.mainCard}>
         <div className={styles.headerRow}>
           <div className={styles.pageTitle}>挂钩ETF规模变化</div>
           <Select

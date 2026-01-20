@@ -123,3 +123,61 @@
   height: 300px;
   width: 100%;
 }
+.mainCard :global .ant-card-body {
+  padding: 20px;
+}
+@media (max-width: 576px) {
+  .mainCard :global .ant-card-body {
+    padding: 12px;
+  }
+}
+@media (min-width: 1600px) {
+  .chartContainer {
+    height: 400px;
+  }
+  .mainValue {
+    font-size: 28px;
+  }
+  .overviewCard {
+    padding: 20px 40px;
+  }
+}
+@media (max-width: 992px) {
+  .overviewCards {
+    gap: 12px;
+  }
+  .overviewCard {
+    padding: 12px 16px;
+  }
+  .mainValue {
+    font-size: 20px;
+  }
+}
+@media (max-width: 768px) {
+  .headerRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .pageTitle {
+    margin-bottom: 0;
+  }
+  .overviewCards {
+    flex-direction: column;
+  }
+  .chartContainer {
+    height: 280px;
+  }
+}
+@media (max-width: 576px) {
+  .mainCard :global .ant-card-body {
+    padding: 12px;
+  }
+  .subValue {
+    font-size: 12px;
+  }
+  .chartContainer {
+    height: 250px;
+  }
+}
