@@ -34,4 +34,9 @@ export default defineConfig({
   publicPath: isProd ? './' : '/',
   routes: isProd ? filterRoutes(routes) : routes,
   npmClient: 'pnpm',
+  jsMinifier: 'terser',
+  cssMinifier: 'cssnano',
+  codeSplitting: {
+    jsStrategy: 'granularChunks',
+  },
 });

@@ -1,9 +1,8 @@
 import { CodeOutlined, CopyOutlined, EyeOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-components';
 import { Button, Card, Col, Drawer, message, Modal, Row, Tooltip } from 'antd';
-import React, { useState } from 'react';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import React, { Suspense, useState } from 'react';
+import CodeViewer from './CodeViewer';
 import { AnimationItem, animations } from './data';
 import styles from './index.less';
 
@@ -177,13 +176,9 @@ const AnimationCollection: React.FC = () => {
                     />
                   </Tooltip>
                 </div>
-                <SyntaxHighlighter
-                  language="html"
-                  style={vscDarkPlus}
-                  customStyle={{ margin: 0, borderRadius: '6px' }}
-                >
-                  {currentItem.html}
-                </SyntaxHighlighter>
+                <Suspense fallback={<div>Loading...</div>}>
+                  <CodeViewer code={currentItem.html} language="html" />
+                </Suspense>
               </div>
               <div className={styles.codeBlock}>
                 <div
@@ -204,13 +199,9 @@ const AnimationCollection: React.FC = () => {
                     />
                   </Tooltip>
                 </div>
-                <SyntaxHighlighter
-                  language="css"
-                  style={vscDarkPlus}
-                  customStyle={{ margin: 0, borderRadius: '6px' }}
-                >
-                  {currentItem.css}
-                </SyntaxHighlighter>
+                <Suspense fallback={<div>Loading...</div>}>
+                  <CodeViewer code={currentItem.css} language="css" />
+                </Suspense>
               </div>
             </div>
           )}
