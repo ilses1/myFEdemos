@@ -1,0 +1,129 @@
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.pageTitle {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  display: flex;
+  align-items: center;
+}
+.pageTitle::before {
+  content: '';
+  display: block;
+  width: 4px;
+  height: 16px;
+  background-color: #ff4d4f;
+  margin-right: 8px;
+  border-radius: 2px;
+}
+.overviewCards {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.overviewCard {
+  flex: 1;
+  border-radius: 4px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: 1px solid transparent;
+}
+.overviewCard.purple {
+  background-color: #f9f0ff;
+}
+.overviewCard.red {
+  background-color: #fff1f0;
+}
+.overviewCard.grey {
+  background-color: #f5f5f5;
+}
+.overviewCard.active {
+  border-color: #1890ff;
+}
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.cardTitle {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #666;
+}
+.cardTitle .legendIcon {
+  width: 12px;
+  height: 3px;
+  margin-right: 8px;
+  border-radius: 2px;
+}
+.dateRange {
+  font-size: 12px;
+  color: #999;
+}
+.cardContent {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.mainValue {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+.subValue {
+  font-size: 14px;
+  font-weight: 500;
+}
+.subValue.up {
+  color: #ff4d4f;
+}
+.subValue.down {
+  color: #52c41a;
+}
+.holdingsRow {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+.holdingItem {
+  flex: 1;
+}
+.holdingTitle {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 4px;
+}
+.holdingTitle .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+.holdingValue {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-right: 8px;
+}
+.holdingPercent {
+  font-size: 14px;
+  color: #666;
+}
+.chartContainer {
+  height: 450px;
+  width: 100%;
+}
