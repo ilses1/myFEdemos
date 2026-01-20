@@ -18,4 +18,19 @@ export default [
     path: '/frontend-card',
     component: './FrontendCard',
   },
+  {
+    name: '图表',
+    path: '/chart',
+    routes: [
+      {
+        path: '/chart',
+        redirect: '/chart/line',
+      },
+      {
+        name: '折线图',
+        path: '/chart/line',
+        component: './Chart/LineChart',
+      },
+    ],
+  },
 ];
