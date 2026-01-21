@@ -1,13 +1,14 @@
 import { PageContainer } from '@ant-design/pro-components';
 import { Affix, Anchor, Avatar, Card, Col, Row, Typography } from 'antd';
 import React from 'react';
+import { openExternalUrl } from '@/utils/openExternalUrl';
 import { toolsData } from './data';
 
 const { Title } = Typography;
 
 const DevTools: React.FC = () => {
-  const handleCardClick = (url: string) => {
-    window.open(url, '_blank');
+  const handleCardClick = async (url: string) => {
+    await openExternalUrl(url);
   };
 
   const getId = (title: string) =>
