@@ -1,5 +1,6 @@
+import { CameraOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-components';
-import { Card, Select } from 'antd';
+import { Button, Card, Select } from 'antd';
 import * as echarts from 'echarts';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './index.less';
@@ -429,6 +430,110 @@ const LineChart: React.FC = () => {
     });
   };
 
+  const handleScreenshot = async () => {
+    const instance = chartInstance.current;
+    const container = chartRef.current;
+    if (!instance || !container) return;
+
+    const exportWidth = 1600;
+    const currentWidth = container.clientWidth || exportWidth;
+    const currentHeight = container.clientHeight || 300;
+    const exportHeight = Math.max(
+      1,
+      Math.round((exportWidth / currentWidth) * currentHeight),
+    );
+
+    const exportDom = document.createElement('div');
+    exportDom.style.position = 'fixed';
+    exportDom.style.left = '-99999px';
+    exportDom.style.top = '0';
+    exportDom.style.width = `${exportWidth}px`;
+    exportDom.style.height = `${exportHeight}px`;
+    exportDom.style.background = '#fff';
+    document.body.appendChild(exportDom);
+
+    const exportChart = echarts.init(exportDom, undefined, {
+      renderer: 'canvas',
+      width: exportWidth,
+      height: exportHeight,
+    });
+    const originalOption = instance.getOption() as any;
+    const exportOption = {
+      ...originalOption,
+      animation: false,
+      series: Array.isArray(originalOption?.series)
+        ? originalOption.series.map((s: any) => ({
+            ...s,
+            animation: false,
+            animationDuration: 0,
+            animationDurationUpdate: 0,
+          }))
+        : originalOption?.series,
+    };
+    exportChart.setOption(exportOption, {
+      notMerge: true,
+      lazyUpdate: false,
+      silent: true,
+    } as any);
+
+    await new Promise<void>((resolve) => {
+      let done = false;
+      const cleanup = () => {
+        if (done) return;
+        done = true;
+        exportChart.off('finished', onFinished);
+        resolve();
+      };
+      const onFinished = () => cleanup();
+      exportChart.on('finished', onFinished);
+      window.setTimeout(cleanup, 300);
+    });
+
+    const hiResDataUrl = exportChart.getDataURL({
+      type: 'png',
+      pixelRatio: 2,
+      backgroundColor: '#fff',
+    });
+
+    const resolvedSrcCanvas = await new Promise<HTMLCanvasElement>(
+      (resolve) => {
+        const img = new Image();
+        img.src = hiResDataUrl;
+        const canvas = document.createElement('canvas');
+        canvas.width = exportWidth * 2;
+        canvas.height = exportHeight * 2;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return resolve(canvas);
+        img.onload = () => {
+          ctx.drawImage(img, 0, 0);
+          resolve(canvas);
+        };
+        img.onerror = () => resolve(canvas);
+      },
+    );
+
+    const outputCanvas = document.createElement('canvas');
+    outputCanvas.width = exportWidth;
+    outputCanvas.height = exportHeight;
+    const outputCtx = outputCanvas.getContext('2d');
+    if (outputCtx) {
+      outputCtx.imageSmoothingEnabled = true;
+      outputCtx.imageSmoothingQuality = 'high';
+      outputCtx.drawImage(resolvedSrcCanvas, 0, 0, exportWidth, exportHeight);
+    }
+
+    const link = document.createElement('a');
+    link.href = outputCanvas.toDataURL('image/png');
+    link.download = `linechart-${exportWidth}w-${Date.now()}.png`;
+    link.rel = 'noopener';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    exportChart.dispose();
+    exportDom.remove();
+  };
+
   return (
     <PageContainer ghost>
       <Card className={styles.mainCard}>
@@ -561,7 +666,19 @@ const LineChart: React.FC = () => {
           </div>
         </div>
 
-        <div className={styles.chartContainer} ref={chartRef} />
+        <div className={styles.chartWrapper}>
+          <div className={styles.chartToolbar}>
+            <Button
+              className={styles.screenshotButton}
+              size="small"
+              icon={<CameraOutlined />}
+              onClick={handleScreenshot}
+            >
+              截图
+            </Button>
+          </div>
+          <div className={styles.chartContainer} ref={chartRef} />
+        </div>
       </Card>
     </PageContainer>
   );

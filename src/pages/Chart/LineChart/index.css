@@ -119,9 +119,23 @@
   font-size: 14px;
   color: #666;
 }
+.chartWrapper {
+  position: relative;
+  width: 100%;
+}
 .chartContainer {
   height: 300px;
   width: 100%;
+}
+.screenshotButton {
+  position: absolute;
+  right: 10px;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+.screenshotButton:hover {
+  background: #ffffff;
 }
 .mainCard :global .ant-card-body {
   padding: 20px;
