@@ -1,13 +1,30 @@
 import { PageContainer } from '@ant-design/pro-components';
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './index.less';
 
 const FrontendCardPage: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'kline' | 'yield'>('kline');
+
   return (
     <PageContainer ghost>
       <div className={styles.container}>
-        <div className={styles.historyTitleWrapper}>
-          <span className={styles.historyTitle}>历史走势</span>
+        <div className={styles.tabWrapper}>
+          <div
+            className={`${styles.tabItem} ${
+              activeTab === 'kline' ? styles.active : ''
+            }`}
+            onClick={() => setActiveTab('kline')}
+          >
+            K线图
+          </div>
+          <div
+            className={`${styles.tabItem} ${
+              activeTab === 'yield' ? styles.active : ''
+            }`}
+            onClick={() => setActiveTab('yield')}
+          >
+            收益率图
+          </div>
         </div>
         <div className={styles.etfCard}>
           <div className={styles.header}>

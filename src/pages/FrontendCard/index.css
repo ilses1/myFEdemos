@@ -4,7 +4,6 @@
   flex-direction: column;
   align-items: center;
 }
-
 .tabWrapper {
   width: 100%;
   max-width: 420px;
@@ -12,7 +11,6 @@
   margin-bottom: 12px;
   background: transparent;
 }
-
 .tabItem {
   flex: 1;
   text-align: center;
@@ -23,31 +21,23 @@
   position: relative;
   transition: all 0.3s;
   border-top: 4px solid transparent;
-
-  &.active {
-    color: #3f66f6;
-    font-weight: 600;
-    background: linear-gradient(
-      180deg,
-      #eef3ff 0%,
-      rgba(238, 243, 255, 0) 100%
-    );
-    border-top-color: #3f66f6;
-  }
 }
-
+.tabItem.active {
+  color: #3f66f6;
+  font-weight: 600;
+  background: linear-gradient(180deg, #eef3ff 0%, rgba(238, 243, 255, 0) 100%);
+  border-top-color: #3f66f6;
+}
 @property --th-linear-color {
   syntax: '<color>';
   inherits: false;
   initial-value: rgba(255, 239, 212, 0.4);
 }
-
 @property --th-radial-color {
   syntax: '<color>';
   inherits: false;
   initial-value: #ffdfaa;
 }
-
 .etfCard {
   width: 100%;
   max-width: 420px;
@@ -57,7 +47,6 @@
   box-sizing: border-box;
   padding: 16px 20px 20px;
 }
-
 .header {
   display: flex;
   align-items: baseline;
@@ -65,16 +54,13 @@
   font-weight: 500;
   color: #262626;
 }
-
 .etfTitle {
   margin-right: 8px;
 }
-
 .etfCode {
   font-size: 14px;
   color: #bfbfbf;
 }
-
 .tableHeader {
   display: flex;
   margin-top: 16px;
@@ -82,31 +68,19 @@
   border-bottom: 1px solid #ffe7ba;
   --th-linear-color: rgba(255, 239, 212, 0.4);
   --th-radial-color: #ffdfaa;
-  background: linear-gradient(
-      0deg,
-      var(--th-linear-color),
-      var(--th-linear-color)
-    ),
-    radial-gradient(
-      94% 100% at 80% 0%,
-      var(--th-radial-color) 0%,
-      rgba(255, 255, 255, 0) 100%
-    );
+  background: linear-gradient(0deg, var(--th-linear-color), var(--th-linear-color)), radial-gradient(94% 100% at 80% 0%, var(--th-radial-color) 0%, rgba(255, 255, 255, 0) 100%);
   transition: --th-linear-color 0.4s ease, --th-radial-color 0.4s ease;
 }
-
 .etfCard:hover .tableHeader {
   border-bottom-color: #ffd591;
   --th-linear-color: rgba(255, 212, 212, 0.4);
   --th-radial-color: #ffaaaa;
 }
-
 .tableHeaderCell {
   flex: 1;
   display: flex;
   align-items: center;
 }
-
 .bullet {
   width: 6px;
   height: 6px;
@@ -114,18 +88,15 @@
   background: #ffc069;
   transform: rotate(45deg);
 }
-
 .cellTitle {
   font-size: 12px;
   color: #8c8c8c;
 }
-
 .contentRow {
   display: flex;
   align-items: flex-start;
   margin-top: 12px;
 }
-
 .positionValue {
   flex: 0 0 auto;
   margin-right: 24px;
@@ -134,7 +105,6 @@
   font-weight: 600;
   color: #ff4d4f;
 }
-
 .description {
   flex: 1;
   font-size: 12px;
@@ -145,20 +115,16 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
 }
-
 @media (max-width: 576px) {
   .container {
     padding-top: 40px;
   }
-
   .etfCard {
     padding: 12px 16px 16px;
   }
-
   .contentRow {
     flex-direction: column;
   }
-
   .positionValue {
     margin-right: 0;
     margin-bottom: 8px;
