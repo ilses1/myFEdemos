@@ -4,206 +4,148 @@ import classNames from 'classnames';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styles from './index.less';
 
-const MIN_LEFT_WIDTH = 400;
-const MIN_RIGHT_WIDTH = 400;
-const GAP_WIDTH = 16;
+const MIN_LEFT = 400;
+const MIN_RIGHT = 400;
+const GAP = 16;
+
+const clamp = (val: number, min: number, max: number) =>
+  Math.max(min, Math.min(max, val));
 
 /**
- * 自定义 Hook：处理拖拽调整宽度及窗口缩放自适应逻辑
- * @param containerRef 容器引用
- * @param minLeftWidth 左侧最小宽度
- * @param minRightWidth 右侧最小宽度
- * @param gapWidth 间隔宽度
+ * Hook: 处理拖拽和自适应缩放
  */
 const useResizable = (
   containerRef: React.RefObject<HTMLDivElement>,
-  minLeftWidth: number,
-  minRightWidth: number,
-  gapWidth: number,
+  leftRef: React.RefObject<HTMLDivElement>,
+  minLeft: number,
+  minRight: number,
+  gap: number,
 ) => {
   const [leftWidth, setLeftWidth] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  // 记录拖拽起始信息
-  const dragInfoRef = useRef({
-    startX: 0,
-    startWidth: 0,
-    containerWidth: 0,
-  });
+  // 拖拽起始状态
+  const dragRef = useRef({ startX: 0, startWidth: 0, containerWidth: 0 });
+  // 记录上一次容器宽度用于计算缩放比例
+  const prevContainerWidth = useRef(0);
 
-  // 记录上一次容器宽度，用于计算缩放比例
-  const lastContainerWidthRef = useRef<number>(0);
-
-  // 监听容器大小变化，实现自适应缩放
+  // 容器尺寸变化时保持比例
   useEffect(() => {
-    if (!containerRef.current) return;
-
     const container = containerRef.current;
-    lastContainerWidthRef.current = container.getBoundingClientRect().width;
+    if (!container) return;
 
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        const newContainerWidth = entry.contentRect.width;
-        const oldContainerWidth = lastContainerWidthRef.current;
+    prevContainerWidth.current = container.getBoundingClientRect().width;
 
-        // 仅当宽度发生实际变化且不是初始化时执行
-        if (oldContainerWidth > 0 && newContainerWidth !== oldContainerWidth) {
-          setLeftWidth((prevLeftWidth) => {
-            if (prevLeftWidth === null) return null;
+    const observer = new ResizeObserver(([entry]) => {
+      const newWidth = entry.contentRect.width;
+      const oldWidth = prevContainerWidth.current;
 
-            const availableOld = oldContainerWidth - gapWidth;
-            const availableNew = newContainerWidth - gapWidth;
-
-            // 避免除以0或负数
-            if (availableOld <= 0 || availableNew <= 0) return prevLeftWidth;
-
-            // 按比例计算新的左侧宽度
-            let newLeft = (prevLeftWidth / availableOld) * availableNew;
-
-            // 计算左侧最大宽度（总宽度 - 间隔 - 右侧最小宽度）
-            const maxLeft = newContainerWidth - gapWidth - minRightWidth;
-
-            // 限制范围
-            if (newLeft < minLeftWidth) newLeft = minLeftWidth;
-            if (newLeft > maxLeft) newLeft = maxLeft;
-
-            // 再次确保不小于最小宽度（优先级高于最大宽度限制）
-            if (newLeft < minLeftWidth) newLeft = minLeftWidth;
-
-            return newLeft;
-          });
-        }
-        lastContainerWidthRef.current = newContainerWidth;
+      // 仅当宽度有效且发生变化时计算
+      if (oldWidth > gap && newWidth !== oldWidth) {
+        setLeftWidth((prev) => {
+          if (prev === null) return null;
+          // 重新计算宽度以保持比例
+          const ratio = prev / (oldWidth - gap);
+          const maxLeft = newWidth - gap - minRight;
+          return clamp(ratio * (newWidth - gap), minLeft, maxLeft);
+        });
       }
+      prevContainerWidth.current = newWidth;
     });
 
-    resizeObserver.observe(container);
-    return () => resizeObserver.disconnect();
-  }, [containerRef, gapWidth, minLeftWidth, minRightWidth]);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [containerRef, gap, minLeft, minRight]);
 
-  // 处理鼠标移动事件
-  const handleMouseMove = useCallback(
+  const onMove = useCallback(
     (e: MouseEvent) => {
-      const { startX, startWidth, containerWidth } = dragInfoRef.current;
-      const deltaX = e.clientX - startX;
-      let newWidth = startWidth + deltaX;
-
-      // 计算左侧最大允许宽度
-      const maxLeftWidth = containerWidth - minRightWidth - gapWidth;
-
-      // 限制拖拽范围
-      if (newWidth < minLeftWidth) newWidth = minLeftWidth;
-      if (newWidth > maxLeftWidth) newWidth = maxLeftWidth;
-
-      setLeftWidth(newWidth);
+      const { startX, startWidth, containerWidth } = dragRef.current;
+      const maxLeft = containerWidth - minRight - gap;
+      setLeftWidth(clamp(startWidth + (e.clientX - startX), minLeft, maxLeft));
     },
-    [minLeftWidth, minRightWidth, gapWidth],
+    [minLeft, minRight, gap],
   );
 
-  // 处理鼠标松开事件
-  const handleMouseUp = useCallback(() => {
+  const onUp = useCallback(() => {
     setIsDragging(false);
-    document.removeEventListener('mousemove', handleMouseMove);
-    document.removeEventListener('mouseup', handleMouseUp);
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
     document.body.style.cursor = '';
     document.body.style.userSelect = '';
-  }, [handleMouseMove]);
+  }, [onMove]);
 
-  // 开始拖拽
   const startDrag = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault();
-      if (!containerRef.current) return;
+      if (!containerRef.current || !leftRef.current) return;
 
-      const leftCol = containerRef.current.querySelector(
-        `.${styles.left}`,
-      ) as HTMLElement;
-      if (!leftCol) return;
-
-      const startWidth = leftCol.getBoundingClientRect().width;
-      const containerWidth = containerRef.current.getBoundingClientRect().width;
-
-      dragInfoRef.current = {
+      dragRef.current = {
         startX: e.clientX,
-        startWidth,
-        containerWidth,
+        startWidth: leftRef.current.getBoundingClientRect().width,
+        containerWidth: containerRef.current.getBoundingClientRect().width,
       };
 
       setIsDragging(true);
-
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
       document.body.style.cursor = 'col-resize';
       document.body.style.userSelect = 'none';
     },
-    [containerRef, handleMouseMove, handleMouseUp],
+    [containerRef, leftRef, onMove, onUp],
   );
 
-  // 清理副作用
-  useEffect(() => {
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [handleMouseMove, handleMouseUp]);
+  // 清理异常情况下的监听
+  useEffect(
+    () => () => {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    },
+    [onMove, onUp],
+  );
 
-  return {
-    leftWidth,
-    isDragging,
-    startDrag,
-  };
+  return { leftWidth, isDragging, startDrag };
 };
 
 const SplitLayout: React.FC = () => {
   const [isFullLeft, setIsFullLeft] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const leftRef = useRef<HTMLDivElement>(null);
 
   const { leftWidth, isDragging, startDrag } = useResizable(
     containerRef,
-    MIN_LEFT_WIDTH,
-    MIN_RIGHT_WIDTH,
-    GAP_WIDTH,
+    leftRef,
+    MIN_LEFT,
+    MIN_RIGHT,
+    GAP,
   );
 
-  // 计算 Grid 布局模版
-  const getGridTemplateColumns = () => {
-    if (isFullLeft) {
-      // 左侧全屏模式
-      return '1fr 0px 0px';
-    }
-    if (leftWidth !== null) {
-      // 自定义宽度模式
-      return `${leftWidth}px ${GAP_WIDTH}px 1fr`;
-    }
-    // 默认等分模式
-    return `1fr ${GAP_WIDTH}px 1fr`;
-  };
-
-  const toggleFullLeft = () => setIsFullLeft((prev) => !prev);
+  const gridTemplateColumns = isFullLeft
+    ? '1fr 0 0'
+    : leftWidth !== null
+    ? `${leftWidth}px ${GAP}px 1fr`
+    : `1fr ${GAP}px 1fr`;
 
   return (
     <div
-      className={classNames(
-        styles.container,
-        !isDragging && styles.withTransition,
-      )}
       ref={containerRef}
-      style={{ gridTemplateColumns: getGridTemplateColumns() }}
+      className={styles.container}
+      style={{
+        gridTemplateColumns,
+        transition: isDragging ? 'none' : 'grid-template-columns 0.3s ease',
+      }}
     >
-      <div className={classNames(styles.column, styles.left)}>
+      <div ref={leftRef} className={classNames(styles.column, styles.left)}>
         <div className={styles.content}>
           <h2>Left Column</h2>
           <p>This is the left column content.</p>
           <p>Width: {leftWidth ? `${Math.round(leftWidth)}px` : 'Auto'}</p>
         </div>
-
         <Button
           type="primary"
           shape="circle"
-          icon={isFullLeft ? <RightOutlined /> : <LeftOutlined />}
+          icon={isFullLeft ? <LeftOutlined /> : <RightOutlined />}
           className={styles.toggleBtn}
-          onClick={toggleFullLeft}
+          onClick={() => setIsFullLeft((v) => !v)}
         />
       </div>
 
