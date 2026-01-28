@@ -1,4 +1,4 @@
-import { DatePicker, Radio, Select, Space } from 'antd';
+import { DatePicker, Select, Space } from 'antd';
 import * as echarts from 'echarts';
 import moment from 'moment';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -8,7 +8,6 @@ import styles from './index.less';
 const { RangePicker } = DatePicker;
 
 // Types
-type Period = 'day' | 'week' | 'month';
 type MAKey = 'ma5' | 'ma10' | 'ma20' | 'ma60' | 'ma120' | 'ma250';
 
 const MA_CONFIG: { key: MAKey; label: string; color: string }[] = [
@@ -35,7 +34,6 @@ const KChart: React.FC = () => {
   const chartInstance = useRef<echarts.ECharts | null>(null);
 
   // State
-  const [period, setPeriod] = useState<Period>('day');
   const [selectedMAs, setSelectedMAs] = useState<MAKey[]>([
     'ma5',
     'ma10',
@@ -61,102 +59,7 @@ const KChart: React.FC = () => {
     );
   }, []);
 
-  // Helper to calculate MA
-  const calculateMA = (data: any[], dayCount: number) => {
-    const result = [];
-    for (let i = 0, len = data.length; i < len; i++) {
-      if (i < dayCount - 1) {
-        result.push('-'); // Not enough data
-        continue;
-      }
-      let sum = 0;
-      for (let j = 0; j < dayCount; j++) {
-        sum += data[i - j].closeValue;
-      }
-      result.push(Number((sum / dayCount).toFixed(2)));
-    }
-    return result;
-  };
-
-  // 2. Aggregate Data based on Period
-  const chartData = useMemo(() => {
-    if (period === 'day') {
-      return rawData;
-    }
-
-    const aggregated: any[] = [];
-    let currentGroup: any[] = [];
-    let currentPeriodStart: moment.Moment | null = null;
-
-    rawData.forEach((item, index) => {
-      const date = moment(item.marketDate);
-      let periodStart;
-
-      if (period === 'week') {
-        periodStart = date.clone().startOf('isoWeek');
-      } else {
-        // month
-        periodStart = date.clone().startOf('month');
-      }
-
-      if (!currentPeriodStart || !periodStart.isSame(currentPeriodStart)) {
-        // New period, process previous group
-        if (currentGroup.length > 0) {
-          const first = currentGroup[0];
-          const last = currentGroup[currentGroup.length - 1];
-          const highs = currentGroup.map((d) => d.highValue);
-          const lows = currentGroup.map((d) => d.lowValue);
-
-          aggregated.push({
-            marketDate: last.marketDate, // Use last date of period
-            openValue: first.openValue,
-            closeValue: last.closeValue,
-            highValue: Math.max(...highs),
-            lowValue: Math.min(...lows),
-            // MAs will be calculated after
-          });
-        }
-        currentGroup = [item];
-        currentPeriodStart = periodStart;
-      } else {
-        currentGroup.push(item);
-      }
-
-      // Handle last item
-      if (index === rawData.length - 1 && currentGroup.length > 0) {
-        const first = currentGroup[0];
-        const last = currentGroup[currentGroup.length - 1];
-        const highs = currentGroup.map((d) => d.highValue);
-        const lows = currentGroup.map((d) => d.lowValue);
-
-        aggregated.push({
-          marketDate: last.marketDate,
-          openValue: first.openValue,
-          closeValue: last.closeValue,
-          highValue: Math.max(...highs),
-          lowValue: Math.min(...lows),
-        });
-      }
-    });
-
-    // Calculate MAs for aggregated data
-    const ma5 = calculateMA(aggregated, 5);
-    const ma10 = calculateMA(aggregated, 10);
-    const ma20 = calculateMA(aggregated, 20);
-    const ma60 = calculateMA(aggregated, 60);
-    const ma120 = calculateMA(aggregated, 120);
-    const ma250 = calculateMA(aggregated, 250);
-
-    return aggregated.map((item, i) => ({
-      ...item,
-      ma5: ma5[i],
-      ma10: ma10[i],
-      ma20: ma20[i],
-      ma60: ma60[i],
-      ma120: ma120[i],
-      ma250: ma250[i],
-    }));
-  }, [rawData, period]);
+  const chartData = useMemo(() => rawData, [rawData]);
 
   // Initial Data Set
   useEffect(() => {
@@ -398,7 +301,7 @@ const KChart: React.FC = () => {
       myChart.dispose();
       chartInstance.current = null;
     };
-  }, [chartData, selectedMAs, dateRange, period]);
+  }, [chartData, selectedMAs, dateRange]);
 
   // Handlers
   const handlePresetClick = (type: string) => {
@@ -474,7 +377,7 @@ const KChart: React.FC = () => {
         {currentInfo && (
           <div className={styles.dataGrid}>
             <div className={styles.dataItem}>
-              <span className={styles.label}>收</span>
+              <span className={styles.label}>收盘</span>
               <span
                 className={`${styles.value} ${
                   currentInfo.closeValue >= currentInfo.openValue
@@ -486,7 +389,7 @@ const KChart: React.FC = () => {
               </span>
             </div>
             <div className={styles.dataItem}>
-              <span className={styles.label}>开</span>
+              <span className={styles.label}>开盘</span>
               <span
                 className={`${styles.value} ${
                   currentInfo.openValue >= currentInfo.closeValue
@@ -498,7 +401,7 @@ const KChart: React.FC = () => {
               </span>
             </div>
             <div className={styles.dataItem}>
-              <span className={styles.label}>高</span>
+              <span className={styles.label}>最高</span>
               <span
                 className={`${styles.value} ${
                   currentInfo.highValue >= currentInfo.closeValue
@@ -510,7 +413,7 @@ const KChart: React.FC = () => {
               </span>
             </div>
             <div className={styles.dataItem}>
-              <span className={styles.label}>低</span>
+              <span className={styles.label}>最低</span>
               <span
                 className={`${styles.value} ${
                   currentInfo.lowValue >= currentInfo.closeValue
@@ -544,17 +447,6 @@ const KChart: React.FC = () => {
       {/* Toolbar */}
       <div className={styles.toolbar}>
         <Space wrap>
-          <Radio.Group
-            value={period}
-            onChange={(e) => setPeriod(e.target.value)}
-            buttonStyle="solid"
-            size="small"
-          >
-            <Radio.Button value="day">日K</Radio.Button>
-            <Radio.Button value="week">周K</Radio.Button>
-            <Radio.Button value="month">月K</Radio.Button>
-          </Radio.Group>
-
           <Select
             mode="multiple"
             allowClear
