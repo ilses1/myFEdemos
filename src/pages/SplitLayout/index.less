@@ -1,0 +1,55 @@
+.container {
+  display: grid;
+  width: 100%;
+  height: calc(100vh - 56px); /* Adjust based on actual header height */
+  overflow: hidden;
+  position: relative;
+}
+
+.column {
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  &.left {
+    background-color: #f0f2f5;
+    border-right: 1px solid #d9d9d9;
+  }
+
+  &.right {
+    background-color: #fff;
+  }
+}
+
+.withTransition {
+  transition: grid-template-columns 0.3s ease;
+}
+
+.resizer {
+  width: 100%; /* In grid, it fills the column width */
+  height: 100%;
+  background-color: #e8e8e8;
+  cursor: col-resize;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.2s;
+  z-index: 5;
+}
+
+.content {
+  padding: 24px;
+  min-width: 400px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.toggleBtn {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  z-index: 10;
+}

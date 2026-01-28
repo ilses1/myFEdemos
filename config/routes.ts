@@ -14,6 +14,11 @@ export default [
     component: './AnimationCollection',
   },
   {
+    name: '布局',
+    path: '/layout',
+    component: './SplitLayout',
+  },
+  {
     name: '前端草稿',
     path: '/frontend-card',
     component: './FrontendCard',
