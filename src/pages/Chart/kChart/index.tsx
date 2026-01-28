@@ -1,0 +1,603 @@
+import { DatePicker, Radio, Select, Space } from 'antd';
+import * as echarts from 'echarts';
+import moment from 'moment';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { response } from './const';
+import styles from './index.less';
+
+const { RangePicker } = DatePicker;
+
+// Types
+type Period = 'day' | 'week' | 'month';
+type MAKey = 'ma5' | 'ma10' | 'ma20' | 'ma60' | 'ma120' | 'ma250';
+
+const MA_CONFIG: { key: MAKey; label: string; color: string }[] = [
+  { key: 'ma5', label: 'MA5', color: '#f5bd23' },
+  { key: 'ma10', label: 'MA10', color: '#3e6df5' },
+  { key: 'ma20', label: 'MA20', color: '#e040fb' },
+  { key: 'ma60', label: 'MA60', color: '#26a69a' },
+  { key: 'ma120', label: 'MA120', color: '#ef5350' },
+  { key: 'ma250', label: 'MA250', color: '#78909c' },
+];
+
+const DATE_PRESETS = [
+  { label: '今年以来', value: 'ytd' },
+  { label: '近三月', value: '3m' },
+  { label: '近六月', value: '6m' },
+  { label: '近一年', value: '1y' },
+  { label: '近三年', value: '3y' },
+  { label: '近五年', value: '5y' },
+  { label: '近十年', value: '10y' },
+];
+
+const KChart: React.FC = () => {
+  const chartRef = useRef<HTMLDivElement>(null);
+  const chartInstance = useRef<echarts.ECharts | null>(null);
+
+  // State
+  const [period, setPeriod] = useState<Period>('day');
+  const [selectedMAs, setSelectedMAs] = useState<MAKey[]>([
+    'ma5',
+    'ma10',
+    'ma20',
+    'ma60',
+    'ma120',
+    'ma250',
+  ]);
+  const [currentInfo, setCurrentInfo] = useState<any>(null);
+  const [dateRange, setDateRange] = useState<
+    [moment.Moment, moment.Moment] | null
+  >(null);
+  const [viewDateRange, setViewDateRange] = useState<[string, string]>([
+    '',
+    '',
+  ]);
+
+  // 1. Prepare Data
+  const rawData = useMemo(() => {
+    // Sort by date ascending
+    return [...response.klineValueList].sort(
+      (a, b) => moment(a.marketDate).valueOf() - moment(b.marketDate).valueOf(),
+    );
+  }, []);
+
+  // Helper to calculate MA
+  const calculateMA = (data: any[], dayCount: number) => {
+    const result = [];
+    for (let i = 0, len = data.length; i < len; i++) {
+      if (i < dayCount - 1) {
+        result.push('-'); // Not enough data
+        continue;
+      }
+      let sum = 0;
+      for (let j = 0; j < dayCount; j++) {
+        sum += data[i - j].closeValue;
+      }
+      result.push(Number((sum / dayCount).toFixed(2)));
+    }
+    return result;
+  };
+
+  // 2. Aggregate Data based on Period
+  const chartData = useMemo(() => {
+    if (period === 'day') {
+      return rawData;
+    }
+
+    const aggregated: any[] = [];
+    let currentGroup: any[] = [];
+    let currentPeriodStart: moment.Moment | null = null;
+
+    rawData.forEach((item, index) => {
+      const date = moment(item.marketDate);
+      let periodStart;
+
+      if (period === 'week') {
+        periodStart = date.clone().startOf('isoWeek');
+      } else {
+        // month
+        periodStart = date.clone().startOf('month');
+      }
+
+      if (!currentPeriodStart || !periodStart.isSame(currentPeriodStart)) {
+        // New period, process previous group
+        if (currentGroup.length > 0) {
+          const first = currentGroup[0];
+          const last = currentGroup[currentGroup.length - 1];
+          const highs = currentGroup.map((d) => d.highValue);
+          const lows = currentGroup.map((d) => d.lowValue);
+
+          aggregated.push({
+            marketDate: last.marketDate, // Use last date of period
+            openValue: first.openValue,
+            closeValue: last.closeValue,
+            highValue: Math.max(...highs),
+            lowValue: Math.min(...lows),
+            // MAs will be calculated after
+          });
+        }
+        currentGroup = [item];
+        currentPeriodStart = periodStart;
+      } else {
+        currentGroup.push(item);
+      }
+
+      // Handle last item
+      if (index === rawData.length - 1 && currentGroup.length > 0) {
+        const first = currentGroup[0];
+        const last = currentGroup[currentGroup.length - 1];
+        const highs = currentGroup.map((d) => d.highValue);
+        const lows = currentGroup.map((d) => d.lowValue);
+
+        aggregated.push({
+          marketDate: last.marketDate,
+          openValue: first.openValue,
+          closeValue: last.closeValue,
+          highValue: Math.max(...highs),
+          lowValue: Math.min(...lows),
+        });
+      }
+    });
+
+    // Calculate MAs for aggregated data
+    const ma5 = calculateMA(aggregated, 5);
+    const ma10 = calculateMA(aggregated, 10);
+    const ma20 = calculateMA(aggregated, 20);
+    const ma60 = calculateMA(aggregated, 60);
+    const ma120 = calculateMA(aggregated, 120);
+    const ma250 = calculateMA(aggregated, 250);
+
+    return aggregated.map((item, i) => ({
+      ...item,
+      ma5: ma5[i],
+      ma10: ma10[i],
+      ma20: ma20[i],
+      ma60: ma60[i],
+      ma120: ma120[i],
+      ma250: ma250[i],
+    }));
+  }, [rawData, period]);
+
+  // Initial Data Set
+  useEffect(() => {
+    if (chartData.length > 0) {
+      setCurrentInfo(chartData[chartData.length - 1]);
+
+      // Default view range: Last 1 year
+      const lastDate = moment(chartData[chartData.length - 1].marketDate);
+      const oneYearAgo = lastDate.clone().subtract(1, 'year');
+
+      setDateRange([oneYearAgo, lastDate]);
+    }
+  }, [chartData]); // Only reset when data source structure changes (e.g. period change)
+
+  // Chart Rendering
+  useEffect(() => {
+    if (!chartRef.current || chartData.length === 0) return;
+
+    // Dispose old instance to prevent leaks or conflicts
+    if (chartInstance.current) {
+      chartInstance.current.dispose();
+    }
+
+    const myChart = echarts.init(chartRef.current);
+    chartInstance.current = myChart;
+
+    const dates = chartData.map((item) => item.marketDate);
+    const values = chartData.map((item) => [
+      item.openValue,
+      item.closeValue,
+      item.lowValue,
+      item.highValue,
+    ]);
+
+    // Build Series
+    const series: any[] = [
+      {
+        name: 'K线',
+        type: 'candlestick',
+        data: values,
+        itemStyle: {
+          color: '#ef5350', // Red for Rise (Close > Open)
+          color0: '#26a69a', // Green for Fall (Close < Open)
+          borderColor: '#ef5350',
+          borderColor0: '#26a69a',
+        },
+        // Remove default markPoint/Line unless requested
+      },
+    ];
+
+    // Add MA Lines
+    MA_CONFIG.forEach((ma) => {
+      if (selectedMAs.includes(ma.key)) {
+        series.push({
+          name: ma.label,
+          type: 'line',
+          data: chartData.map((item) => item[ma.key]),
+          smooth: true,
+          showSymbol: false, // Default hidden
+          symbol: 'circle', // Show circle on hover (handled by axisPointer emphasis usually, or simple symbol)
+          symbolSize: 6,
+          lineStyle: {
+            width: 1,
+            color: ma.color,
+          },
+          itemStyle: {
+            color: ma.color,
+          },
+          emphasis: {
+            itemStyle: {
+              opacity: 1,
+            },
+          },
+        });
+      }
+    });
+
+    // Calculate DataZoom Start/End
+    let zoomStart = 0;
+    let zoomEnd = 100;
+
+    if (dateRange && dateRange[0] && dateRange[1]) {
+      const startDateStr = dateRange[0].format('YYYY-MM-DD');
+      const endDateStr = dateRange[1].format('YYYY-MM-DD');
+
+      const startIndex = dates.findIndex((d) => d >= startDateStr);
+      const endIndex = dates.findIndex((d) => d > endDateStr);
+
+      const realEndIndex = endIndex === -1 ? dates.length - 1 : endIndex - 1;
+      const realStartIndex = startIndex === -1 ? 0 : startIndex;
+
+      if (dates.length > 0) {
+        zoomStart = (realStartIndex / dates.length) * 100;
+        zoomEnd = ((realEndIndex + 1) / dates.length) * 100;
+      }
+    } else {
+      // Default to last 1 year if no range set (fallback)
+      // But we set dateRange in useEffect, so this might be redundant but safe
+      // logic: find index of date 1 year ago
+      const lastDate = moment(dates[dates.length - 1]);
+      const oneYearAgo = lastDate
+        .clone()
+        .subtract(1, 'year')
+        .format('YYYY-MM-DD');
+      const idx = dates.findIndex((d) => d >= oneYearAgo);
+      if (idx !== -1) {
+        zoomStart = (idx / dates.length) * 100;
+      }
+    }
+
+    const option: echarts.EChartsOption = {
+      backgroundColor: '#fff',
+      animation: false,
+      grid: {
+        left: '10px',
+        right: '10px',
+        bottom: '30px',
+        top: '10px',
+        containLabel: true,
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'cross',
+          label: {
+            backgroundColor: '#505765',
+          },
+          crossStyle: {
+            color: '#999',
+            type: 'dashed',
+          },
+        },
+        showContent: false, // We use custom header display, but can keep tooltip for debug
+        // Actually user said "上方数据随着变化" (Header data changes),
+        // "图片与上方数据文字随着消失、出现" (Image and header text disappear/appear together)
+      },
+      xAxis: {
+        type: 'category',
+        data: dates,
+        // scale: true,
+        boundaryGap: false,
+        axisLine: { onZero: false, lineStyle: { color: '#e5e5e5' } },
+        axisLabel: { color: '#999' },
+        splitLine: { show: true, lineStyle: { color: '#f0f0f0' } },
+        min: 'dataMin',
+        max: 'dataMax',
+        axisPointer: {
+          label: {
+            show: true, // Show X label on axis pointer
+          },
+        },
+      },
+      yAxis: {
+        scale: true,
+        splitLine: { show: true, lineStyle: { color: '#f0f0f0' } },
+        axisLabel: { color: '#999' },
+        axisLine: { lineStyle: { color: '#e5e5e5' } },
+        position: 'right', // Put Y axis on right to avoid overlap with left header? Or standard left?
+        // User didn't specify, standard is right for trading often, but let's stick to default left or right.
+        // Design usually puts it on right for K-lines. Let's try right.
+      },
+      dataZoom: [
+        {
+          type: 'inside',
+          start: zoomStart,
+          end: zoomEnd,
+          preventDefaultMouseMove: false,
+        },
+        {
+          type: 'slider',
+          show: true,
+          xAxisIndex: [0],
+          start: zoomStart,
+          end: zoomEnd,
+          bottom: 10,
+          height: 20,
+          handleIcon:
+            'path://M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
+          handleSize: '80%',
+          handleStyle: {
+            color: '#fff',
+            shadowBlur: 3,
+            shadowColor: 'rgba(0, 0, 0, 0.6)',
+            shadowOffsetX: 2,
+            shadowOffsetY: 2,
+          },
+          textStyle: {
+            color: '#999',
+          },
+        },
+      ],
+      series: series,
+    };
+
+    myChart.setOption(option);
+
+    // Event Listeners
+    myChart.on('updateAxisPointer', (event: any) => {
+      const dataIndex = event.dataIndex;
+      // eslint-disable-next-line eqeqeq
+      if (dataIndex != null && chartData[dataIndex]) {
+        setCurrentInfo(chartData[dataIndex]);
+      }
+    });
+
+    // Sync DataZoom with Date Range State (for "上方时间随之变化")
+    myChart.on('dataZoom', () => {
+      const option = myChart.getOption() as any;
+      const start = option.dataZoom[0].start;
+      const end = option.dataZoom[0].end;
+
+      const startIndex = Math.floor((start / 100) * dates.length);
+      const endIndex = Math.min(
+        Math.floor((end / 100) * dates.length),
+        dates.length - 1,
+      );
+
+      if (dates[startIndex] && dates[endIndex]) {
+        setViewDateRange([dates[startIndex], dates[endIndex]]);
+        // Update the RangePicker values to match the view?
+        // "按住鼠标左键... 上方时间随之变化" -> Usually means the range text updates.
+        // If we update the DatePicker state `dateRange` here, it might trigger a re-render loop
+        // if not careful.
+        // Let's separate "View Range" (what is seen) vs "Selected Range" (filter).
+        // Actually, for K-Line, DataZoom IS the date range filter effectively.
+
+        // To avoid performance issues, maybe debounce or just set a display state.
+        // For now, let's just set the viewDateRange for display if needed.
+        // Or update the RangePicker value using `setDateRange` but check for difference.
+      }
+    });
+
+    // Handle Resize
+    const handleResize = () => myChart.resize();
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      myChart.dispose();
+      chartInstance.current = null;
+    };
+  }, [chartData, selectedMAs, dateRange, period]);
+
+  // Handlers
+  const handlePresetClick = (type: string) => {
+    const lastDate = moment(rawData[rawData.length - 1].marketDate);
+    let startDate = lastDate.clone();
+
+    switch (type) {
+      case 'ytd':
+        startDate = moment().startOf('year');
+        break; // Or data's year
+      case '3m':
+        startDate.subtract(3, 'months');
+        break;
+      case '6m':
+        startDate.subtract(6, 'months');
+        break;
+      case '1y':
+        startDate.subtract(1, 'year');
+        break;
+      case '3y':
+        startDate.subtract(3, 'years');
+        break;
+      case '5y':
+        startDate.subtract(5, 'years');
+        break;
+      case '10y':
+        startDate.subtract(10, 'years');
+        break;
+    }
+
+    // Find nearest trading day? ECharts dataZoom handles range, we just set dates.
+    // Ensure start date is not before first data point
+    const firstDate = moment(rawData[0].marketDate);
+    if (startDate.isBefore(firstDate)) startDate = firstDate;
+
+    setDateRange([startDate, lastDate]);
+  };
+
+  const handleDateChange = (dates: any) => {
+    if (!dates) return;
+
+    // "日期选择非交易日日期，显示后面第一个交易日"
+    // Find nearest available date in data for start and end
+    const adjustDate = (inputDate: moment.Moment) => {
+      const dateStr = inputDate.format('YYYY-MM-DD');
+      // Find exact match or next
+      const found = rawData.find((d) => d.marketDate >= dateStr);
+      return found ? moment(found.marketDate) : inputDate;
+    };
+
+    const newStart = adjustDate(dates[0]);
+    const newEnd = dates[1]; // End date usually implies "up to", maybe adjust to previous or next?
+    // Usually "End" is inclusive, so we find nearest <= or just let it be.
+    // Let's adjust Start to be safe.
+
+    setDateRange([newStart, newEnd]);
+  };
+
+  return (
+    <div className={styles.container}>
+      {/* Header Info Area */}
+      <div className={styles.header}>
+        <div className={styles.topRow}>
+          <div className={styles.securityInfo}>
+            <span className={styles.code}>{response.securityCode}</span>
+            <span className={styles.name}>{response.securityName}</span>
+          </div>
+          <div className={styles.viewRange}>
+            {viewDateRange[0]} - {viewDateRange[1]}
+          </div>
+        </div>
+
+        {currentInfo && (
+          <div className={styles.dataGrid}>
+            <div className={styles.dataItem}>
+              <span className={styles.label}>收</span>
+              <span
+                className={`${styles.value} ${
+                  currentInfo.closeValue >= currentInfo.openValue
+                    ? styles.up
+                    : styles.down
+                }`}
+              >
+                {currentInfo.closeValue.toFixed(2)}
+              </span>
+            </div>
+            <div className={styles.dataItem}>
+              <span className={styles.label}>开</span>
+              <span
+                className={`${styles.value} ${
+                  currentInfo.openValue >= currentInfo.closeValue
+                    ? styles.down
+                    : styles.up
+                }`}
+              >
+                {currentInfo.openValue.toFixed(2)}
+              </span>
+            </div>
+            <div className={styles.dataItem}>
+              <span className={styles.label}>高</span>
+              <span
+                className={`${styles.value} ${
+                  currentInfo.highValue >= currentInfo.closeValue
+                    ? styles.down
+                    : styles.up
+                }`}
+              >
+                {currentInfo.highValue.toFixed(2)}
+              </span>
+            </div>
+            <div className={styles.dataItem}>
+              <span className={styles.label}>低</span>
+              <span
+                className={`${styles.value} ${
+                  currentInfo.lowValue >= currentInfo.closeValue
+                    ? styles.down
+                    : styles.up
+                }`}
+              >
+                {currentInfo.lowValue.toFixed(2)}
+              </span>
+            </div>
+
+            {MA_CONFIG.map(
+              (ma) =>
+                selectedMAs.includes(ma.key) && (
+                  <div key={ma.key} className={styles.dataItem}>
+                    <span className={styles.label} style={{ color: ma.color }}>
+                      {ma.label}
+                    </span>
+                    <span className={styles.value}>
+                      {currentInfo[ma.key] !== '-'
+                        ? Number(currentInfo[ma.key]).toFixed(2)
+                        : '-'}
+                    </span>
+                  </div>
+                ),
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Toolbar */}
+      <div className={styles.toolbar}>
+        <Space wrap>
+          <Radio.Group
+            value={period}
+            onChange={(e) => setPeriod(e.target.value)}
+            buttonStyle="solid"
+            size="small"
+          >
+            <Radio.Button value="day">日K</Radio.Button>
+            <Radio.Button value="week">周K</Radio.Button>
+            <Radio.Button value="month">月K</Radio.Button>
+          </Radio.Group>
+
+          <Select
+            mode="multiple"
+            allowClear
+            style={{ minWidth: 200 }}
+            placeholder="选择均线"
+            defaultValue={selectedMAs}
+            onChange={setSelectedMAs}
+            size="small"
+            maxTagCount="responsive"
+          >
+            {MA_CONFIG.map((ma) => (
+              <Select.Option key={ma.key} value={ma.key}>
+                {ma.label}
+              </Select.Option>
+            ))}
+          </Select>
+
+          <RangePicker
+            value={dateRange}
+            onChange={handleDateChange}
+            size="small"
+            style={{ width: 220 }}
+            allowClear={false}
+          />
+
+          <div className={styles.presets}>
+            {DATE_PRESETS.map((p) => (
+              <span
+                key={p.value}
+                className={styles.presetLink}
+                onClick={() => handlePresetClick(p.value)}
+              >
+                {p.label}
+              </span>
+            ))}
+          </div>
+        </Space>
+      </div>
+
+      {/* Chart */}
+      <div ref={chartRef} className={styles.chartContainer} />
+    </div>
+  );
+};
+
+export default KChart;

@@ -33,6 +33,11 @@ export default [
         path: '/chart/line',
         component: './Chart/LineChart',
       },
+      {
+        name: 'k线图',
+        path: '/chart/kchart',
+        component: './Chart/kChart',
+      },
     ],
   },
 ];
