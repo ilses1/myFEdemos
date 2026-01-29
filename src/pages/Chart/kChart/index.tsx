@@ -176,6 +176,7 @@ const KChart: React.FC = () => {
       grid: {
         show: true,
         backgroundColor: '#F2F5FA',
+        borderWidth: 0,
         left: '10px',
         right: '10px',
         bottom: '30px',
@@ -379,8 +380,7 @@ const KChart: React.FC = () => {
               <div
                 className={styles.presets}
                 style={{
-                  marginLeft: 0,
-                  justifyContent: 'center',
+                  marginLeft: 6,
                   padding: '8px 0',
                 }}
               >
