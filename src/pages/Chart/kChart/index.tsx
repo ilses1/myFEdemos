@@ -174,6 +174,8 @@ const KChart: React.FC = () => {
       backgroundColor: '#fff',
       animation: false,
       grid: {
+        show: true,
+        backgroundColor: '#F2F5FA',
         left: '10px',
         right: '10px',
         bottom: '30px',
@@ -185,10 +187,10 @@ const KChart: React.FC = () => {
         axisPointer: {
           type: 'cross',
           label: {
-            backgroundColor: '#505765',
+            backgroundColor: '#535966',
           },
           crossStyle: {
-            color: '#999',
+            color: '#A1A7B2',
             type: 'dashed',
           },
         },
@@ -201,9 +203,9 @@ const KChart: React.FC = () => {
         data: dates,
         // scale: true,
         boundaryGap: false,
-        axisLine: { onZero: false, lineStyle: { color: '#e5e5e5' } },
-        axisLabel: { color: '#999' },
-        splitLine: { show: true, lineStyle: { color: '#f0f0f0' } },
+        axisLine: { onZero: false, lineStyle: { color: '#DFE5F2' } },
+        axisLabel: { color: '#777E8C' },
+        splitLine: { show: true, lineStyle: { color: '#DFE5F2' } },
         min: 'dataMin',
         max: 'dataMax',
         axisPointer: {
@@ -214,12 +216,10 @@ const KChart: React.FC = () => {
       },
       yAxis: {
         scale: true,
-        splitLine: { show: true, lineStyle: { color: '#f0f0f0' } },
-        axisLabel: { color: '#999' },
-        axisLine: { lineStyle: { color: '#e5e5e5' } },
-        position: 'right', // Put Y axis on right to avoid overlap with left header? Or standard left?
-        // User didn't specify, standard is right for trading often, but let's stick to default left or right.
-        // Design usually puts it on right for K-lines. Let's try right.
+        splitLine: { show: true, lineStyle: { color: '#DFE5F2' } },
+        axisLabel: { color: '#777E8C' },
+        axisLine: { lineStyle: { color: '#DFE5F2' } },
+        position: 'left',
       },
       dataZoom: [
         {
