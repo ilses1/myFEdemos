@@ -1,6 +1,6 @@
 import { DatePicker, Select } from 'antd';
+import dayjs from 'dayjs';
 import * as echarts from 'echarts';
-import moment from 'moment';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { response } from './const';
 import styles from './index.less';
@@ -43,19 +43,15 @@ const KChart: React.FC = () => {
     'ma250',
   ]);
   const [currentInfo, setCurrentInfo] = useState<any>(null);
-  const [dateRange, setDateRange] = useState<
-    [moment.Moment, moment.Moment] | null
-  >(null);
-  const [viewDateRange, setViewDateRange] = useState<[string, string]>([
-    '',
-    '',
-  ]);
+  const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(
+    null,
+  );
 
   // 1. Prepare Data
   const rawData = useMemo(() => {
     // Sort by date ascending
     return [...response.klineValueList].sort(
-      (a, b) => moment(a.marketDate).valueOf() - moment(b.marketDate).valueOf(),
+      (a, b) => dayjs(a.marketDate).valueOf() - dayjs(b.marketDate).valueOf(),
     );
   }, []);
 
@@ -67,24 +63,34 @@ const KChart: React.FC = () => {
       setCurrentInfo(chartData[chartData.length - 1]);
 
       // Default view range: Last 1 year
-      const lastDate = moment(chartData[chartData.length - 1].marketDate);
-      const oneYearAgo = lastDate.clone().subtract(1, 'year');
+      const lastDate = dayjs(chartData[chartData.length - 1].marketDate);
+      const oneYearAgo = lastDate.subtract(1, 'year');
 
       setDateRange([oneYearAgo, lastDate]);
     }
   }, [chartData]); // Only reset when data source structure changes (e.g. period change)
 
-  // Chart Rendering
+  // Chart Lifecycle
   useEffect(() => {
-    if (!chartRef.current || chartData.length === 0) return;
-
-    // Dispose old instance to prevent leaks or conflicts
-    if (chartInstance.current) {
-      chartInstance.current.dispose();
-    }
+    if (!chartRef.current) return;
 
     const myChart = echarts.init(chartRef.current);
     chartInstance.current = myChart;
+
+    const handleResize = () => myChart.resize();
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      myChart.dispose();
+      chartInstance.current = null;
+    };
+  }, []);
+
+  // Chart Rendering & Updates
+  useEffect(() => {
+    const myChart = chartInstance.current;
+    if (!myChart || chartData.length === 0) return;
 
     const dates = chartData.map((item) => item.marketDate);
     const values = chartData.map((item) => [
@@ -159,11 +165,8 @@ const KChart: React.FC = () => {
       // Default to last 1 year if no range set (fallback)
       // But we set dateRange in useEffect, so this might be redundant but safe
       // logic: find index of date 1 year ago
-      const lastDate = moment(dates[dates.length - 1]);
-      const oneYearAgo = lastDate
-        .clone()
-        .subtract(1, 'year')
-        .format('YYYY-MM-DD');
+      const lastDate = dayjs(dates[dates.length - 1]);
+      const oneYearAgo = lastDate.subtract(1, 'year').format('YYYY-MM-DD');
       const idx = dates.findIndex((d) => d >= oneYearAgo);
       if (idx !== -1) {
         zoomStart = (idx / dates.length) * 100;
@@ -258,6 +261,7 @@ const KChart: React.FC = () => {
     myChart.setOption(option);
 
     // Event Listeners
+    myChart.off('updateAxisPointer');
     myChart.on('updateAxisPointer', (event: any) => {
       const dataIndex = event.dataIndex;
       // eslint-disable-next-line eqeqeq
@@ -267,6 +271,7 @@ const KChart: React.FC = () => {
     });
 
     // Sync DataZoom with Date Range State (for "上方时间随之变化")
+    myChart.off('dataZoom');
     myChart.on('dataZoom', () => {
       const option = myChart.getOption() as any;
       const start = option.dataZoom[0].start;
@@ -279,66 +284,56 @@ const KChart: React.FC = () => {
       );
 
       if (dates[startIndex] && dates[endIndex]) {
-        setViewDateRange([dates[startIndex], dates[endIndex]]);
-        // Update the RangePicker values to match the view?
-        // "按住鼠标左键... 上方时间随之变化" -> Usually means the range text updates.
-        // If we update the DatePicker state `dateRange` here, it might trigger a re-render loop
-        // if not careful.
-        // Let's separate "View Range" (what is seen) vs "Selected Range" (filter).
-        // Actually, for K-Line, DataZoom IS the date range filter effectively.
-
-        // To avoid performance issues, maybe debounce or just set a display state.
-        // For now, let's just set the viewDateRange for display if needed.
-        // Or update the RangePicker value using `setDateRange` but check for difference.
+        const startMoment = dayjs(dates[startIndex]);
+        const endMoment = dayjs(dates[endIndex]);
+        // Update RangePicker logic
+        setDateRange([startMoment, endMoment]);
       }
     });
-
-    // Handle Resize
-    const handleResize = () => myChart.resize();
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      myChart.dispose();
-      chartInstance.current = null;
-    };
   }, [chartData, selectedMAs, dateRange]);
 
   // Handlers
   const handlePresetClick = (type: string) => {
-    const lastDate = moment(rawData[rawData.length - 1].marketDate);
-    let startDate = lastDate.clone();
+    const lastDate = dayjs(rawData[rawData.length - 1].marketDate);
+    let startDate = lastDate;
 
     switch (type) {
       case 'ytd':
-        startDate = moment().startOf('year');
-        break; // Or data's year
+        startDate = lastDate.startOf('year');
+        break;
       case '3m':
-        startDate.subtract(3, 'months');
+        startDate = startDate.subtract(3, 'months');
         break;
       case '6m':
-        startDate.subtract(6, 'months');
+        startDate = startDate.subtract(6, 'months');
         break;
       case '1y':
-        startDate.subtract(1, 'year');
+        startDate = startDate.subtract(1, 'year');
         break;
       case '3y':
-        startDate.subtract(3, 'years');
+        startDate = startDate.subtract(3, 'years');
         break;
       case '5y':
-        startDate.subtract(5, 'years');
+        startDate = startDate.subtract(5, 'years');
         break;
       case '10y':
-        startDate.subtract(10, 'years');
+        startDate = startDate.subtract(10, 'years');
         break;
     }
 
     // Find nearest trading day? ECharts dataZoom handles range, we just set dates.
     // Ensure start date is not before first data point
-    const firstDate = moment(rawData[0].marketDate);
+    const firstDate = dayjs(rawData[0].marketDate);
     if (startDate.isBefore(firstDate)) startDate = firstDate;
 
     setDateRange([startDate, lastDate]);
+  };
+
+  const disabledDate = (current: dayjs.Dayjs) => {
+    if (rawData.length === 0) return false;
+    const firstDate = dayjs(rawData[0].marketDate);
+    const lastDate = dayjs(rawData[rawData.length - 1].marketDate);
+    return current && (current < firstDate || current > lastDate);
   };
 
   const handleDateChange = (dates: any) => {
@@ -346,11 +341,11 @@ const KChart: React.FC = () => {
 
     // "日期选择非交易日日期，显示后面第一个交易日"
     // Find nearest available date in data for start and end
-    const adjustDate = (inputDate: moment.Moment) => {
+    const adjustDate = (inputDate: dayjs.Dayjs) => {
       const dateStr = inputDate.format('YYYY-MM-DD');
       // Find exact match or next
       const found = rawData.find((d) => d.marketDate >= dateStr);
-      return found ? moment(found.marketDate) : inputDate;
+      return found ? dayjs(found.marketDate) : inputDate;
     };
 
     const newStart = adjustDate(dates[0]);
@@ -372,6 +367,7 @@ const KChart: React.FC = () => {
           </div>
           <RangePicker
             value={dateRange}
+            disabledDate={disabledDate}
             onChange={handleDateChange}
             size="small"
             style={{ width: 220 }}
