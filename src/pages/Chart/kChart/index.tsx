@@ -32,6 +32,7 @@ const DATE_PRESETS = [
 const KChart: React.FC = () => {
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstance = useRef<echarts.ECharts | null>(null);
+  const isChartUpdating = useRef(false);
 
   // State
   const [selectedMAs, setSelectedMAs] = useState<MAKey[]>([
@@ -91,6 +92,11 @@ const KChart: React.FC = () => {
   useEffect(() => {
     const myChart = chartInstance.current;
     if (!myChart || chartData.length === 0) return;
+
+    if (isChartUpdating.current) {
+      isChartUpdating.current = false;
+      return;
+    }
 
     const dates = chartData.map((item) => item.marketDate);
     const values = chartData.map((item) => [
@@ -300,6 +306,7 @@ const KChart: React.FC = () => {
     // Sync DataZoom with Date Range State (for "上方时间随之变化")
     myChart.off('dataZoom');
     myChart.on('dataZoom', () => {
+      isChartUpdating.current = true;
       const option = myChart.getOption() as any;
       const start = option.dataZoom[0].start;
       const end = option.dataZoom[0].end;
