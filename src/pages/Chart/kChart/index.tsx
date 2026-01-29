@@ -101,10 +101,24 @@ const KChart: React.FC = () => {
     ]);
 
     // Build Series
+    const scatterData = (response.messageList || [])
+      .map((msg) => {
+        const match = chartData.find((d) => d.marketDate === msg.messageDate);
+        if (match) {
+          return {
+            name: msg.messageTitle,
+            value: [msg.messageDate, match.highValue],
+          };
+        }
+        return null;
+      })
+      .filter(Boolean);
+
     const series: any[] = [
       {
         name: 'K线',
         type: 'candlestick',
+        clip: true,
         data: values,
         itemStyle: {
           color: '#ef5350', // Red for Rise (Close > Open)
@@ -114,6 +128,40 @@ const KChart: React.FC = () => {
         },
         // Remove default markPoint/Line unless requested
       },
+      {
+        name: '事件',
+        type: 'custom',
+        clip: true,
+        data: scatterData,
+        renderItem: (params: any, api: any) => {
+          const dataItem = scatterData[params.dataIndex];
+          if (!dataItem) return;
+
+          const point = api.coord([api.value(0), api.value(1)]);
+          if (isNaN(point[0]) || isNaN(point[1])) return;
+
+          return {
+            type: 'text',
+            x: point[0],
+            y: point[1] - 10, // Offset distance
+            style: {
+              text: dataItem.name,
+              fill: '#333',
+              backgroundColor: '#fff',
+              borderColor: '#E7E9ED',
+              borderWidth: 1,
+              borderRadius: 2,
+              padding: [4, 8],
+              shadowBlur: 2,
+              shadowColor: 'rgba(0,0,0,0.1)',
+              align: 'center',
+              verticalAlign: 'bottom',
+            },
+            z2: 100, // Ensure it renders above other elements
+          };
+        },
+        z: 100,
+      },
     ];
 
     // Add MA Lines
@@ -122,6 +170,7 @@ const KChart: React.FC = () => {
         series.push({
           name: ma.label,
           type: 'line',
+          clip: true,
           data: chartData.map((item) => item[ma.key]),
           smooth: true,
           showSymbol: false, // Default hidden
@@ -208,7 +257,7 @@ const KChart: React.FC = () => {
         // scale: true,
         boundaryGap: false,
         axisLine: { onZero: false, lineStyle: { color: '#DFE5F2' } },
-        axisLabel: { color: '#777E8C' },
+        axisLabel: { color: '#777E8C', rotate: 30 },
         splitLine: { show: true, lineStyle: { color: '#DFE5F2' } },
         min: 'dataMin',
         max: 'dataMax',
@@ -231,28 +280,6 @@ const KChart: React.FC = () => {
           start: zoomStart,
           end: zoomEnd,
           preventDefaultMouseMove: false,
-        },
-        {
-          type: 'slider',
-          show: true,
-          xAxisIndex: [0],
-          start: zoomStart,
-          end: zoomEnd,
-          bottom: 10,
-          height: 20,
-          handleIcon:
-            'path://M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
-          handleSize: '80%',
-          handleStyle: {
-            color: '#fff',
-            shadowBlur: 3,
-            shadowColor: 'rgba(0, 0, 0, 0.6)',
-            shadowOffsetX: 2,
-            shadowOffsetY: 2,
-          },
-          textStyle: {
-            color: '#999',
-          },
         },
       ],
       series: series,
@@ -458,7 +485,7 @@ const KChart: React.FC = () => {
               <Select
                 mode="multiple"
                 allowClear
-                style={{ minWidth: 100 }}
+                style={{ width: 100 }}
                 placeholder="选择均线"
                 defaultValue={selectedMAs}
                 onChange={setSelectedMAs}
