@@ -19,6 +19,27 @@
   margin-bottom: 12px;
 }
 
+.middleRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.ohlcGroup {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.maGroup {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
 .securityInfo {
   display: flex;
   align-items: center;
@@ -92,18 +113,23 @@
 
 .presets {
   display: flex;
-  gap: 12px;
-  margin-left: 8px;
+  gap: 8px;
 }
 
 .presetLink {
-  font-size: 12px;
-  color: #666;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 22px;
+  color: #3d61a9;
+  background: #ebf1ff;
+  padding: 0px 8px;
+  border-radius: 2px;
   cursor: pointer;
-  transition: color 0.3s;
+  transition: all 0.3s;
 
   &:hover {
-    color: #3e6df5;
+    color: #fff;
+    background: #3d61a9;
   }
 }
 

@@ -1,4 +1,4 @@
-import { DatePicker, Select, Space } from 'antd';
+import { DatePicker, Select } from 'antd';
 import * as echarts from 'echarts';
 import moment from 'moment';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -11,12 +11,12 @@ const { RangePicker } = DatePicker;
 type MAKey = 'ma5' | 'ma10' | 'ma20' | 'ma60' | 'ma120' | 'ma250';
 
 const MA_CONFIG: { key: MAKey; label: string; color: string }[] = [
-  { key: 'ma5', label: 'MA5', color: '#f5bd23' },
-  { key: 'ma10', label: 'MA10', color: '#3e6df5' },
-  { key: 'ma20', label: 'MA20', color: '#e040fb' },
-  { key: 'ma60', label: 'MA60', color: '#26a69a' },
-  { key: 'ma120', label: 'MA120', color: '#ef5350' },
-  { key: 'ma250', label: 'MA250', color: '#78909c' },
+  { key: 'ma5', label: 'MA(5)', color: '#486EBD' },
+  { key: 'ma10', label: 'MA(10)', color: '#FF7D7D' },
+  { key: 'ma20', label: 'MA(20)', color: '#62C583' },
+  { key: 'ma60', label: 'MA(60)', color: '#FEA17F' },
+  { key: 'ma120', label: 'MA(120)', color: '#D6AB7C' },
+  { key: 'ma250', label: 'MA(250)', color: '#E593E1' },
 ];
 
 const DATE_PRESETS = [
@@ -369,121 +369,140 @@ const KChart: React.FC = () => {
             <span className={styles.code}>{response.securityCode}</span>
             <span className={styles.name}>{response.securityName}</span>
           </div>
-          <div className={styles.viewRange}>
-            {viewDateRange[0]} - {viewDateRange[1]}
-          </div>
-        </div>
-
-        {currentInfo && (
-          <div className={styles.dataGrid}>
-            <div className={styles.dataItem}>
-              <span className={styles.label}>收盘</span>
-              <span
-                className={`${styles.value} ${
-                  (currentInfo.closeValue ?? 0) >= (currentInfo.openValue ?? 0)
-                    ? styles.up
-                    : styles.down
-                }`}
-              >
-                {currentInfo.closeValue?.toFixed(2) ?? '--'}
-              </span>
-            </div>
-            <div className={styles.dataItem}>
-              <span className={styles.label}>开盘</span>
-              <span
-                className={`${styles.value} ${
-                  (currentInfo.openValue ?? 0) >= (currentInfo.closeValue ?? 0)
-                    ? styles.down
-                    : styles.up
-                }`}
-              >
-                {currentInfo.openValue?.toFixed(2) ?? '--'}
-              </span>
-            </div>
-            <div className={styles.dataItem}>
-              <span className={styles.label}>最高</span>
-              <span
-                className={`${styles.value} ${
-                  (currentInfo.highValue ?? 0) >= (currentInfo.closeValue ?? 0)
-                    ? styles.down
-                    : styles.up
-                }`}
-              >
-                {currentInfo.highValue?.toFixed(2) ?? '--'}
-              </span>
-            </div>
-            <div className={styles.dataItem}>
-              <span className={styles.label}>最低</span>
-              <span
-                className={`${styles.value} ${
-                  (currentInfo.lowValue ?? 0) >= (currentInfo.closeValue ?? 0)
-                    ? styles.down
-                    : styles.up
-                }`}
-              >
-                {currentInfo.lowValue?.toFixed(2) ?? '--'}
-              </span>
-            </div>
-
-            {MA_CONFIG.map(
-              (ma) =>
-                selectedMAs.includes(ma.key) && (
-                  <div key={ma.key} className={styles.dataItem}>
-                    <span className={styles.label} style={{ color: ma.color }}>
-                      {ma.label}
-                    </span>
-                    <span className={styles.value}>
-                      {currentInfo[ma.key] !== '-'
-                        ? Number(currentInfo[ma.key]).toFixed(2)
-                        : '-'}
-                    </span>
-                  </div>
-                ),
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Toolbar */}
-      <div className={styles.toolbar}>
-        <Space wrap>
-          <Select
-            mode="multiple"
-            allowClear
-            style={{ minWidth: 200 }}
-            placeholder="选择均线"
-            defaultValue={selectedMAs}
-            onChange={setSelectedMAs}
-            size="small"
-            maxTagCount="responsive"
-          >
-            {MA_CONFIG.map((ma) => (
-              <Select.Option key={ma.key} value={ma.key}>
-                {ma.label}
-              </Select.Option>
-            ))}
-          </Select>
-
           <RangePicker
             value={dateRange}
             onChange={handleDateChange}
             size="small"
             style={{ width: 220 }}
             allowClear={false}
-          />
-
-          <div className={styles.presets}>
-            {DATE_PRESETS.map((p) => (
-              <span
-                key={p.value}
-                className={styles.presetLink}
-                onClick={() => handlePresetClick(p.value)}
+            renderExtraFooter={() => (
+              <div
+                className={styles.presets}
+                style={{
+                  marginLeft: 0,
+                  justifyContent: 'center',
+                  padding: '8px 0',
+                }}
               >
-                {p.label}
-              </span>
-            ))}
-          </div>
-        </Space>
+                {DATE_PRESETS.map((p) => (
+                  <span
+                    key={p.value}
+                    className={styles.presetLink}
+                    onClick={() => handlePresetClick(p.value)}
+                  >
+                    {p.label}
+                  </span>
+                ))}
+              </div>
+            )}
+          />
+        </div>
+
+        {currentInfo && (
+          <>
+            <div className={styles.middleRow}>
+              <div className={styles.ohlcGroup}>
+                <span style={{ fontWeight: 500, color: '#333' }}>
+                  {currentInfo.marketDate}
+                </span>
+                <div className={styles.dataItem}>
+                  <span className={styles.label}>收盘</span>
+                  <span
+                    className={`${styles.value} ${
+                      (currentInfo.closeValue ?? 0) >=
+                      (currentInfo.openValue ?? 0)
+                        ? styles.up
+                        : styles.down
+                    }`}
+                  >
+                    {currentInfo.closeValue?.toFixed(2) ?? '--'}
+                  </span>
+                </div>
+                <div className={styles.dataItem}>
+                  <span className={styles.label}>开盘</span>
+                  <span
+                    className={`${styles.value} ${
+                      (currentInfo.openValue ?? 0) >=
+                      (currentInfo.closeValue ?? 0)
+                        ? styles.down
+                        : styles.up
+                    }`}
+                  >
+                    {currentInfo.openValue?.toFixed(2) ?? '--'}
+                  </span>
+                </div>
+                <div className={styles.dataItem}>
+                  <span className={styles.label}>最高</span>
+                  <span
+                    className={`${styles.value} ${
+                      (currentInfo.highValue ?? 0) >=
+                      (currentInfo.closeValue ?? 0)
+                        ? styles.down
+                        : styles.up
+                    }`}
+                  >
+                    {currentInfo.highValue?.toFixed(2) ?? '--'}
+                  </span>
+                </div>
+                <div className={styles.dataItem}>
+                  <span className={styles.label}>最低</span>
+                  <span
+                    className={`${styles.value} ${
+                      (currentInfo.lowValue ?? 0) >=
+                      (currentInfo.closeValue ?? 0)
+                        ? styles.down
+                        : styles.up
+                    }`}
+                  >
+                    {currentInfo.lowValue?.toFixed(2) ?? '--'}
+                  </span>
+                </div>
+              </div>
+
+              <Select
+                mode="multiple"
+                allowClear
+                style={{ minWidth: 100 }}
+                placeholder="选择均线"
+                defaultValue={selectedMAs}
+                onChange={setSelectedMAs}
+                size="small"
+                maxTagCount="responsive"
+              >
+                {MA_CONFIG.map((ma) => (
+                  <Select.Option key={ma.key} value={ma.key}>
+                    {ma.label}
+                  </Select.Option>
+                ))}
+              </Select>
+            </div>
+
+            <div className={styles.maGroup}>
+              {MA_CONFIG.map(
+                (ma) =>
+                  selectedMAs.includes(ma.key) && (
+                    <div key={ma.key} className={styles.dataItem}>
+                      <span className={styles.label}>{ma.label}:</span>
+                      <span
+                        className={styles.value}
+                        style={{ color: ma.color }}
+                      >
+                        {currentInfo[ma.key] !== '-'
+                          ? Number(currentInfo[ma.key]).toLocaleString(
+                              'en-US',
+                              {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              },
+                            )
+                          : '-'}
+                      </span>
+                    </div>
+                  ),
+              )}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Chart */}
