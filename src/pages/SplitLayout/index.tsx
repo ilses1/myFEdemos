@@ -136,9 +136,24 @@ const SplitLayout: React.FC = () => {
     >
       <div ref={leftRef} className={classNames(styles.column, styles.left)}>
         <div className={styles.content}>
-          <h2>Left Column</h2>
-          <p>This is the left column content.</p>
-          <p>Width: {leftWidth ? `${Math.round(leftWidth)}px` : 'Auto'}</p>
+          <h2>功能特性</h2>
+          <ul style={{ paddingLeft: 20 }}>
+            <li>
+              <strong>拖拽调整：</strong>{' '}
+              鼠标按住中间分隔条左右拖动，可自由调整两栏宽度。
+            </li>
+            <li>
+              <strong>自适应缩放：</strong>{' '}
+              调整浏览器窗口大小时，左右栏目会自动保持比例缩放。
+            </li>
+            <li>
+              <strong>最小宽度保护：</strong>{' '}
+              设置了最小宽度限制（400px），防止内容被过度压缩。
+            </li>
+          </ul>
+          <p style={{ marginTop: 16 }}>
+            当前左侧宽度: {leftWidth ? `${Math.round(leftWidth)}px` : 'Auto'}
+          </p>
         </div>
         <Button
           type="primary"
@@ -159,8 +174,11 @@ const SplitLayout: React.FC = () => {
 
       <div className={classNames(styles.column, styles.right)}>
         <div className={styles.content}>
-          <h2>Right Column</h2>
-          <p>This is the right column content.</p>
+          <h2>交互说明</h2>
+          <p>
+            点击左侧栏右下角的圆按钮，可以快速<strong>展开/收起</strong>左侧栏。
+          </p>
+          <p>收起时，右侧内容将自动填充剩余空间。</p>
         </div>
       </div>
     </div>

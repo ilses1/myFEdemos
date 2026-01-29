@@ -16,7 +16,18 @@ export default [
   {
     name: '布局',
     path: '/layout',
-    component: './SplitLayout',
+    icon: 'Layout',
+    routes: [
+      {
+        path: '/layout',
+        redirect: '/layout/split-layout',
+      },
+      {
+        name: '分栏布局',
+        path: '/layout/split-layout',
+        component: './SplitLayout',
+      },
+    ],
   },
   {
     name: '前端草稿',
