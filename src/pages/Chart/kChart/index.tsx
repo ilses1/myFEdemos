@@ -380,48 +380,48 @@ const KChart: React.FC = () => {
               <span className={styles.label}>收盘</span>
               <span
                 className={`${styles.value} ${
-                  currentInfo.closeValue >= currentInfo.openValue
+                  (currentInfo.closeValue ?? 0) >= (currentInfo.openValue ?? 0)
                     ? styles.up
                     : styles.down
                 }`}
               >
-                {currentInfo.closeValue.toFixed(2)}
+                {currentInfo.closeValue?.toFixed(2) ?? '--'}
               </span>
             </div>
             <div className={styles.dataItem}>
               <span className={styles.label}>开盘</span>
               <span
                 className={`${styles.value} ${
-                  currentInfo.openValue >= currentInfo.closeValue
+                  (currentInfo.openValue ?? 0) >= (currentInfo.closeValue ?? 0)
                     ? styles.down
                     : styles.up
                 }`}
               >
-                {currentInfo.openValue.toFixed(2)}
+                {currentInfo.openValue?.toFixed(2) ?? '--'}
               </span>
             </div>
             <div className={styles.dataItem}>
               <span className={styles.label}>最高</span>
               <span
                 className={`${styles.value} ${
-                  currentInfo.highValue >= currentInfo.closeValue
+                  (currentInfo.highValue ?? 0) >= (currentInfo.closeValue ?? 0)
                     ? styles.down
                     : styles.up
                 }`}
               >
-                {currentInfo.highValue.toFixed(2)}
+                {currentInfo.highValue?.toFixed(2) ?? '--'}
               </span>
             </div>
             <div className={styles.dataItem}>
               <span className={styles.label}>最低</span>
               <span
                 className={`${styles.value} ${
-                  currentInfo.lowValue >= currentInfo.closeValue
+                  (currentInfo.lowValue ?? 0) >= (currentInfo.closeValue ?? 0)
                     ? styles.down
                     : styles.up
                 }`}
               >
-                {currentInfo.lowValue.toFixed(2)}
+                {currentInfo.lowValue?.toFixed(2) ?? '--'}
               </span>
             </div>
 
