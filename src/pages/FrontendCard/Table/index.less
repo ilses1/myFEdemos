@@ -70,28 +70,67 @@
 }
 
 .textRed {
-  color: #e63f3f;
+  color: #db5656;
 }
 
 .textGreen {
-  color: #52c41a;
+  color: #309a81;
 }
 
 .assetName {
-  color: #3f77e6;
+  color: #3d61a9;
   cursor: pointer;
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Custom Radio Button Style to match image */
 .customRadio {
   :global {
     .ant-radio-button-wrapper {
+      height: 32px;
+      line-height: 30px;
+      padding: 0 16px;
+      font-size: 14px;
       border-radius: 0;
+      color: #666;
+      border-color: #dce0e6;
+      background: #fff;
+
       &:first-child {
-        border-radius: 4px 0 0 4px;
+        border-radius: 2px 0 0 2px;
       }
       &:last-child {
-        border-radius: 0 4px 4px 0;
+        border-radius: 0 2px 2px 0;
+      }
+
+      &:not(:first-child)::before {
+        display: none;
+      }
+
+      // Checked state
+      &.ant-radio-button-wrapper-checked {
+        color: #3d61a9;
+        border-color: #3d61a9;
+        z-index: 1;
+        background: #fff;
+
+        &:not(.ant-radio-button-wrapper-disabled) {
+          color: #3d61a9;
+          border-color: #3d61a9;
+
+          &:hover {
+            color: #3d61a9;
+            border-color: #3d61a9;
+          }
+        }
+      }
+
+      &:hover {
+        color: #3d61a9;
       }
     }
   }

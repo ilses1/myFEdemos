@@ -1,7 +1,7 @@
 import { SearchOutlined } from '@ant-design/icons';
 import { Col, Input, Radio, Row, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { assetCorrelation, riseFallFullMarket } from './const';
 import styles from './index.less';
 
@@ -21,11 +21,34 @@ const TablePage: React.FC = () => {
   // --- Left Card State ---
   const [marketPeriod, setMarketPeriod] = useState<'1w' | '1m'>('1w');
   const [searchText, setSearchText] = useState('');
+  const [marketSorter, setMarketSorter] = useState<{
+    columnKey?: string;
+    order?: 'ascend' | 'descend';
+  }>({
+    columnKey: 'percentageChange',
+    order: 'descend',
+  });
 
   // --- Right Card State ---
   const [correlationType, setCorrelationType] = useState<'high' | 'minus'>(
     'high',
   );
+
+  const marketTableWrapperRef = useRef<HTMLDivElement>(null);
+  const correlationTableWrapperRef = useRef<HTMLDivElement>(null);
+
+  const scrollTableToTop = (wrapper: HTMLDivElement | null) => {
+    const body = wrapper?.querySelector<HTMLDivElement>('.ant-table-body');
+    if (body) body.scrollTop = 0;
+  };
+
+  useEffect(() => {
+    scrollTableToTop(marketTableWrapperRef.current);
+  }, [marketPeriod]);
+
+  useEffect(() => {
+    scrollTableToTop(correlationTableWrapperRef.current);
+  }, [correlationType]);
 
   // --- Left Card Data Processing ---
   const marketData = useMemo(() => {
@@ -47,6 +70,7 @@ const TablePage: React.FC = () => {
       key: 'securityName',
       render: (text) => <span className={styles.assetName}>{text}</span>,
       width: '40%',
+      ellipsis: true,
     },
     {
       title: '涨跌',
@@ -57,6 +81,10 @@ const TablePage: React.FC = () => {
         const field = marketPeriod === '1w' ? 'priceChange1w' : 'priceChange1m';
         return a[field] - b[field];
       },
+      sortOrder:
+        marketSorter.columnKey === 'priceChange'
+          ? marketSorter.order
+          : undefined,
       render: (value) => (
         <span className={getColorClass(value)}>{(value || 0).toFixed(2)}</span>
       ),
@@ -72,6 +100,10 @@ const TablePage: React.FC = () => {
           marketPeriod === '1w' ? 'percentageChange1w' : 'percentageChange1m';
         return a[field] - b[field];
       },
+      sortOrder:
+        marketSorter.columnKey === 'percentageChange'
+          ? marketSorter.order
+          : undefined,
       render: (value) => (
         <span className={getColorClass(value)}>{formatPercent(value)}</span>
       ),
@@ -90,7 +122,9 @@ const TablePage: React.FC = () => {
       title: '资产名称',
       dataIndex: 'assetName',
       key: 'assetName',
-      render: (text) => <span>{text}</span>, // Plain text in right table based on image
+      width: '40%',
+      ellipsis: true,
+      render: (text) => <span className={styles.assetName}>{text}</span>,
     },
     {
       title: (
@@ -132,6 +166,7 @@ const TablePage: React.FC = () => {
       dataIndex: 'recent1YCorrelationValue',
       key: 'recent1YCorrelationValue',
       align: 'center',
+      defaultSortOrder: 'descend',
       sorter: (a, b) => a.recent1YCorrelationValue - b.recent1YCorrelationValue,
       render: (value) => (
         <span style={{ color: '#666' }}>{(value || 0).toFixed(2)}</span>
@@ -152,7 +187,6 @@ const TablePage: React.FC = () => {
               <Radio.Group
                 value={marketPeriod}
                 onChange={(e) => setMarketPeriod(e.target.value)}
-                buttonStyle="solid"
                 className={styles.customRadio}
               >
                 <Radio.Button value="1w">近一周</Radio.Button>
@@ -171,15 +205,31 @@ const TablePage: React.FC = () => {
               />
             </div>
 
-            <Table
-              className={styles.customTable}
-              dataSource={marketData}
-              columns={marketColumns}
-              rowKey="securityId"
-              pagination={false}
-              size="small"
-              scroll={{ y: 400 }}
-            />
+            <div ref={marketTableWrapperRef}>
+              <Table
+                className={styles.customTable}
+                dataSource={marketData}
+                columns={marketColumns}
+                rowKey="securityId"
+                onChange={(_, __, sorter) => {
+                  const nextSorter = Array.isArray(sorter) ? sorter[0] : sorter;
+                  setMarketSorter({
+                    columnKey:
+                      typeof nextSorter?.columnKey === 'string'
+                        ? nextSorter.columnKey
+                        : undefined,
+                    order:
+                      nextSorter?.order === 'ascend' ||
+                      nextSorter?.order === 'descend'
+                        ? nextSorter.order
+                        : undefined,
+                  });
+                }}
+                pagination={false}
+                size="small"
+                scroll={{ y: 400 }}
+              />
+            </div>
           </div>
         </Col>
 
@@ -191,7 +241,6 @@ const TablePage: React.FC = () => {
               <Radio.Group
                 value={correlationType}
                 onChange={(e) => setCorrelationType(e.target.value)}
-                buttonStyle="solid"
                 className={styles.customRadio}
               >
                 <Radio.Button value="high">高相关性</Radio.Button>
@@ -199,15 +248,18 @@ const TablePage: React.FC = () => {
               </Radio.Group>
             </div>
 
-            <Table
-              className={styles.customTable}
-              dataSource={correlationData}
-              columns={correlationColumns}
-              rowKey="assetId"
-              pagination={false}
-              size="small"
-              scroll={{ y: 400 }}
-            />
+            <div ref={correlationTableWrapperRef}>
+              <Table
+                className={styles.customTable}
+                dataSource={correlationData}
+                columns={correlationColumns}
+                rowKey="assetId"
+                pagination={false}
+                size="small"
+                scroll={{ y: 400 }}
+                tableLayout="fixed"
+              />
+            </div>
           </div>
         </Col>
       </Row>

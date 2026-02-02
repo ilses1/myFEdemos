@@ -1,0 +1,118 @@
+.container {
+  padding: 24px;
+  background-color: #f5f7fa;
+  min-height: 100vh;
+}
+.card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  height: 100%;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  display: flex;
+  align-items: center;
+}
+.title::before {
+  content: '';
+  display: block;
+  width: 4px;
+  height: 16px;
+  margin-right: 8px;
+  border-radius: 2px;
+}
+.title.red::before {
+  background-color: #e63f3f;
+}
+.title.blue::before {
+  background-color: #3f77e6;
+}
+.searchBar {
+  margin-bottom: 12px;
+}
+.customTable :global .ant-table-thead > tr > th {
+  background: transparent;
+  border-bottom: none;
+  font-weight: 500;
+  color: #666;
+  padding: 8px 0;
+}
+.customTable :global .ant-table-tbody > tr > td {
+  padding: 12px 0;
+  border-bottom: none;
+}
+.customTable :global .ant-table-tbody > tr:hover > td {
+  background-color: #f5f7fa;
+}
+.textRed {
+  color: #db5656;
+}
+.textGreen {
+  color: #309a81;
+}
+.assetName {
+  color: #3d61a9;
+  cursor: pointer;
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Custom Radio Button Style to match image */
+.customRadio :global .ant-radio-button-wrapper {
+  height: 32px;
+  line-height: 30px;
+  padding: 0 16px;
+  font-size: 14px;
+  border-radius: 0;
+  color: #666;
+  border-color: #dce0e6;
+  background: #fff;
+}
+.customRadio :global .ant-radio-button-wrapper:first-child {
+  border-radius: 2px 0 0 2px;
+}
+.customRadio :global .ant-radio-button-wrapper:last-child {
+  border-radius: 0 2px 2px 0;
+}
+.customRadio :global .ant-radio-button-wrapper:not(:first-child)::before {
+  display: none;
+}
+.customRadio
+  :global
+  .ant-radio-button-wrapper.ant-radio-button-wrapper-checked {
+  color: #3d61a9;
+  border-color: #3d61a9;
+  z-index: 1;
+  background: #fff;
+}
+.customRadio
+  :global
+  .ant-radio-button-wrapper.ant-radio-button-wrapper-checked:not(
+    .ant-radio-button-wrapper-disabled
+  ) {
+  color: #3d61a9;
+  border-color: #3d61a9;
+}
+.customRadio
+  :global
+  .ant-radio-button-wrapper.ant-radio-button-wrapper-checked:not(
+    .ant-radio-button-wrapper-disabled
+  ):hover {
+  color: #3d61a9;
+  border-color: #3d61a9;
+}
+.customRadio :global .ant-radio-button-wrapper:hover {
+  color: #3d61a9;
+}
