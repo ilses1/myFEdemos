@@ -32,8 +32,28 @@ export default [
   {
     name: '前端草稿',
     path: '/frontend-card',
-    component: './FrontendCard',
     devOnly: true,
+    routes: [
+      {
+        path: '/frontend-card',
+        redirect: '/frontend-card/card',
+      },
+      {
+        name: '卡片',
+        path: '/frontend-card/card',
+        component: './FrontendCard',
+      },
+      {
+        name: '表格',
+        path: '/frontend-card/table',
+        component: './FrontendCard/Table',
+      },
+      {
+        name: '折线图',
+        path: '/frontend-card/line-chart',
+        component: './FrontendCard/LineChart',
+      },
+    ],
   },
   {
     name: '图表',
