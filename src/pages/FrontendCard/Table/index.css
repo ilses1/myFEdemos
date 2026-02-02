@@ -3,6 +3,35 @@
   background-color: #f5f7fa;
   min-height: 100vh;
 }
+.fcTableMetricsCard {
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  display: flex;
+  box-sizing: border-box;
+}
+.fcTableMetricsLeft {
+  flex: 50;
+  padding-right: 16px;
+  min-width: 0;
+}
+.fcTableMetricsRight {
+  flex: 50;
+  padding-left: 16px;
+  min-width: 0;
+}
+.fcTableSeparator {
+  width: 1px;
+  align-self: stretch;
+  background: repeating-linear-gradient(
+    to bottom,
+    #d9d9d9 0,
+    #d9d9d9 3px,
+    transparent 3px,
+    transparent 6px
+  );
+}
 .card {
   background: #fff;
   border-radius: 8px;
@@ -10,20 +39,20 @@
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   height: 100%;
 }
-.header {
+.fcTableHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
 }
-.title {
+.fcTableTitle {
   font-size: 16px;
   font-weight: 600;
   color: #333;
   display: flex;
   align-items: center;
 }
-.title::before {
+.fcTableTitle::before {
   content: '';
   display: block;
   width: 4px;
@@ -31,27 +60,27 @@
   margin-right: 8px;
   border-radius: 2px;
 }
-.title.red::before {
+.fcTableTitle.fcTableTitleRed::before {
   background-color: #e63f3f;
 }
-.title.blue::before {
+.fcTableTitle.fcTableTitleBlue::before {
   background-color: #3f77e6;
 }
-.searchBar {
+.fcTableSearchBar {
   margin-bottom: 12px;
 }
-.customTable :global .ant-table-thead > tr > th {
+.fcTableCustomTable :global .ant-table-thead > tr > th {
   background: transparent;
   border-bottom: none;
   font-weight: 500;
   color: #666;
   padding: 8px 0;
 }
-.customTable :global .ant-table-tbody > tr > td {
+.fcTableCustomTable :global .ant-table-tbody > tr > td {
   padding: 12px 0;
   border-bottom: none;
 }
-.customTable :global .ant-table-tbody > tr:hover > td {
+.fcTableCustomTable :global .ant-table-tbody > tr:hover > td {
   background-color: #f5f7fa;
 }
 .textRed {
@@ -70,7 +99,7 @@
   white-space: nowrap;
 }
 /* Custom Radio Button Style to match image */
-.customRadio :global .ant-radio-button-wrapper {
+.fcTableCustomRadio :global .ant-radio-button-wrapper {
   height: 32px;
   line-height: 30px;
   padding: 0 16px;
@@ -80,16 +109,18 @@
   border-color: #dce0e6;
   background: #fff;
 }
-.customRadio :global .ant-radio-button-wrapper:first-child {
+.fcTableCustomRadio :global .ant-radio-button-wrapper:first-child {
   border-radius: 2px 0 0 2px;
 }
-.customRadio :global .ant-radio-button-wrapper:last-child {
+.fcTableCustomRadio :global .ant-radio-button-wrapper:last-child {
   border-radius: 0 2px 2px 0;
 }
-.customRadio :global .ant-radio-button-wrapper:not(:first-child)::before {
+.fcTableCustomRadio
+  :global
+  .ant-radio-button-wrapper:not(:first-child)::before {
   display: none;
 }
-.customRadio
+.fcTableCustomRadio
   :global
   .ant-radio-button-wrapper.ant-radio-button-wrapper-checked {
   color: #3d61a9;
@@ -97,7 +128,7 @@
   z-index: 1;
   background: #fff;
 }
-.customRadio
+.fcTableCustomRadio
   :global
   .ant-radio-button-wrapper.ant-radio-button-wrapper-checked:not(
     .ant-radio-button-wrapper-disabled
@@ -105,7 +136,7 @@
   color: #3d61a9;
   border-color: #3d61a9;
 }
-.customRadio
+.fcTableCustomRadio
   :global
   .ant-radio-button-wrapper.ant-radio-button-wrapper-checked:not(
     .ant-radio-button-wrapper-disabled
@@ -113,6 +144,30 @@
   color: #3d61a9;
   border-color: #3d61a9;
 }
-.customRadio :global .ant-radio-button-wrapper:hover {
+.fcTableCustomRadio :global .ant-radio-button-wrapper:hover {
   color: #3d61a9;
+}
+@media (max-width: 768px) {
+  .fcTableMetricsCard {
+    flex-direction: column;
+  }
+  .fcTableMetricsLeft {
+    padding-right: 0;
+  }
+  .fcTableMetricsRight {
+    padding-left: 0;
+    margin-top: 16px;
+  }
+  .fcTableSeparator {
+    width: 100%;
+    height: 1px;
+    margin: 12px 0;
+    background: repeating-linear-gradient(
+      to right,
+      #d9d9d9 0,
+      #d9d9d9 3px,
+      transparent 3px,
+      transparent 6px
+    );
+  }
 }

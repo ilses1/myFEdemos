@@ -1,5 +1,5 @@
 import { SearchOutlined } from '@ant-design/icons';
-import { Col, Input, Radio, Row, Table } from 'antd';
+import { Input, Radio, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { assetCorrelation, riseFallFullMarket } from './const';
@@ -176,93 +176,93 @@ const TablePage: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <Row gutter={24}>
-        {/* Left Card: Price Change */}
-        <Col span={10}>
-          <div className={styles.card}>
-            <div className={styles.header}>
-              <div className={`${styles.title} ${styles.red}`}>
-                涨跌幅(全市场)
-              </div>
-              <Radio.Group
-                value={marketPeriod}
-                onChange={(e) => setMarketPeriod(e.target.value)}
-                className={styles.customRadio}
-              >
-                <Radio.Button value="1w">近一周</Radio.Button>
-                <Radio.Button value="1m">近一月</Radio.Button>
-              </Radio.Group>
+      <div className={styles.fcTableMetricsCard}>
+        <div className={styles.fcTableMetricsLeft}>
+          <div className={styles.fcTableHeader}>
+            <div className={`${styles.fcTableTitle} ${styles.fcTableTitleRed}`}>
+              涨跌幅(全市场)
             </div>
-
-            <div className={styles.searchBar}>
-              <Input
-                placeholder="搜索"
-                prefix={<SearchOutlined style={{ color: '#ccc' }} />}
-                style={{ width: 120, borderRadius: 4 }}
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                allowClear
-              />
-            </div>
-
-            <div ref={marketTableWrapperRef}>
-              <Table
-                className={styles.customTable}
-                dataSource={marketData}
-                columns={marketColumns}
-                rowKey="securityId"
-                onChange={(_, __, sorter) => {
-                  const nextSorter = Array.isArray(sorter) ? sorter[0] : sorter;
-                  setMarketSorter({
-                    columnKey:
-                      typeof nextSorter?.columnKey === 'string'
-                        ? nextSorter.columnKey
-                        : undefined,
-                    order:
-                      nextSorter?.order === 'ascend' ||
-                      nextSorter?.order === 'descend'
-                        ? nextSorter.order
-                        : undefined,
-                  });
-                }}
-                pagination={false}
-                size="small"
-                scroll={{ y: 400 }}
-              />
-            </div>
+            <Radio.Group
+              value={marketPeriod}
+              onChange={(e) => setMarketPeriod(e.target.value)}
+              className={styles.fcTableCustomRadio}
+            >
+              <Radio.Button value="1w">近一周</Radio.Button>
+              <Radio.Button value="1m">近一月</Radio.Button>
+            </Radio.Group>
           </div>
-        </Col>
 
-        {/* Right Card: Asset Correlation */}
-        <Col span={14}>
-          <div className={styles.card}>
-            <div className={styles.header}>
-              <div className={`${styles.title} ${styles.blue}`}>资产相关性</div>
-              <Radio.Group
-                value={correlationType}
-                onChange={(e) => setCorrelationType(e.target.value)}
-                className={styles.customRadio}
-              >
-                <Radio.Button value="high">高相关性</Radio.Button>
-                <Radio.Button value="minus">负相关性</Radio.Button>
-              </Radio.Group>
-            </div>
-
-            <div ref={correlationTableWrapperRef}>
-              <Table
-                className={styles.customTable}
-                dataSource={correlationData}
-                columns={correlationColumns}
-                rowKey="assetId"
-                pagination={false}
-                size="small"
-                scroll={{ y: 400 }}
-                tableLayout="fixed"
-              />
-            </div>
+          <div className={styles.fcTableSearchBar}>
+            <Input
+              placeholder="搜索"
+              prefix={<SearchOutlined style={{ color: '#ccc' }} />}
+              style={{ width: 120, borderRadius: 4 }}
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              allowClear
+            />
           </div>
-        </Col>
-      </Row>
+
+          <div ref={marketTableWrapperRef}>
+            <Table
+              className={styles.fcTableCustomTable}
+              dataSource={marketData}
+              columns={marketColumns}
+              rowKey="securityId"
+              onChange={(_, __, sorter) => {
+                const nextSorter = Array.isArray(sorter) ? sorter[0] : sorter;
+                setMarketSorter({
+                  columnKey:
+                    typeof nextSorter?.columnKey === 'string'
+                      ? nextSorter.columnKey
+                      : undefined,
+                  order:
+                    nextSorter?.order === 'ascend' ||
+                    nextSorter?.order === 'descend'
+                      ? nextSorter.order
+                      : undefined,
+                });
+              }}
+              pagination={false}
+              size="small"
+              scroll={{ y: 400 }}
+            />
+          </div>
+        </div>
+
+        <div className={styles.fcTableSeparator} />
+
+        <div className={styles.fcTableMetricsRight}>
+          <div className={styles.fcTableHeader}>
+            <div
+              className={`${styles.fcTableTitle} ${styles.fcTableTitleBlue}`}
+            >
+              资产相关性
+            </div>
+            <Radio.Group
+              value={correlationType}
+              onChange={(e) => setCorrelationType(e.target.value)}
+              className={styles.fcTableCustomRadio}
+            >
+              <Radio.Button value="high">高相关性</Radio.Button>
+              <Radio.Button value="minus">负相关性</Radio.Button>
+            </Radio.Group>
+          </div>
+
+          <div ref={correlationTableWrapperRef}>
+            <Table
+              className={styles.fcTableCustomTable}
+              dataSource={correlationData}
+              columns={correlationColumns}
+              rowKey="assetId"
+              pagination={false}
+              size="small"
+              scroll={{ y: 400 }}
+              tableLayout="fixed"
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

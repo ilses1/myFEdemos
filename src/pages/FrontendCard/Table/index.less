@@ -4,6 +4,39 @@
   min-height: 100vh;
 }
 
+.fcTableMetricsCard {
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  display: flex;
+  box-sizing: border-box;
+}
+
+.fcTableMetricsLeft {
+  flex: 50;
+  padding-right: 16px;
+  min-width: 0;
+}
+
+.fcTableMetricsRight {
+  flex: 50;
+  padding-left: 16px;
+  min-width: 0;
+}
+
+.fcTableSeparator {
+  width: 1px;
+  align-self: stretch;
+  background: repeating-linear-gradient(
+    to bottom,
+    #d9d9d9 0,
+    #d9d9d9 3px,
+    transparent 3px,
+    transparent 6px
+  );
+}
+
 .card {
   background: #fff;
   border-radius: 8px;
@@ -12,14 +45,14 @@
   height: 100%;
 }
 
-.header {
+.fcTableHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
 }
 
-.title {
+.fcTableTitle {
   font-size: 16px;
   font-weight: 600;
   color: #333;
@@ -35,20 +68,20 @@
     border-radius: 2px;
   }
 
-  &.red::before {
+  &.fcTableTitleRed::before {
     background-color: #e63f3f;
   }
 
-  &.blue::before {
+  &.fcTableTitleBlue::before {
     background-color: #3f77e6;
   }
 }
 
-.searchBar {
+.fcTableSearchBar {
   margin-bottom: 12px;
 }
 
-.customTable {
+.fcTableCustomTable {
   :global {
     .ant-table-thead > tr > th {
       background: transparent;
@@ -88,7 +121,7 @@
 }
 
 /* Custom Radio Button Style to match image */
-.customRadio {
+.fcTableCustomRadio {
   :global {
     .ant-radio-button-wrapper {
       height: 32px;
@@ -133,5 +166,33 @@
         color: #3d61a9;
       }
     }
+  }
+}
+
+@media (max-width: 768px) {
+  .fcTableMetricsCard {
+    flex-direction: column;
+  }
+
+  .fcTableMetricsLeft {
+    padding-right: 0;
+  }
+
+  .fcTableMetricsRight {
+    padding-left: 0;
+    margin-top: 16px;
+  }
+
+  .fcTableSeparator {
+    width: 100%;
+    height: 1px;
+    margin: 12px 0;
+    background: repeating-linear-gradient(
+      to right,
+      #d9d9d9 0,
+      #d9d9d9 3px,
+      transparent 3px,
+      transparent 6px
+    );
   }
 }
