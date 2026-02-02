@@ -54,6 +54,11 @@ export default [
         path: '/chart/kchart',
         component: './Chart/kChart',
       },
+      {
+        name: '收益图',
+        path: '/chart/incomechart',
+        component: './Chart/incomeChart',
+      },
     ],
   },
 ];
