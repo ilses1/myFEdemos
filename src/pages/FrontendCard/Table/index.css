@@ -137,6 +137,9 @@
   width: 0 !important;
   background: transparent !important;
 }
+.fcTableCustomTable :global .ant-table-cell-scrollbar {
+  display: none !important;
+}
 .textRed {
   color: #db5656;
 }

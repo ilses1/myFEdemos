@@ -1,16 +1,14 @@
 import { SearchOutlined } from '@ant-design/icons';
-import { Input, Radio, Table } from 'antd';
+import { Input, Radio, Table, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { assetCorrelation, riseFallFullMarket } from './const';
 import styles from './index.less';
 
-// Helper to format percentage
 const formatPercent = (value: number) => {
   return `${((value || 0) * 100).toFixed(2)}%`;
 };
 
-// Helper to determine color class
 const getColorClass = (value: number) => {
   if (value >= 0) return styles.textRed;
   if (value < 0) return styles.textGreen;
@@ -18,7 +16,6 @@ const getColorClass = (value: number) => {
 };
 
 const TablePage: React.FC = () => {
-  // --- Left Card State ---
   const [marketPeriod, setMarketPeriod] = useState<'1w' | '1m'>('1w');
   const [searchText, setSearchText] = useState('');
   const [marketSorter, setMarketSorter] = useState<{
@@ -29,7 +26,6 @@ const TablePage: React.FC = () => {
     order: 'descend',
   });
 
-  // --- Right Card State ---
   const [correlationType, setCorrelationType] = useState<'high' | 'minus'>(
     'high',
   );
@@ -50,7 +46,6 @@ const TablePage: React.FC = () => {
     scrollTableToTop(correlationTableWrapperRef.current);
   }, [correlationType]);
 
-  // --- Left Card Data Processing ---
   const marketData = useMemo(() => {
     let data = riseFallFullMarket.recentList;
     if (searchText) {
@@ -65,10 +60,14 @@ const TablePage: React.FC = () => {
 
   const marketColumns: ColumnsType<any> = [
     {
-      title: '', // No title for name column in image, or maybe it's just implicit
+      title: '',
       dataIndex: 'securityName',
       key: 'securityName',
-      render: (text) => <span className={styles.assetName}>{text}</span>,
+      render: (text) => (
+        <Tooltip title={text}>
+          <span className={styles.assetName}>{text}</span>
+        </Tooltip>
+      ),
       minWidth: 90,
     },
     {
@@ -118,7 +117,6 @@ const TablePage: React.FC = () => {
     },
   ];
 
-  // --- Right Card Data Processing ---
   const correlationData = useMemo(() => {
     return correlationType === 'high'
       ? assetCorrelation.highCorrelationList
@@ -132,9 +130,11 @@ const TablePage: React.FC = () => {
       key: 'assetName',
       width: 70,
       render: (text) => (
-        <span style={{ width: '70px' }} className={styles.assetName}>
-          {text}
-        </span>
+        <Tooltip title={text}>
+          <span style={{ width: '70px' }} className={styles.assetName}>
+            {text}
+          </span>
+        </Tooltip>
       ),
     },
     {
