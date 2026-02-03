@@ -7,12 +7,12 @@ import styles from './index.less';
 
 // Helper to format percentage
 const formatPercent = (value: number) => {
-  return `${(value * 100).toFixed(2)}%`;
+  return `${((value || 0) * 100).toFixed(2)}%`;
 };
 
 // Helper to determine color class
 const getColorClass = (value: number) => {
-  if (value > 0) return styles.textRed;
+  if (value >= 0) return styles.textRed;
   if (value < 0) return styles.textGreen;
   return '';
 };
@@ -69,8 +69,7 @@ const TablePage: React.FC = () => {
       dataIndex: 'securityName',
       key: 'securityName',
       render: (text) => <span className={styles.assetName}>{text}</span>,
-      width: '40%',
-      ellipsis: true,
+      minWidth: 90,
     },
     {
       title: '涨跌',
@@ -85,15 +84,19 @@ const TablePage: React.FC = () => {
         marketSorter.columnKey === 'priceChange'
           ? marketSorter.order
           : undefined,
-      render: (value) => (
-        <span className={getColorClass(value)}>{(value || 0).toFixed(2)}</span>
-      ),
+      render: (value) => {
+        if (value === null || value === undefined) {
+          return <span>--</span>;
+        }
+        return <span className={getColorClass(value)}>{value.toFixed(2)}</span>;
+      },
     },
     {
       title: '涨跌幅',
       dataIndex:
         marketPeriod === '1w' ? 'percentageChange1w' : 'percentageChange1m',
       key: 'percentageChange',
+      minWidth: 60,
       align: 'right',
       sorter: (a, b) => {
         const field =
@@ -104,9 +107,14 @@ const TablePage: React.FC = () => {
         marketSorter.columnKey === 'percentageChange'
           ? marketSorter.order
           : undefined,
-      render: (value) => (
-        <span className={getColorClass(value)}>{formatPercent(value)}</span>
-      ),
+      render: (value) => {
+        if (value === null || value === undefined) {
+          return <span>--</span>;
+        }
+        return (
+          <span className={getColorClass(value)}>{formatPercent(value)}</span>
+        );
+      },
     },
   ];
 
@@ -122,12 +130,16 @@ const TablePage: React.FC = () => {
       title: '资产名称',
       dataIndex: 'assetName',
       key: 'assetName',
-      ellipsis: true,
-      render: (text) => <span className={styles.assetName}>{text}</span>,
+      width: 70,
+      render: (text) => (
+        <span style={{ width: '70px' }} className={styles.assetName}>
+          {text}
+        </span>
+      ),
     },
     {
       title: (
-        <div style={{ textAlign: 'center' }}>
+        <div style={{ textAlign: 'right' }}>
           <div>收益率</div>
           <div style={{ fontSize: '12px', fontWeight: 'normal' }}>今年以来</div>
         </div>
@@ -137,12 +149,14 @@ const TablePage: React.FC = () => {
       align: 'right',
       sorter: (a, b) => a.thisYearReturnRatio - b.thisYearReturnRatio,
       render: (value) => (
-        <span className={getColorClass(value)}>{formatPercent(value)}</span>
+        <span className={getColorClass(value || 0)}>
+          {formatPercent(value)}
+        </span>
       ),
     },
     {
       title: (
-        <div style={{ textAlign: 'center' }}>
+        <div style={{ textAlign: 'right' }}>
           <div>波动率</div>
           <div style={{ fontSize: '12px', fontWeight: 'normal' }}>近一年</div>
         </div>
@@ -157,7 +171,7 @@ const TablePage: React.FC = () => {
     },
     {
       title: (
-        <div style={{ textAlign: 'center' }}>
+        <div style={{ textAlign: 'right' }}>
           <div>最新相关性</div>
           <div style={{ fontSize: '12px', fontWeight: 'normal' }}>近一年</div>
         </div>
@@ -165,7 +179,7 @@ const TablePage: React.FC = () => {
       dataIndex: 'recent1YCorrelationValue',
       key: 'recent1YCorrelationValue',
       align: 'right',
-      width: 98,
+      minWidth: 98,
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.recent1YCorrelationValue - b.recent1YCorrelationValue,
       render: (value) => (
@@ -258,10 +272,10 @@ const TablePage: React.FC = () => {
               dataSource={correlationData}
               columns={correlationColumns}
               rowKey="assetId"
+              tableLayout="auto"
               pagination={false}
               size="small"
               scroll={{ y: 400 }}
-              tableLayout="fixed"
             />
           </div>
         </div>
