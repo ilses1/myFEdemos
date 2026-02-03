@@ -82,12 +82,53 @@
   color: #666;
   padding: 8px 0;
 }
+.fcTableCustomTable :global .ant-table-thead > tr > th::before {
+  display: none !important;
+}
+.fcTableCustomTable :global .ant-table-column-sort {
+  background: transparent !important;
+}
+.fcTableCustomTable :global .ant-table-column-sorter-up.active,
+.fcTableCustomTable :global .ant-table-column-sorter-down.active {
+  color: #3d61a9 !important;
+}
+.fcTableCustomTable :global .ant-table-column-sorter-inner .anticon {
+  font-size: 8px !important;
+}
+.fcTableCustomTable :global .ant-table-column-sorter-up {
+  margin-bottom: 4px;
+}
 .fcTableCustomTable :global .ant-table-tbody > tr > td {
   padding: 12px 0;
   border-bottom: none;
 }
 .fcTableCustomTable :global .ant-table-tbody > tr:hover > td {
   background-color: #f5f7fa;
+}
+.fcTableCustomTable :global .ant-table {
+  scrollbar-width: auto !important;
+  scrollbar-color: auto !important;
+}
+.fcTableCustomTable :global .ant-table-body {
+  scrollbar-width: auto !important;
+  scrollbar-color: auto !important;
+}
+.fcTableCustomTable :global .ant-table-body::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.fcTableCustomTable :global .ant-table-body::-webkit-scrollbar-thumb {
+  background-color: #c5cddb;
+  border-radius: 2px;
+}
+.fcTableCustomTable :global .ant-table-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.fcTableCustomTable :global .ant-table-body::-webkit-scrollbar-button {
+  display: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  background: transparent !important;
 }
 .textRed {
   color: #db5656;
