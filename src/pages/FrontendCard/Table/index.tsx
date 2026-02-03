@@ -122,7 +122,7 @@ const TablePage: React.FC = () => {
       title: '资产名称',
       dataIndex: 'assetName',
       key: 'assetName',
-      width: '40%',
+      width: 80,
       ellipsis: true,
       render: (text) => <span className={styles.assetName}>{text}</span>,
     },
@@ -192,18 +192,21 @@ const TablePage: React.FC = () => {
             </Radio.Group>
           </div>
 
-          <div className={styles.fcTableSearchBar}>
+          <div
+            ref={marketTableWrapperRef}
+            className={styles.fcTableSearchBContaner}
+          >
             <Input
+              className={styles.fcTableSearchBar}
               placeholder="搜索"
-              prefix={<SearchOutlined style={{ color: '#ccc' }} />}
-              style={{ width: 120, borderRadius: 4 }}
+              prefix={
+                <SearchOutlined style={{ color: 'rgba(141, 149, 166, 1)' }} />
+              }
+              style={{ width: 100, borderRadius: 2 }}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               allowClear
             />
-          </div>
-
-          <div ref={marketTableWrapperRef}>
             <Table
               className={styles.fcTableCustomTable}
               dataSource={marketData}

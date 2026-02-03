@@ -66,8 +66,14 @@
 .fcTableTitle.fcTableTitleBlue::before {
   background-color: #3f77e6;
 }
+.fcTableSearchBContaner {
+  position: relative;
+}
 .fcTableSearchBar {
-  margin-bottom: 12px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
 }
 .fcTableCustomTable :global .ant-table-thead > tr > th {
   background: transparent;
