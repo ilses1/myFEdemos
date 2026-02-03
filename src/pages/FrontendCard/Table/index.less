@@ -93,7 +93,11 @@
       border-bottom: none;
       font-weight: 500;
       color: #666;
-      padding: 8px 0;
+      padding: 8px 0 !important;
+
+      &:nth-last-child(2) {
+        padding-right: 12px !important;
+      }
 
       &::before {
         display: none !important;
@@ -118,8 +122,12 @@
     }
 
     .ant-table-tbody > tr > td {
-      padding: 12px 0;
+      padding: 8px 0 !important;
       border-bottom: none;
+
+      &:last-child {
+        padding-right: 12px !important;
+      }
     }
 
     .ant-table-tbody > tr:hover > td {
@@ -127,6 +135,7 @@
     }
 
     .ant-table {
+      margin-right: -15px;
       scrollbar-width: auto !important;
       scrollbar-color: auto !important;
     }

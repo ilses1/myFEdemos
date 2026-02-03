@@ -122,7 +122,6 @@ const TablePage: React.FC = () => {
       title: '资产名称',
       dataIndex: 'assetName',
       key: 'assetName',
-      width: 80,
       ellipsis: true,
       render: (text) => <span className={styles.assetName}>{text}</span>,
     },
@@ -135,7 +134,7 @@ const TablePage: React.FC = () => {
       ),
       dataIndex: 'thisYearReturnRatio',
       key: 'thisYearReturnRatio',
-      align: 'center',
+      align: 'right',
       sorter: (a, b) => a.thisYearReturnRatio - b.thisYearReturnRatio,
       render: (value) => (
         <span className={getColorClass(value)}>{formatPercent(value)}</span>
@@ -150,7 +149,7 @@ const TablePage: React.FC = () => {
       ),
       dataIndex: 'recent1YReturnRatioStd',
       key: 'recent1YReturnRatioStd',
-      align: 'center',
+      align: 'right',
       sorter: (a, b) => a.recent1YReturnRatioStd - b.recent1YReturnRatioStd,
       render: (value) => (
         <span style={{ color: '#666' }}>{formatPercent(value)}</span>
@@ -165,7 +164,8 @@ const TablePage: React.FC = () => {
       ),
       dataIndex: 'recent1YCorrelationValue',
       key: 'recent1YCorrelationValue',
-      align: 'center',
+      align: 'right',
+      width: 98,
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.recent1YCorrelationValue - b.recent1YCorrelationValue,
       render: (value) => (

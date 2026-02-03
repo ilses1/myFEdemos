@@ -80,7 +80,10 @@
   border-bottom: none;
   font-weight: 500;
   color: #666;
-  padding: 8px 0;
+  padding: 8px 0 !important;
+}
+.fcTableCustomTable :global .ant-table-thead > tr > th:nth-last-child(2) {
+  padding-right: 12px !important;
 }
 .fcTableCustomTable :global .ant-table-thead > tr > th::before {
   display: none !important;
@@ -99,13 +102,17 @@
   margin-bottom: 4px;
 }
 .fcTableCustomTable :global .ant-table-tbody > tr > td {
-  padding: 12px 0;
+  padding: 8px 0 !important;
   border-bottom: none;
+}
+.fcTableCustomTable :global .ant-table-tbody > tr > td:last-child {
+  padding-right: 12px !important;
 }
 .fcTableCustomTable :global .ant-table-tbody > tr:hover > td {
   background-color: #f5f7fa;
 }
 .fcTableCustomTable :global .ant-table {
+  margin-right: -15px;
   scrollbar-width: auto !important;
   scrollbar-color: auto !important;
 }
