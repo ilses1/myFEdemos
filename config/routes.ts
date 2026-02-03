@@ -58,7 +58,6 @@ export default [
   {
     name: '图表',
     path: '/chart',
-    devOnly: true,
     routes: [
       {
         path: '/chart',
