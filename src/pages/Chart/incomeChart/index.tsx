@@ -235,33 +235,51 @@ const IncomeChart: React.FC = () => {
       symbolSize: 6,
     };
 
+    const mainLine1Name = response.unitNavs[0].securityName;
     const mainLine1Series = {
-      name: response.unitNavs[0].securityName,
+      name: mainLine1Name,
       type: 'line',
       data: line1.map((item) => item.percentage),
       itemStyle: {
-        color: '#5b8ff9',
+        color: mainLine1Name === '中证REITs全收益' ? '#486EBC' : '#5b8ff9',
       },
       symbol: 'none',
       lineStyle: {
         width: 2,
       },
+      ...(mainLine1Name === '中证REITs全收益'
+        ? {
+            areaStyle: {
+              color: 'rgba(72, 110, 188, 0.1)',
+              origin: 'start',
+            },
+          }
+        : {}),
       emphasis: {
         focus: 'series',
       },
     };
 
+    const mainLine2Name = response.unitNavs[1].securityName;
     const mainLine2Series = {
-      name: response.unitNavs[1].securityName,
+      name: mainLine2Name,
       type: 'line',
       data: line2.map((item) => item.percentage),
       itemStyle: {
-        color: '#ff7a85',
+        color: mainLine2Name === '中证REITs全收益' ? '#486EBC' : '#ff7a85',
       },
       symbol: 'none',
       lineStyle: {
         width: 2,
       },
+      ...(mainLine2Name === '中证REITs全收益'
+        ? {
+            areaStyle: {
+              color: 'rgba(72, 110, 188, 0.1)',
+              origin: 'start',
+            },
+          }
+        : {}),
       emphasis: {
         focus: 'series',
       },
@@ -278,6 +296,7 @@ const IncomeChart: React.FC = () => {
         : [mainLine1Series, overlayPointSeries, mainLine2Series];
 
     const option: echarts.EChartsOption = {
+      backgroundColor: '#fff',
       tooltip: {
         trigger: 'axis',
         formatter: (params: any) => {
@@ -307,12 +326,21 @@ const IncomeChart: React.FC = () => {
       },
       legend: {
         show: true,
+        type: 'scroll',
+        orient: 'horizontal',
         top: 0,
+        left: 'center',
         icon: 'rect',
         itemWidth: 12,
         itemHeight: 12,
+        pageButtonPosition: 'end',
+        pageButtonGap: 8,
+        pageIconSize: 12,
       },
       grid: {
+        show: true,
+        backgroundColor: '#F2F5FA',
+        borderWidth: 0,
         left: '3%',
         right: '4%',
         bottom: '15%', // Space for dataZoom
@@ -325,13 +353,19 @@ const IncomeChart: React.FC = () => {
         data: dates,
         axisLine: {
           lineStyle: {
-            color: '#e0e0e0',
+            color: '#DFE5F2',
           },
         },
         axisLabel: {
-          color: '#999',
+          color: '#777E8C',
           formatter: (value: string) => value, // Simple date format
           rotate: 30, // Rotate labels to match screenshot
+        },
+        splitLine: {
+          show: true,
+          lineStyle: {
+            color: '#DFE5F2',
+          },
         },
         axisTick: {
           show: false,
@@ -341,11 +375,17 @@ const IncomeChart: React.FC = () => {
         type: 'value',
         axisLabel: {
           formatter: '{value}%',
-          color: '#999',
+          color: '#777E8C',
         },
         splitLine: {
+          show: true,
           lineStyle: {
-            color: '#f0f0f0',
+            color: '#DFE5F2',
+          },
+        },
+        axisLine: {
+          lineStyle: {
+            color: '#DFE5F2',
           },
         },
       },
