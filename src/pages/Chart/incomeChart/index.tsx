@@ -213,13 +213,15 @@ const IncomeChart: React.FC = () => {
         name: item.securityName,
         type: 'line',
         data,
-        symbol: 'none',
+        symbol: 'emptyCircle',
+        showSymbol: false,
+        symbolSize: 6,
         lineStyle: {
           width: 1.5,
           color: overlayPalette[idx % overlayPalette.length],
         },
         itemStyle: { color: overlayPalette[idx % overlayPalette.length] },
-        emphasis: { focus: 'series' },
+        emphasis: { focus: 'series', scale: true },
       };
     });
 
@@ -243,7 +245,9 @@ const IncomeChart: React.FC = () => {
       itemStyle: {
         color: mainLine1Name === '中证REITs全收益' ? '#486EBD' : '#5b8ff9',
       },
-      symbol: 'none',
+      symbol: 'emptyCircle',
+      showSymbol: false,
+      symbolSize: 6,
       lineStyle: {
         width: 2,
       },
@@ -257,6 +261,7 @@ const IncomeChart: React.FC = () => {
         : {}),
       emphasis: {
         focus: 'series',
+        scale: true,
       },
     };
 
@@ -268,7 +273,9 @@ const IncomeChart: React.FC = () => {
       itemStyle: {
         color: mainLine2Name === '中证REITs全收益' ? '#486EBD' : '#FF7D7D',
       },
-      symbol: 'none',
+      symbol: 'emptyCircle',
+      showSymbol: false,
+      symbolSize: 6,
       lineStyle: {
         width: 2,
       },
@@ -282,6 +289,7 @@ const IncomeChart: React.FC = () => {
         : {}),
       emphasis: {
         focus: 'series',
+        scale: true,
       },
     };
 
@@ -299,16 +307,24 @@ const IncomeChart: React.FC = () => {
       backgroundColor: '#fff',
       tooltip: {
         trigger: 'axis',
+        axisPointer: {
+          type: 'line',
+          snap: true,
+          lineStyle: {
+            color: '#DFE5F2',
+            width: 1,
+          },
+        },
         formatter: (params: any) => {
-          let result = `<div style="margin-bottom: 5px; color: #666; font-size: 12px;">${params[0].axisValue}</div>`;
+          let result = `<div style="margin-bottom: 5px; color: #777E8C; font-size: 12px;">${params[0].axisValue}</div>`;
           params.forEach((param: any) => {
             const val = param.value.toFixed(2) + '%';
             const color = param.color;
             result += `
               <div style="display: flex; align-items: center; margin-top: 5px;">
                 <span style="display:inline-block;margin-right:5px;border-radius:2px;width:10px;height:10px;background-color:${color};"></span>
-                <span style="color: #666; flex: 1; margin-right: 10px;">${param.seriesName}</span>
-                <span style="font-weight: 500; color: #333;">${val}</span>
+                <span style="color: #535966; flex: 1; margin-right: 10px;">${param.seriesName}</span>
+                <span style="font-weight: 500; color: #535966;">${val}</span>
               </div>
             `;
           });
