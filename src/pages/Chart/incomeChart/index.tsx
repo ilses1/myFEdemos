@@ -35,14 +35,14 @@ const DATE_PRESETS = [
 ];
 
 const overlayPalette = [
-  '#5AD8A6',
-  '#5D7092',
-  '#E8684A',
-  '#6DC8EC',
-  '#9270CA',
-  '#FF9D4D',
-  '#269A99',
-  '#FF99C3',
+  '#81C9A1',
+  '#B496E8',
+  '#FF91BF',
+  '#67A1DF',
+  '#68C0CA',
+  '#7C81D6',
+  '#7DA9FF',
+  '#B7C4DC',
 ];
 
 const hashStringTo01 = (input: string) => {
@@ -228,9 +228,9 @@ const IncomeChart: React.FC = () => {
       type: 'line',
       data: [],
       itemStyle: {
-        color: '#f6bd16',
+        color: '#FECA7A',
       },
-      lineStyle: { color: '#f6bd16', width: 2 },
+      lineStyle: { color: '#FECA7A', width: 2 },
       symbol: 'circle',
       symbolSize: 6,
     };
@@ -241,7 +241,7 @@ const IncomeChart: React.FC = () => {
       type: 'line',
       data: line1.map((item) => item.percentage),
       itemStyle: {
-        color: mainLine1Name === '中证REITs全收益' ? '#486EBC' : '#5b8ff9',
+        color: mainLine1Name === '中证REITs全收益' ? '#486EBD' : '#5b8ff9',
       },
       symbol: 'none',
       lineStyle: {
@@ -266,7 +266,7 @@ const IncomeChart: React.FC = () => {
       type: 'line',
       data: line2.map((item) => item.percentage),
       itemStyle: {
-        color: mainLine2Name === '中证REITs全收益' ? '#486EBC' : '#ff7a85',
+        color: mainLine2Name === '中证REITs全收益' ? '#486EBD' : '#FF7D7D',
       },
       symbol: 'none',
       lineStyle: {
@@ -341,7 +341,7 @@ const IncomeChart: React.FC = () => {
         show: true,
         backgroundColor: '#F2F5FA',
         borderWidth: 0,
-        left: '3%',
+        left: '4%',
         right: '4%',
         bottom: '15%', // Space for dataZoom
         top: '10%',
