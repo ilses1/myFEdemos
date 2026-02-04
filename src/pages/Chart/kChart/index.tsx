@@ -75,14 +75,39 @@ const KChart: React.FC = () => {
   useEffect(() => {
     if (!chartRef.current) return;
 
-    const myChart = echarts.init(chartRef.current);
+    const chartEl = chartRef.current;
+    const myChart = echarts.init(chartEl);
     chartInstance.current = myChart;
 
-    const handleResize = () => myChart.resize();
-    window.addEventListener('resize', handleResize);
+    let rafId: number | null = null;
+    const scheduleResize = () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        chartInstance.current?.resize();
+      });
+    };
+
+    scheduleResize();
+
+    let resizeObserver: ResizeObserver | null = null;
+    const handleWindowResize = () => scheduleResize();
+
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(() => {
+        scheduleResize();
+      });
+      resizeObserver.observe(chartEl);
+    } else {
+      window.addEventListener('resize', handleWindowResize);
+    }
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      } else {
+        window.removeEventListener('resize', handleWindowResize);
+      }
+      if (rafId !== null) cancelAnimationFrame(rafId);
       myChart.dispose();
       chartInstance.current = null;
     };

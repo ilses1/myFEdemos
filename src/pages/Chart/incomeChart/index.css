@@ -1,0 +1,121 @@
+.overlayDraftScroll {
+  overflow-y: auto;
+}
+.overlayDraftScroll::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.overlayDraftScroll::-webkit-scrollbar-thumb {
+  background-color: #c5cddb;
+  border-radius: 2px;
+}
+.overlayDraftScroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.overlayDraftScroll::-webkit-scrollbar-button {
+  display: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  -webkit-appearance: none;
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+.overlayDraftScroll::-webkit-scrollbar-button:single-button,
+.overlayDraftScroll::-webkit-scrollbar-button:vertical:decrement,
+.overlayDraftScroll::-webkit-scrollbar-button:vertical:increment,
+.overlayDraftScroll::-webkit-scrollbar-button:vertical:start:decrement,
+.overlayDraftScroll::-webkit-scrollbar-button:vertical:end:increment {
+  display: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  -webkit-appearance: none;
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+.overlaySelectPopup :global .rc-virtual-list-holder {
+  scrollbar-width: thin;
+  scrollbar-color: #c5cddb transparent;
+}
+.overlaySelectPopup :global .rc-virtual-list-holder::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.overlaySelectPopup :global .rc-virtual-list-holder::-webkit-scrollbar-thumb {
+  background-color: #c5cddb;
+  border-radius: 2px;
+}
+.overlaySelectPopup :global .rc-virtual-list-holder::-webkit-scrollbar-track {
+  background: transparent;
+}
+.overlaySelectPopup :global .rc-virtual-list-holder::-webkit-scrollbar-button {
+  display: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  -webkit-appearance: none;
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+.overlaySelectPopup
+  :global
+  .rc-virtual-list-holder::-webkit-scrollbar-button:single-button,
+.overlaySelectPopup
+  :global
+  .rc-virtual-list-holder::-webkit-scrollbar-button:vertical:decrement,
+.overlaySelectPopup
+  :global
+  .rc-virtual-list-holder::-webkit-scrollbar-button:vertical:increment,
+.overlaySelectPopup
+  :global
+  .rc-virtual-list-holder::-webkit-scrollbar-button:vertical:start:decrement,
+.overlaySelectPopup
+  :global
+  .rc-virtual-list-holder::-webkit-scrollbar-button:vertical:end:increment {
+  display: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  -webkit-appearance: none;
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+.overlaySelectPopup :global .rc-virtual-list-scrollbar {
+  width: 4px !important;
+}
+.overlaySelectPopup :global .rc-virtual-list-scrollbar-thumb {
+  background: #c5cddb !important;
+  border-radius: 2px !important;
+}
+.presets {
+  display: flex;
+  gap: 8px;
+}
+.presetLink {
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 22px;
+  color: #3d61a9;
+  background: #ebf1ff;
+  padding: 0px 8px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.presetLink:hover {
+  color: #fff;
+  background: #3d61a9;
+}

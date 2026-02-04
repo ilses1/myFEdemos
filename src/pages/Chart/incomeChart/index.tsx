@@ -1,15 +1,62 @@
-import { Button, ConfigProvider, DatePicker, Space } from 'antd';
-import zhCN from 'antd/locale/zh_CN';
+import { CloseOutlined, DeleteOutlined } from '@ant-design/icons';
+import {
+  Button,
+  DatePicker,
+  Empty,
+  Popover,
+  Select,
+  Space,
+  message,
+} from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import * as echarts from 'echarts';
-import React, { useEffect, useRef, useState } from 'react';
-import { response } from './const';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { response, securityList } from './const';
+import styles from './index.less';
 
 const { RangePicker } = DatePicker;
+
+type SecurityItem = {
+  securityId: string;
+  securityName: string;
+  securityCode?: string;
+};
+
+const OVERLAY_LIMIT = 8;
+
+const DATE_PRESETS = [
+  { label: '今年以来', value: 'ytd' },
+  { label: '近三月', value: '3m' },
+  { label: '近六月', value: '6m' },
+  { label: '近一年', value: '1y' },
+  { label: '近三年', value: '3y' },
+  { label: '近五年', value: '5y' },
+  { label: '近十年', value: '10y' },
+];
+
+const overlayPalette = [
+  '#5AD8A6',
+  '#5D7092',
+  '#E8684A',
+  '#6DC8EC',
+  '#9270CA',
+  '#FF9D4D',
+  '#269A99',
+  '#FF99C3',
+];
+
+const hashStringTo01 = (input: string) => {
+  let hash = 0;
+  for (let i = 0; i < input.length; i += 1) {
+    hash = (hash * 31 + input.charCodeAt(i)) | 0;
+  }
+  return (Math.abs(hash) % 1000) / 1000;
+};
 
 const IncomeChart: React.FC = () => {
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstance = useRef<echarts.ECharts | null>(null);
+  const overlaySelectRef = useRef<any>(null);
 
   // Parse data
   // response.unitNavs[0] -> Blue line (中证REITs全收益)
@@ -27,6 +74,91 @@ const IncomeChart: React.FC = () => {
     dayjs(minDate),
     dayjs(maxDate),
   ]);
+
+  const [overlayOpen, setOverlayOpen] = useState(false);
+  const [overlaySelected, setOverlaySelected] = useState<SecurityItem[]>([]);
+  const [overlayDraft, setOverlayDraft] = useState<SecurityItem[]>([]);
+  const [overlaySearch, setOverlaySearch] = useState('');
+
+  const securityItems = useMemo(() => {
+    return securityList as unknown as SecurityItem[];
+  }, []);
+
+  const securityItemMap = useMemo(() => {
+    const map = new Map<string, SecurityItem>();
+    securityItems.forEach((it) => map.set(it.securityId, it));
+    return map;
+  }, [securityItems]);
+
+  const overlaySelectOptions = useMemo(() => {
+    return securityItems.map((it) => ({
+      value: it.securityId,
+      label: it.securityName,
+    }));
+  }, [securityItems]);
+
+  const overlayDraftIdSet = useMemo(() => {
+    return new Set(overlayDraft.map((it) => it.securityId));
+  }, [overlayDraft]);
+
+  const overlayAvailableOptions = useMemo(() => {
+    return overlaySelectOptions.filter(
+      (opt) => !overlayDraftIdSet.has(opt.value),
+    );
+  }, [overlaySelectOptions, overlayDraftIdSet]);
+
+  const commitOverlay = () => {
+    setOverlaySelected(overlayDraft);
+    setOverlayOpen(false);
+    setOverlaySearch('');
+  };
+
+  const cancelOverlay = () => {
+    setOverlayDraft(overlaySelected);
+    setOverlayOpen(false);
+    setOverlaySearch('');
+  };
+
+  const clearOverlay = () => {
+    setOverlayDraft([]);
+    setOverlaySearch('');
+  };
+
+  const handlePresetClick = (type: string) => {
+    const lastDate = dayjs(maxDate);
+    let startDate = lastDate;
+
+    switch (type) {
+      case 'ytd':
+        startDate = lastDate.startOf('year');
+        break;
+      case '3m':
+        startDate = startDate.subtract(3, 'months');
+        break;
+      case '6m':
+        startDate = startDate.subtract(6, 'months');
+        break;
+      case '1y':
+        startDate = startDate.subtract(1, 'year');
+        break;
+      case '3y':
+        startDate = startDate.subtract(3, 'years');
+        break;
+      case '5y':
+        startDate = startDate.subtract(5, 'years');
+        break;
+      case '10y':
+        startDate = startDate.subtract(10, 'years');
+        break;
+      default:
+        break;
+    }
+
+    const firstDate = dayjs(minDate);
+    if (startDate.isBefore(firstDate)) startDate = firstDate;
+
+    setDateRange([startDate, lastDate]);
+  };
 
   // Filter and normalize data based on date range
   const getProcessedData = () => {
@@ -68,6 +200,83 @@ const IncomeChart: React.FC = () => {
     // Common dates (assuming both lines align on dates, which is typical)
     const dates = line1.map((item) => item.date);
 
+    const overlaySeries = overlaySelected.map((item, idx) => {
+      const seed = hashStringTo01(item.securityId);
+      const amplitude = 0.2 + seed * 0.8;
+      const phase = seed * Math.PI * 2;
+      const drift = (seed - 0.5) * 0.08;
+      const data = line2.map((p, i) => {
+        const wobble = Math.sin(i / 7 + phase) * amplitude;
+        return Number((p.percentage + wobble + i * drift).toFixed(4));
+      });
+      return {
+        name: item.securityName,
+        type: 'line',
+        data,
+        symbol: 'none',
+        lineStyle: {
+          width: 1.5,
+          color: overlayPalette[idx % overlayPalette.length],
+        },
+        itemStyle: { color: overlayPalette[idx % overlayPalette.length] },
+        emphasis: { focus: 'series' },
+      };
+    });
+
+    const overlayPointSeries = {
+      name: '叠加点',
+      type: 'line',
+      data: [],
+      itemStyle: {
+        color: '#f6bd16',
+      },
+      lineStyle: { color: '#f6bd16', width: 2 },
+      symbol: 'circle',
+      symbolSize: 6,
+    };
+
+    const mainLine1Series = {
+      name: response.unitNavs[0].securityName,
+      type: 'line',
+      data: line1.map((item) => item.percentage),
+      itemStyle: {
+        color: '#5b8ff9',
+      },
+      symbol: 'none',
+      lineStyle: {
+        width: 2,
+      },
+      emphasis: {
+        focus: 'series',
+      },
+    };
+
+    const mainLine2Series = {
+      name: response.unitNavs[1].securityName,
+      type: 'line',
+      data: line2.map((item) => item.percentage),
+      itemStyle: {
+        color: '#ff7a85',
+      },
+      symbol: 'none',
+      lineStyle: {
+        width: 2,
+      },
+      emphasis: {
+        focus: 'series',
+      },
+    };
+
+    const series =
+      overlaySelected.length > 0
+        ? [
+            overlayPointSeries,
+            mainLine1Series,
+            mainLine2Series,
+            ...overlaySeries,
+          ]
+        : [mainLine1Series, overlayPointSeries, mainLine2Series];
+
     const option: echarts.EChartsOption = {
       tooltip: {
         trigger: 'axis',
@@ -102,11 +311,6 @@ const IncomeChart: React.FC = () => {
         icon: 'rect',
         itemWidth: 12,
         itemHeight: 12,
-        data: [
-          { name: response.unitNavs[0].securityName },
-          { name: '叠加点', icon: 'rect', itemStyle: { color: '#f6bd16' } }, // Dummy for UI match
-          { name: response.unitNavs[1].securityName },
-        ],
       },
       grid: {
         left: '3%',
@@ -170,46 +374,7 @@ const IncomeChart: React.FC = () => {
           },
         },
       ],
-      series: [
-        {
-          name: response.unitNavs[0].securityName,
-          type: 'line',
-          data: line1.map((item) => item.percentage),
-          itemStyle: {
-            color: '#5b8ff9', // Blue
-          },
-          symbol: 'none',
-          lineStyle: {
-            width: 2,
-          },
-          emphasis: {
-            focus: 'series',
-          },
-        },
-        {
-          name: '叠加点', // Dummy series to show in legend
-          type: 'line',
-          data: [],
-          itemStyle: {
-            color: '#f6bd16',
-          },
-        },
-        {
-          name: response.unitNavs[1].securityName,
-          type: 'line',
-          data: line2.map((item) => item.percentage),
-          itemStyle: {
-            color: '#ff7a85', // Red/Pink
-          },
-          symbol: 'none',
-          lineStyle: {
-            width: 2,
-          },
-          emphasis: {
-            focus: 'series',
-          },
-        },
-      ],
+      series,
     };
 
     chartInstance.current.setOption(option);
@@ -222,69 +387,269 @@ const IncomeChart: React.FC = () => {
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [dateRange]); // Re-render when dateRange changes
+  }, [dateRange, overlaySelected]);
 
-  return (
-    <ConfigProvider locale={zhCN}>
+  const overlayContent = (
+    <div
+      style={{
+        width: 280,
+        height: 280,
+        background: '#fff',
+        borderRadius: 6,
+        boxShadow: '0 6px 20px rgba(0,0,0,0.12)',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <div
         style={{
-          padding: '20px',
-          background: '#fff',
-          borderRadius: '8px',
-          minHeight: '500px',
+          padding: 12,
+          flex: 1,
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
-        {/* Header Section */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '20px',
+        <Select<string>
+          ref={overlaySelectRef}
+          value={undefined}
+          options={overlayAvailableOptions}
+          placeholder="请选择叠加券"
+          showSearch
+          searchValue={overlaySearch}
+          onSearch={setOverlaySearch}
+          optionFilterProp="label"
+          popupClassName={styles.overlaySelectPopup}
+          style={{ width: '100%' }}
+          filterOption={(input, option) => {
+            const q = input.trim().toLowerCase();
+            const label = (option?.label ?? '').toString().toLowerCase();
+            const value = (option?.value ?? '').toString().toLowerCase();
+            return label.includes(q) || value.includes(q);
           }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+          onSelect={(id) => {
+            const hit = securityItemMap.get(id);
+            if (!hit) return;
+            setOverlayDraft((prev) => {
+              if (prev.length >= OVERLAY_LIMIT) {
+                message.warning(`最多可叠加${OVERLAY_LIMIT}个指数`);
+                return prev;
+              }
+              if (prev.some((x) => x.securityId === id)) return prev;
+              return [...prev, hit];
+            });
+            setOverlaySearch('');
+            requestAnimationFrame(() => overlaySelectRef.current?.blur?.());
+          }}
+        />
+
+        <div style={{ marginTop: 10, flex: 1, overflow: 'hidden' }}>
+          {overlayDraft.length > 0 ? (
             <div
               style={{
-                width: '4px',
-                height: '16px',
-                background: '#4e73df',
-                marginRight: '8px',
-                borderRadius: '2px',
+                border: '1px solid #F0F2F5',
+                borderRadius: 4,
+                overflow: 'hidden',
+                background: '#fff',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
               }}
-            ></div>
-            <span
-              style={{ fontSize: '16px', fontWeight: '500', color: '#333' }}
             >
-              {response.securityCode} {response.unitNavs[1].securityName}
-            </span>
-            {/* The title in screenshot is "932006 中证REITs(收盘)", using second series name as per screenshot */}
-          </div>
+              <div className={styles.overlayDraftScroll} style={{ flex: 1 }}>
+                {overlayDraft.map((it, idx) => (
+                  <div
+                    key={it.securityId}
+                    style={{
+                      height: 34,
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '0 10px',
+                      borderBottom:
+                        idx === overlayDraft.length - 1
+                          ? undefined
+                          : '1px solid #F0F2F5',
+                    }}
+                  >
+                    <div
+                      style={{
+                        flex: 1,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        color: '#1D1E26',
+                        fontSize: 13,
+                      }}
+                      title={it.securityName}
+                    >
+                      {it.securityName}
+                    </div>
+                    <CloseOutlined
+                      style={{
+                        color: '#A1A5B2',
+                        fontSize: 12,
+                        cursor: 'pointer',
+                      }}
+                      onClick={() =>
+                        setOverlayDraft((prev) =>
+                          prev.filter((x) => x.securityId !== it.securityId),
+                        )
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div
+              style={{
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description={<span style={{ color: '#A1A5B2' }}>暂无数据</span>}
+              />
+            </div>
+          )}
+        </div>
+      </div>
 
-          <Space size="middle">
+      <div
+        style={{
+          height: 44,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'end',
+          padding: '0 12px',
+          background: '#fff',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Button
+            type="link"
+            icon={<DeleteOutlined />}
+            style={{ padding: 0, height: 'auto', color: '#3D61A9' }}
+            onClick={clearOverlay}
+          >
+            清空
+          </Button>
+          <Button onClick={cancelOverlay}>取消</Button>
+          <Button
+            type="primary"
+            style={{ backgroundColor: '#4e73df', borderColor: '#4e73df' }}
+            onClick={commitOverlay}
+          >
+            确认
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div
+      style={{
+        padding: '20px',
+        background: '#fff',
+        borderRadius: '8px',
+        minHeight: '500px',
+      }}
+    >
+      {/* Header Section */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '20px',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div
+            style={{
+              width: '4px',
+              height: '16px',
+              background: '#4e73df',
+              marginRight: '8px',
+              borderRadius: '2px',
+            }}
+          ></div>
+          <span style={{ fontSize: '16px', fontWeight: '500', color: '#333' }}>
+            {response.securityCode} {response.unitNavs[1].securityName}
+          </span>
+          {/* The title in screenshot is "932006 中证REITs(收盘)", using second series name as per screenshot */}
+        </div>
+
+        <Space size="middle">
+          <Popover
+            open={overlayOpen}
+            onOpenChange={(next) => {
+              setOverlayOpen(next);
+              if (next) {
+                setOverlayDraft(overlaySelected);
+              } else {
+                setOverlayDraft(overlaySelected);
+              }
+              setOverlaySearch('');
+            }}
+            placement="bottomRight"
+            trigger="click"
+            arrow={false}
+            content={overlayContent}
+            overlayInnerStyle={{
+              padding: 0,
+              borderRadius: 6,
+              width: 280,
+              height: 280,
+            }}
+          >
             <Button
               type="primary"
               style={{ backgroundColor: '#4e73df', borderColor: '#4e73df' }}
             >
               超级叠加
             </Button>
-            <RangePicker
-              value={dateRange}
-              onChange={(dates) => {
-                if (dates && dates[0] && dates[1]) {
-                  setDateRange([dates[0], dates[1]]);
-                }
-              }}
-              allowClear={false}
-              style={{ width: '260px' }}
-            />
-          </Space>
-        </div>
-
-        {/* Chart Section */}
-        <div ref={chartRef} style={{ width: '100%', height: '400px' }} />
+          </Popover>
+          <RangePicker
+            value={dateRange}
+            onChange={(dates) => {
+              if (dates && dates[0] && dates[1]) {
+                setDateRange([dates[0], dates[1]]);
+              }
+            }}
+            allowClear={false}
+            style={{ width: '260px' }}
+            renderExtraFooter={() => (
+              <div
+                className={styles.presets}
+                style={{
+                  marginLeft: 6,
+                  padding: '8px 0',
+                }}
+              >
+                {DATE_PRESETS.map((p) => (
+                  <span
+                    key={p.value}
+                    className={styles.presetLink}
+                    onClick={() => handlePresetClick(p.value)}
+                  >
+                    {p.label}
+                  </span>
+                ))}
+              </div>
+            )}
+          />
+        </Space>
       </div>
-    </ConfigProvider>
+
+      {/* Chart Section */}
+      <div ref={chartRef} style={{ width: '100%', height: '400px' }} />
+    </div>
   );
 };
 
