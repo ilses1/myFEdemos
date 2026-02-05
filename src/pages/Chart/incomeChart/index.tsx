@@ -239,18 +239,20 @@ const IncomeChart: React.FC = () => {
       };
     });
 
-    const overlayPointSeries = {
+    const buildOverlayPointSeries = (baseIndex: number) => ({
       id: 'overlay-point',
       name: '叠加点',
-      type: 'line',
-      data: [],
+      type: 'scatter',
+      data: dates.length > 0 ? [[dates[baseIndex], 0]] : [],
+      symbol: 'circle',
+      symbolSize: 6,
       itemStyle: {
         color: '#FECA7A',
       },
-      lineStyle: { color: '#FECA7A', width: 2 },
-      symbol: 'circle',
-      symbolSize: 6,
-    };
+      tooltip: { show: false },
+      emphasis: { disabled: true },
+      z: 10,
+    });
 
     const mainLine1Name = response.unitNavs[0].securityName;
     const mainLine1SeriesBase = {
@@ -309,6 +311,7 @@ const IncomeChart: React.FC = () => {
     };
 
     const buildSeries = (baseIndex: number) => {
+      const overlayPointSeries = buildOverlayPointSeries(baseIndex);
       const mainLine1Series = {
         ...mainLine1SeriesBase,
         data: percentFromBaseIndex(line1, baseIndex).map(round4),
@@ -381,6 +384,11 @@ const IncomeChart: React.FC = () => {
         pageButtonPosition: 'end',
         pageButtonGap: 8,
         pageIconSize: 12,
+        data: [
+          mainLine1Name,
+          mainLine2Name,
+          ...overlaySelected.map((it) => it.securityName),
+        ],
       },
       grid: {
         show: true,
