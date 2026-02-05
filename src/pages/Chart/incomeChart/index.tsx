@@ -57,6 +57,7 @@ const IncomeChart: React.FC = () => {
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstance = useRef<echarts.ECharts | null>(null);
   const overlaySelectRef = useRef<any>(null);
+  const baseIndexRef = useRef(0);
 
   // Parse data
   // response.unitNavs[0] -> Blue line (中证REITs全收益)
@@ -166,7 +167,7 @@ const IncomeChart: React.FC = () => {
     const startDateStr = start.format('YYYY-MM-DD');
     const endDateStr = end.format('YYYY-MM-DD');
 
-    const filterAndNormalize = (data: typeof line1Data) => {
+    const filterOnly = (data: typeof line1Data) => {
       const filtered = data.filter(
         (item) =>
           item.unitNavDate >= startDateStr && item.unitNavDate <= endDateStr,
@@ -174,17 +175,15 @@ const IncomeChart: React.FC = () => {
 
       if (filtered.length === 0) return [];
 
-      const baseValue = filtered[0].unitNavValue;
       return filtered.map((item) => ({
         date: item.unitNavDate,
         value: item.unitNavValue,
-        percentage: ((item.unitNavValue - baseValue) / baseValue) * 100,
       }));
     };
 
     return {
-      line1: filterAndNormalize(line1Data),
-      line2: filterAndNormalize(line2Data),
+      line1: filterOnly(line1Data),
+      line2: filterOnly(line2Data),
     };
   };
 
@@ -196,23 +195,38 @@ const IncomeChart: React.FC = () => {
     }
 
     const { line1, line2 } = getProcessedData();
+    const percentFromBaseIndex = (
+      points: Array<{ value: number }>,
+      baseIndex: number,
+    ) => {
+      const base = points[baseIndex]?.value;
+      if (base === undefined || base === 0) return points.map(() => 0);
+      return points.map((p) => ((p.value - base) / base) * 100);
+    };
+    const rebaseBySubtract = (data: number[], baseIndex: number) => {
+      const base = data[baseIndex] ?? 0;
+      return data.map((v) => v - base);
+    };
+    const round4 = (v: number) => Number(v.toFixed(4));
 
     // Common dates (assuming both lines align on dates, which is typical)
     const dates = line1.map((item) => item.date);
+    const line2PercentBase0 = percentFromBaseIndex(line2, 0);
 
-    const overlaySeries = overlaySelected.map((item, idx) => {
+    const overlayRawSeries = overlaySelected.map((item, idx) => {
       const seed = hashStringTo01(item.securityId);
       const amplitude = 0.2 + seed * 0.8;
       const phase = seed * Math.PI * 2;
       const drift = (seed - 0.5) * 0.08;
-      const data = line2.map((p, i) => {
+      const data = line2PercentBase0.map((p, i) => {
         const wobble = Math.sin(i / 7 + phase) * amplitude;
-        return Number((p.percentage + wobble + i * drift).toFixed(4));
+        return round4(p + wobble + i * drift);
       });
       return {
+        id: `overlay-${item.securityId}`,
         name: item.securityName,
         type: 'line',
-        data,
+        rawData: data,
         symbol: 'emptyCircle',
         showSymbol: false,
         symbolSize: 6,
@@ -226,6 +240,7 @@ const IncomeChart: React.FC = () => {
     });
 
     const overlayPointSeries = {
+      id: 'overlay-point',
       name: '叠加点',
       type: 'line',
       data: [],
@@ -238,10 +253,10 @@ const IncomeChart: React.FC = () => {
     };
 
     const mainLine1Name = response.unitNavs[0].securityName;
-    const mainLine1Series = {
+    const mainLine1SeriesBase = {
+      id: 'main-1',
       name: mainLine1Name,
       type: 'line',
-      data: line1.map((item) => item.percentage),
       itemStyle: {
         color: mainLine1Name === '中证REITs全收益' ? '#486EBD' : '#5b8ff9',
       },
@@ -266,10 +281,10 @@ const IncomeChart: React.FC = () => {
     };
 
     const mainLine2Name = response.unitNavs[1].securityName;
-    const mainLine2Series = {
+    const mainLine2SeriesBase = {
+      id: 'main-2',
       name: mainLine2Name,
       type: 'line',
-      data: line2.map((item) => item.percentage),
       itemStyle: {
         color: mainLine2Name === '中证REITs全收益' ? '#486EBD' : '#FF7D7D',
       },
@@ -293,8 +308,21 @@ const IncomeChart: React.FC = () => {
       },
     };
 
-    const series =
-      overlaySelected.length > 0
+    const buildSeries = (baseIndex: number) => {
+      const mainLine1Series = {
+        ...mainLine1SeriesBase,
+        data: percentFromBaseIndex(line1, baseIndex).map(round4),
+      };
+      const mainLine2Series = {
+        ...mainLine2SeriesBase,
+        data: percentFromBaseIndex(line2, baseIndex).map(round4),
+      };
+      const overlaySeries = overlayRawSeries.map(({ rawData, ...rest }) => ({
+        ...rest,
+        data: rebaseBySubtract(rawData, baseIndex).map(round4),
+      }));
+
+      return overlaySelected.length > 0
         ? [
             overlayPointSeries,
             mainLine1Series,
@@ -302,6 +330,7 @@ const IncomeChart: React.FC = () => {
             ...overlaySeries,
           ]
         : [mainLine1Series, overlayPointSeries, mainLine2Series];
+    };
 
     const option: echarts.EChartsOption = {
       backgroundColor: '#fff',
@@ -430,10 +459,38 @@ const IncomeChart: React.FC = () => {
           },
         },
       ],
-      series,
+      series: buildSeries(0),
     };
 
-    chartInstance.current.setOption(option);
+    baseIndexRef.current = 0;
+    chartInstance.current.setOption(option, { notMerge: true });
+
+    chartInstance.current.off('datazoom');
+    const handleDataZoom = (ev: any) => {
+      const batch = ev?.batch?.[0] ?? ev;
+      let nextBaseIndex = 0;
+
+      const startValue = batch?.startValue;
+      if (typeof startValue === 'number') {
+        nextBaseIndex = startValue;
+      } else if (typeof startValue === 'string') {
+        const idx = dates.indexOf(startValue);
+        nextBaseIndex = idx >= 0 ? idx : 0;
+      } else if (typeof batch?.start === 'number' && dates.length > 1) {
+        nextBaseIndex = Math.floor((batch.start / 100) * (dates.length - 1));
+      }
+
+      if (nextBaseIndex < 0) nextBaseIndex = 0;
+      if (nextBaseIndex > dates.length - 1) nextBaseIndex = dates.length - 1;
+
+      if (nextBaseIndex === baseIndexRef.current) return;
+      baseIndexRef.current = nextBaseIndex;
+      chartInstance.current?.setOption(
+        { series: buildSeries(nextBaseIndex) },
+        { lazyUpdate: true },
+      );
+    };
+    chartInstance.current.on('datazoom', handleDataZoom);
 
     const handleResize = () => {
       chartInstance.current?.resize();
@@ -442,6 +499,7 @@ const IncomeChart: React.FC = () => {
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      chartInstance.current?.off('datazoom', handleDataZoom);
     };
   }, [dateRange, overlaySelected]);
 
