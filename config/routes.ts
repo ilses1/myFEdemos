@@ -30,6 +30,21 @@ export default [
     ],
   },
   {
+    name: '文件上传',
+    path: '/upload',
+    routes: [
+      {
+        path: '/upload',
+        redirect: '/upload/excel',
+      },
+      {
+        name: 'excel',
+        path: '/upload/excel',
+        component: './Upload/Excel',
+      },
+    ],
+  },
+  {
     name: '前端草稿',
     path: '/frontend-card',
     devOnly: true,
