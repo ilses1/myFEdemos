@@ -178,6 +178,23 @@ const ExcelUpload: React.FC = () => {
     null,
   );
 
+  const downloadTemplate = () => {
+    try {
+      const templateUrl = encodeURI('/template/上传模板.xlsx');
+      const a = document.createElement('a');
+      a.href = templateUrl;
+      a.download = '上传模板.xlsx';
+      a.rel = 'noopener';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      message.success('模板已开始下载');
+    } catch (e) {
+      const err = e instanceof Error ? e : new Error('模板生成失败');
+      message.error(err.message);
+    }
+  };
+
   const beforeUpload: UploadProps['beforeUpload'] = (file) => {
     const isExcel = /\.(xlsx|xls)$/i.test(file.name);
     if (!isExcel) {
@@ -241,18 +258,35 @@ const ExcelUpload: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <Space direction="vertical" size={16} style={{ width: '100%' }}>
-        <Upload
+        <Space wrap>
+          <Button onClick={downloadTemplate} disabled={isBusy}>
+            下载 Excel 模板
+          </Button>
+          <Typography.Text type="secondary">
+            模板来自 public/template/上传模板.xlsx
+          </Typography.Text>
+        </Space>
+        <Upload.Dragger
           accept=".xls,.xlsx"
           maxCount={1}
           beforeUpload={beforeUpload}
           customRequest={customRequest}
           disabled={isBusy}
           showUploadList={false}
+          height={220}
         >
-          <Button type="primary" loading={isBusy}>
-            点击上传 Excel
-          </Button>
-        </Upload>
+          <Space direction="vertical" size={8}>
+            <Typography.Title level={5} style={{ margin: 0 }}>
+              拖拽 Excel 文件到这里上传
+            </Typography.Title>
+            <Typography.Text type="secondary">
+              支持 .xls / .xlsx，点击此区域也可选择文件
+            </Typography.Text>
+            {isBusy ? (
+              <Typography.Text type="secondary">处理中…</Typography.Text>
+            ) : null}
+          </Space>
+        </Upload.Dragger>
 
         {preview && (
           <Card size="small" title="本地预览">
