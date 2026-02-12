@@ -42,6 +42,11 @@ export default [
         path: '/upload/excel',
         component: './Upload/Excel',
       },
+      {
+        name: '调仓导入',
+        path: '/upload/rebalance',
+        component: './Upload/Rebalance',
+      },
     ],
   },
   {
