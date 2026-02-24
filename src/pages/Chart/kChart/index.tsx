@@ -1,7 +1,13 @@
 import { DatePicker, Select } from 'antd';
 import dayjs from 'dayjs';
 import * as echarts from 'echarts';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { response } from './const';
 import styles from './index.less';
 
@@ -57,6 +63,32 @@ const KChart: React.FC = () => {
   }, []);
 
   const chartData = useMemo(() => rawData, [rawData]);
+
+  const restoreToLastVisible = useCallback(() => {
+    const total = chartData.length;
+    if (total === 0) return;
+
+    const myChart = chartInstance.current;
+    let lastIndex = total - 1;
+
+    if (myChart) {
+      try {
+        const option = myChart.getOption() as any;
+        const dz0 = Array.isArray(option?.dataZoom) ? option.dataZoom[0] : null;
+        const endPercent = Number(dz0?.end);
+
+        if (Number.isFinite(endPercent)) {
+          lastIndex = Math.min(
+            Math.floor((endPercent / 100) * total),
+            total - 1,
+          );
+        }
+      } catch {}
+    }
+
+    const nextInfo = chartData[lastIndex] ?? chartData[total - 1];
+    setCurrentInfo((prev) => (prev === nextInfo ? prev : nextInfo));
+  }, [chartData]);
 
   // Initial Data Set
   useEffect(() => {
@@ -336,6 +368,12 @@ const KChart: React.FC = () => {
       }
     });
 
+    myChart.off('globalout');
+    myChart.on('globalout', restoreToLastVisible);
+    const zr = myChart.getZr();
+    zr.off('globalout');
+    zr.on('globalout', restoreToLastVisible);
+
     // Sync DataZoom with Date Range State (for "上方时间随之变化")
     myChart.off('dataZoom');
     myChart.on('dataZoom', () => {
@@ -357,7 +395,7 @@ const KChart: React.FC = () => {
         setDateRange([startMoment, endMoment]);
       }
     });
-  }, [chartData, selectedMAs, dateRange]);
+  }, [chartData, selectedMAs, dateRange, restoreToLastVisible]);
 
   // Handlers
   const handlePresetClick = (type: string) => {
@@ -569,7 +607,11 @@ const KChart: React.FC = () => {
       </div>
 
       {/* Chart */}
-      <div ref={chartRef} className={styles.chartContainer} />
+      <div
+        ref={chartRef}
+        className={styles.chartContainer}
+        onMouseLeave={restoreToLastVisible}
+      />
     </div>
   );
 };
