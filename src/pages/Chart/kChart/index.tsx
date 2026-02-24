@@ -147,6 +147,7 @@ const KChart: React.FC = () => {
 
     const series: any[] = [
       {
+        id: 'kline',
         name: 'K线',
         type: 'candlestick',
         clip: true,
@@ -160,6 +161,7 @@ const KChart: React.FC = () => {
         // Remove default markPoint/Line unless requested
       },
       {
+        id: 'event',
         name: '事件',
         type: 'custom',
         clip: true,
@@ -199,11 +201,18 @@ const KChart: React.FC = () => {
     MA_CONFIG.forEach((ma) => {
       if (selectedMAs.includes(ma.key)) {
         series.push({
+          id: ma.key,
           name: ma.label,
           type: 'line',
           clip: true,
-          data: chartData.map((item) => item[ma.key]),
+          data: chartData.map((item) => {
+            const v = item[ma.key];
+            if (v === '-' || v === undefined || v === null) return null;
+            const n = Number(v);
+            return Number.isFinite(n) ? n : null;
+          }),
           smooth: true,
+          connectNulls: true,
           showSymbol: false, // Default hidden
           symbol: 'circle', // Show circle on hover (handled by axisPointer emphasis usually, or simple symbol)
           symbolSize: 6,
@@ -315,7 +324,7 @@ const KChart: React.FC = () => {
       series: series,
     };
 
-    myChart.setOption(option);
+    myChart.setOption(option, { replaceMerge: ['series'] });
 
     // Event Listeners
     myChart.off('updateAxisPointer');
@@ -518,7 +527,7 @@ const KChart: React.FC = () => {
                 allowClear
                 style={{ width: 100 }}
                 placeholder="选择均线"
-                defaultValue={selectedMAs}
+                value={selectedMAs}
                 onChange={setSelectedMAs}
                 size="small"
                 maxTagCount="responsive"
@@ -541,7 +550,7 @@ const KChart: React.FC = () => {
                         className={styles.value}
                         style={{ color: ma.color }}
                       >
-                        {currentInfo[ma.key] !== '-'
+                        {!!currentInfo[ma.key]
                           ? Number(currentInfo[ma.key]).toLocaleString(
                               'en-US',
                               {
