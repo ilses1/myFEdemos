@@ -326,7 +326,7 @@ const KChart: React.FC = () => {
       xAxis: {
         type: 'category',
         data: dates,
-        boundaryGap: false,
+        boundaryGap: true,
         axisLine: { onZero: false, lineStyle: { color: '#DFE5F2' } },
         axisLabel: { color: '#777E8C', rotate: 30 },
         splitLine: { show: true, lineStyle: { color: '#DFE5F2' } },
