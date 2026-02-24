@@ -80,6 +80,9 @@ const IncomeChart: React.FC = () => {
   const [overlaySelected, setOverlaySelected] = useState<SecurityItem[]>([]);
   const [overlayDraft, setOverlayDraft] = useState<SecurityItem[]>([]);
   const [overlaySearch, setOverlaySearch] = useState('');
+  const [overlaySelectValue, setOverlaySelectValue] = useState<string | null>(
+    null,
+  );
 
   const securityItems = useMemo(() => {
     return securityList as unknown as SecurityItem[];
@@ -533,9 +536,9 @@ const IncomeChart: React.FC = () => {
           flexDirection: 'column',
         }}
       >
-        <Select<string>
+        <Select<string | null>
           ref={overlaySelectRef}
-          value={undefined}
+          value={overlaySelectValue}
           options={overlayAvailableOptions}
           placeholder="请选择叠加券"
           showSearch
@@ -551,6 +554,8 @@ const IncomeChart: React.FC = () => {
             return label.includes(q) || value.includes(q);
           }}
           onSelect={(id) => {
+            setOverlaySelectValue(null);
+            if (!id) return;
             const hit = securityItemMap.get(id);
             if (!hit) return;
             setOverlayDraft((prev) => {
@@ -718,6 +723,7 @@ const IncomeChart: React.FC = () => {
                 setOverlayDraft(overlaySelected);
               }
               setOverlaySearch('');
+              setOverlaySelectValue(null);
             }}
             placement="bottomRight"
             trigger="click"
