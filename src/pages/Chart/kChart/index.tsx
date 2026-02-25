@@ -299,6 +299,8 @@ const KChart: React.FC = () => {
             const point = api.coord([api.value(0), api.value(1)]);
             if (isNaN(point[0]) || isNaN(point[1])) return;
 
+            return null;
+            /*
             return {
               type: 'text',
               x: point[0],
@@ -318,6 +320,7 @@ const KChart: React.FC = () => {
               },
               z2: 100,
             };
+            */
           },
           z: 100,
         },
