@@ -13,8 +13,17 @@ import styles from './index.less';
 
 const { RangePicker } = DatePicker;
 
-// Types
 type MAKey = 'ma5' | 'ma10' | 'ma20' | 'ma60' | 'ma120' | 'ma250';
+
+type KLineItem = {
+  marketDate: string;
+  openValue: number;
+  closeValue: number;
+  highValue: number;
+  lowValue: number;
+} & Partial<Record<MAKey, number | '-' | null>>;
+
+type MessageItem = { messageDate: string; messageTitle: string };
 
 const MA_CONFIG: { key: MAKey; label: string; color: string }[] = [
   { key: 'ma5', label: 'MA(5)', color: '#486EBD' },
@@ -35,12 +44,78 @@ const DATE_PRESETS = [
   { label: '近十年', value: '10y' },
 ];
 
+const toNumberOrNull = (value: unknown) => {
+  if (value === '-' || value === null || value === undefined) return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+};
+
+const calcZoomRange = (
+  dates: string[],
+  dateRange: [dayjs.Dayjs, dayjs.Dayjs] | null,
+) => {
+  if (dates.length === 0) return { start: 0, end: 100 };
+
+  let start = 0;
+  let end = 100;
+
+  if (dateRange?.[0] && dateRange?.[1]) {
+    const startDateStr = dateRange[0].format('YYYY-MM-DD');
+    const endDateStr = dateRange[1].format('YYYY-MM-DD');
+
+    const startIndex = dates.findIndex((d) => d >= startDateStr);
+    const endIndex = dates.findIndex((d) => d > endDateStr);
+
+    const realEndIndex = endIndex === -1 ? dates.length - 1 : endIndex - 1;
+    const realStartIndex = startIndex === -1 ? 0 : startIndex;
+
+    start = (realStartIndex / dates.length) * 100;
+    end = ((realEndIndex + 1) / dates.length) * 100;
+  } else {
+    const lastDate = dayjs(dates[dates.length - 1]);
+    const oneYearAgo = lastDate.subtract(1, 'year').format('YYYY-MM-DD');
+    const idx = dates.findIndex((d) => d >= oneYearAgo);
+    if (idx !== -1) start = (idx / dates.length) * 100;
+  }
+
+  return { start, end };
+};
+
 const KChart: React.FC = () => {
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstance = useRef<echarts.ECharts | null>(null);
   const isChartUpdating = useRef(false);
 
-  // State
+  const getUpDownClass = (
+    a: number | null | undefined,
+    b: number | null | undefined,
+    geIsUp: boolean,
+  ) => {
+    const left = a ?? 0;
+    const right = b ?? 0;
+    return left >= right
+      ? geIsUp
+        ? styles.up
+        : styles.down
+      : geIsUp
+      ? styles.down
+      : styles.up;
+  };
+
+  const formatFixed = (value: number | null | undefined, digits = 2) => {
+    if (typeof value !== 'number' || !Number.isFinite(value)) return '--';
+    return value.toFixed(digits);
+  };
+
+  const formatLocaleNumber = (value: unknown) => {
+    const n = toNumberOrNull(value);
+    if (n === null) return '-';
+    return n.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
+
   const [selectedMAs, setSelectedMAs] = useState<MAKey[]>([
     'ma5',
     'ma10',
@@ -49,23 +124,210 @@ const KChart: React.FC = () => {
     'ma120',
     'ma250',
   ]);
-  const [currentInfo, setCurrentInfo] = useState<any>(null);
+  const [currentInfo, setCurrentInfo] = useState<KLineItem | null>(null);
   const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(
     null,
   );
 
-  // 1. Prepare Data
-  const rawData = useMemo(() => {
-    // Sort by date ascending
-    return [...response.klineValueList].sort(
+  const rawData = useMemo<KLineItem[]>(() => {
+    return [...(response.klineValueList as KLineItem[])].sort(
       (a, b) => dayjs(a.marketDate).valueOf() - dayjs(b.marketDate).valueOf(),
     );
   }, []);
 
-  const chartData = useMemo(() => rawData, [rawData]);
+  const dataBounds = useMemo(() => {
+    if (rawData.length === 0) return null;
+    return {
+      first: dayjs(rawData[0].marketDate),
+      last: dayjs(rawData[rawData.length - 1].marketDate),
+    };
+  }, [rawData]);
+
+  const dates = useMemo(
+    () => rawData.map((item) => item.marketDate),
+    [rawData],
+  );
+  const klineValues = useMemo(
+    () =>
+      rawData.map((item) => [
+        item.openValue,
+        item.closeValue,
+        item.lowValue,
+        item.highValue,
+      ]),
+    [rawData],
+  );
+
+  const eventData = useMemo(() => {
+    const highByDate = new Map<string, number>();
+    rawData.forEach((d) => {
+      highByDate.set(d.marketDate, d.highValue);
+    });
+
+    const list = (response.messageList as MessageItem[] | undefined) ?? [];
+    return list.flatMap((msg) => {
+      const y = highByDate.get(msg.messageDate);
+      if (y === undefined) return [];
+      return [
+        {
+          name: msg.messageTitle,
+          value: [msg.messageDate, y] as [string, number],
+        },
+      ];
+    });
+  }, [rawData]);
+
+  const maSeries = useMemo(() => {
+    return MA_CONFIG.flatMap((ma) => {
+      if (!selectedMAs.includes(ma.key)) return [];
+      return [
+        {
+          id: ma.key,
+          name: ma.label,
+          type: 'line',
+          clip: true,
+          data: rawData.map((item) => toNumberOrNull(item[ma.key])),
+          smooth: true,
+          connectNulls: true,
+          showSymbol: false,
+          symbol: 'circle',
+          symbolSize: 6,
+          lineStyle: {
+            width: 1,
+            color: ma.color,
+          },
+          itemStyle: {
+            color: ma.color,
+          },
+          emphasis: {
+            itemStyle: {
+              opacity: 1,
+            },
+          },
+        },
+      ];
+    });
+  }, [rawData, selectedMAs]);
+
+  const zoomRange = useMemo(
+    () => calcZoomRange(dates, dateRange),
+    [dates, dateRange],
+  );
+
+  const chartOption = useMemo<echarts.EChartsOption>(() => {
+    return {
+      backgroundColor: '#fff',
+      animation: false,
+      grid: {
+        show: true,
+        backgroundColor: '#F2F5FA',
+        borderWidth: 0,
+        left: '10px',
+        right: '10px',
+        bottom: '30px',
+        top: '10px',
+        containLabel: true,
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'cross',
+          label: {
+            backgroundColor: '#535966',
+          },
+          crossStyle: {
+            color: '#A1A7B2',
+            type: 'dashed',
+          },
+        },
+        showContent: false,
+      },
+      xAxis: {
+        type: 'category',
+        data: dates,
+        boundaryGap: true,
+        axisLine: { onZero: false, lineStyle: { color: '#DFE5F2' } },
+        axisLabel: { color: '#777E8C', rotate: 30 },
+        splitLine: { show: true, lineStyle: { color: '#DFE5F2' } },
+        min: 'dataMin',
+        max: 'dataMax',
+        axisPointer: {
+          label: {
+            show: true,
+          },
+        },
+      },
+      yAxis: {
+        scale: true,
+        splitLine: { show: true, lineStyle: { color: '#DFE5F2' } },
+        axisLabel: { color: '#777E8C' },
+        axisLine: { lineStyle: { color: '#DFE5F2' } },
+        position: 'left',
+      },
+      dataZoom: [
+        {
+          type: 'inside',
+          start: zoomRange.start,
+          end: zoomRange.end,
+          preventDefaultMouseMove: false,
+        },
+      ],
+      series: [
+        {
+          id: 'kline',
+          name: 'K线',
+          type: 'candlestick',
+          clip: true,
+          data: klineValues,
+          itemStyle: {
+            color: '#ef5350',
+            color0: '#26a69a',
+            borderColor: '#ef5350',
+            borderColor0: '#26a69a',
+          },
+        },
+        {
+          id: 'event',
+          name: '事件',
+          type: 'custom',
+          clip: true,
+          data: eventData,
+          renderItem: (params: any, api: any) => {
+            const dataItem = eventData[params.dataIndex];
+            if (!dataItem) return;
+
+            const point = api.coord([api.value(0), api.value(1)]);
+            if (isNaN(point[0]) || isNaN(point[1])) return;
+
+            return {
+              type: 'text',
+              x: point[0],
+              y: point[1] - 10,
+              style: {
+                text: dataItem.name,
+                fill: '#333',
+                backgroundColor: '#fff',
+                borderColor: '#E7E9ED',
+                borderWidth: 1,
+                borderRadius: 2,
+                padding: [4, 8],
+                shadowBlur: 2,
+                shadowColor: 'rgba(0,0,0,0.1)',
+                align: 'center',
+                verticalAlign: 'bottom',
+              },
+              z2: 100,
+            };
+          },
+          z: 100,
+        },
+        ...maSeries,
+      ],
+    };
+  }, [dates, eventData, klineValues, maSeries, zoomRange.end, zoomRange.start]);
 
   const restoreToLastVisible = useCallback(() => {
-    const total = chartData.length;
+    const total = rawData.length;
     if (total === 0) return;
 
     const myChart = chartInstance.current;
@@ -86,24 +348,21 @@ const KChart: React.FC = () => {
       } catch {}
     }
 
-    const nextInfo = chartData[lastIndex] ?? chartData[total - 1];
+    const nextInfo = rawData[lastIndex] ?? rawData[total - 1];
     setCurrentInfo((prev) => (prev === nextInfo ? prev : nextInfo));
-  }, [chartData]);
+  }, [rawData]);
 
-  // Initial Data Set
   useEffect(() => {
-    if (chartData.length > 0) {
-      setCurrentInfo(chartData[chartData.length - 1]);
+    if (rawData.length > 0) {
+      setCurrentInfo(rawData[rawData.length - 1]);
 
-      // Default view range: Last 1 year
-      const lastDate = dayjs(chartData[chartData.length - 1].marketDate);
+      const lastDate = dayjs(rawData[rawData.length - 1].marketDate);
       const oneYearAgo = lastDate.subtract(1, 'year');
 
       setDateRange([oneYearAgo, lastDate]);
     }
-  }, [chartData]); // Only reset when data source structure changes (e.g. period change)
+  }, [rawData]);
 
-  // Chart Lifecycle
   useEffect(() => {
     if (!chartRef.current) return;
 
@@ -145,228 +404,53 @@ const KChart: React.FC = () => {
     };
   }, []);
 
-  // Chart Rendering & Updates
+  const handleAxisPointerUpdate = useCallback(
+    (event: any) => {
+      const dataIndex = event.dataIndex;
+      if (
+        dataIndex !== null &&
+        dataIndex !== undefined &&
+        rawData[dataIndex] !== undefined
+      ) {
+        setCurrentInfo(rawData[dataIndex]);
+      }
+    },
+    [rawData],
+  );
+
+  const handleDataZoom = useCallback(() => {
+    const myChart = chartInstance.current;
+    if (!myChart) return;
+    if (dates.length === 0) return;
+
+    isChartUpdating.current = true;
+    const option = myChart.getOption() as any;
+    const start = option.dataZoom[0].start;
+    const end = option.dataZoom[0].end;
+
+    const startIndex = Math.floor((start / 100) * dates.length);
+    const endIndex = Math.min(
+      Math.floor((end / 100) * dates.length),
+      dates.length - 1,
+    );
+
+    if (dates[startIndex] && dates[endIndex]) {
+      const startMoment = dayjs(dates[startIndex]);
+      const endMoment = dayjs(dates[endIndex]);
+      setDateRange([startMoment, endMoment]);
+    }
+  }, [dates]);
+
   useEffect(() => {
     const myChart = chartInstance.current;
-    if (!myChart || chartData.length === 0) return;
+    if (!myChart || rawData.length === 0) return;
 
     if (isChartUpdating.current) {
       isChartUpdating.current = false;
       return;
     }
-
-    const dates = chartData.map((item) => item.marketDate);
-    const values = chartData.map((item) => [
-      item.openValue,
-      item.closeValue,
-      item.lowValue,
-      item.highValue,
-    ]);
-
-    // Build Series
-    const scatterData = (response.messageList || [])
-      .map((msg) => {
-        const match = chartData.find((d) => d.marketDate === msg.messageDate);
-        if (match) {
-          return {
-            name: msg.messageTitle,
-            value: [msg.messageDate, match.highValue],
-          };
-        }
-        return null;
-      })
-      .filter(Boolean);
-
-    const series: any[] = [
-      {
-        id: 'kline',
-        name: 'K线',
-        type: 'candlestick',
-        clip: true,
-        data: values,
-        itemStyle: {
-          color: '#ef5350', // Red for Rise (Close > Open)
-          color0: '#26a69a', // Green for Fall (Close < Open)
-          borderColor: '#ef5350',
-          borderColor0: '#26a69a',
-        },
-        // Remove default markPoint/Line unless requested
-      },
-      {
-        id: 'event',
-        name: '事件',
-        type: 'custom',
-        clip: true,
-        data: scatterData,
-        renderItem: (params: any, api: any) => {
-          const dataItem = scatterData[params.dataIndex];
-          if (!dataItem) return;
-
-          const point = api.coord([api.value(0), api.value(1)]);
-          if (isNaN(point[0]) || isNaN(point[1])) return;
-
-          return {
-            type: 'text',
-            x: point[0],
-            y: point[1] - 10, // Offset distance
-            style: {
-              text: dataItem.name,
-              fill: '#333',
-              backgroundColor: '#fff',
-              borderColor: '#E7E9ED',
-              borderWidth: 1,
-              borderRadius: 2,
-              padding: [4, 8],
-              shadowBlur: 2,
-              shadowColor: 'rgba(0,0,0,0.1)',
-              align: 'center',
-              verticalAlign: 'bottom',
-            },
-            z2: 100, // Ensure it renders above other elements
-          };
-        },
-        z: 100,
-      },
-    ];
-
-    // Add MA Lines
-    MA_CONFIG.forEach((ma) => {
-      if (selectedMAs.includes(ma.key)) {
-        series.push({
-          id: ma.key,
-          name: ma.label,
-          type: 'line',
-          clip: true,
-          data: chartData.map((item) => {
-            const v = item[ma.key];
-            if (v === '-' || v === undefined || v === null) return null;
-            const n = Number(v);
-            return Number.isFinite(n) ? n : null;
-          }),
-          smooth: true,
-          connectNulls: true,
-          showSymbol: false, // Default hidden
-          symbol: 'circle', // Show circle on hover (handled by axisPointer emphasis usually, or simple symbol)
-          symbolSize: 6,
-          lineStyle: {
-            width: 1,
-            color: ma.color,
-          },
-          itemStyle: {
-            color: ma.color,
-          },
-          emphasis: {
-            itemStyle: {
-              opacity: 1,
-            },
-          },
-        });
-      }
-    });
-
-    // Calculate DataZoom Start/End
-    let zoomStart = 0;
-    let zoomEnd = 100;
-
-    if (dateRange && dateRange[0] && dateRange[1]) {
-      const startDateStr = dateRange[0].format('YYYY-MM-DD');
-      const endDateStr = dateRange[1].format('YYYY-MM-DD');
-
-      const startIndex = dates.findIndex((d) => d >= startDateStr);
-      const endIndex = dates.findIndex((d) => d > endDateStr);
-
-      const realEndIndex = endIndex === -1 ? dates.length - 1 : endIndex - 1;
-      const realStartIndex = startIndex === -1 ? 0 : startIndex;
-
-      if (dates.length > 0) {
-        zoomStart = (realStartIndex / dates.length) * 100;
-        zoomEnd = ((realEndIndex + 1) / dates.length) * 100;
-      }
-    } else {
-      // Default to last 1 year if no range set (fallback)
-      // But we set dateRange in useEffect, so this might be redundant but safe
-      // logic: find index of date 1 year ago
-      const lastDate = dayjs(dates[dates.length - 1]);
-      const oneYearAgo = lastDate.subtract(1, 'year').format('YYYY-MM-DD');
-      const idx = dates.findIndex((d) => d >= oneYearAgo);
-      if (idx !== -1) {
-        zoomStart = (idx / dates.length) * 100;
-      }
-    }
-
-    const option: echarts.EChartsOption = {
-      backgroundColor: '#fff',
-      animation: false,
-      grid: {
-        show: true,
-        backgroundColor: '#F2F5FA',
-        borderWidth: 0,
-        left: '10px',
-        right: '10px',
-        bottom: '30px',
-        top: '10px',
-        containLabel: true,
-      },
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'cross',
-          label: {
-            backgroundColor: '#535966',
-          },
-          crossStyle: {
-            color: '#A1A7B2',
-            type: 'dashed',
-          },
-        },
-        showContent: false, // We use custom header display, but can keep tooltip for debug
-        // Actually user said "上方数据随着变化" (Header data changes),
-        // "图片与上方数据文字随着消失、出现" (Image and header text disappear/appear together)
-      },
-      xAxis: {
-        type: 'category',
-        data: dates,
-        boundaryGap: true,
-        axisLine: { onZero: false, lineStyle: { color: '#DFE5F2' } },
-        axisLabel: { color: '#777E8C', rotate: 30 },
-        splitLine: { show: true, lineStyle: { color: '#DFE5F2' } },
-        min: 'dataMin',
-        max: 'dataMax',
-        axisPointer: {
-          label: {
-            show: true, // Show X label on axis pointer
-          },
-        },
-      },
-      yAxis: {
-        scale: true,
-        splitLine: { show: true, lineStyle: { color: '#DFE5F2' } },
-        axisLabel: { color: '#777E8C' },
-        axisLine: { lineStyle: { color: '#DFE5F2' } },
-        position: 'left',
-      },
-      dataZoom: [
-        {
-          type: 'inside',
-          start: zoomStart,
-          end: zoomEnd,
-          preventDefaultMouseMove: false,
-        },
-      ],
-      series: series,
-    };
-
-    myChart.setOption(option, { replaceMerge: ['series'] });
-
-    // Event Listeners
     myChart.off('updateAxisPointer');
-    myChart.on('updateAxisPointer', (event: any) => {
-      const dataIndex = event.dataIndex;
-      // eslint-disable-next-line eqeqeq
-      if (dataIndex != null && chartData[dataIndex]) {
-        setCurrentInfo(chartData[dataIndex]);
-      }
-    });
+    myChart.on('updateAxisPointer', handleAxisPointerUpdate);
 
     myChart.off('globalout');
     myChart.on('globalout', restoreToLastVisible);
@@ -374,91 +458,57 @@ const KChart: React.FC = () => {
     zr.off('globalout');
     zr.on('globalout', restoreToLastVisible);
 
-    // Sync DataZoom with Date Range State (for "上方时间随之变化")
     myChart.off('dataZoom');
-    myChart.on('dataZoom', () => {
-      isChartUpdating.current = true;
-      const option = myChart.getOption() as any;
-      const start = option.dataZoom[0].start;
-      const end = option.dataZoom[0].end;
+    myChart.on('dataZoom', handleDataZoom);
 
-      const startIndex = Math.floor((start / 100) * dates.length);
-      const endIndex = Math.min(
-        Math.floor((end / 100) * dates.length),
-        dates.length - 1,
-      );
+    myChart.setOption(chartOption, { replaceMerge: ['series'] });
+  }, [
+    chartOption,
+    handleAxisPointerUpdate,
+    handleDataZoom,
+    rawData.length,
+    restoreToLastVisible,
+  ]);
 
-      if (dates[startIndex] && dates[endIndex]) {
-        const startMoment = dayjs(dates[startIndex]);
-        const endMoment = dayjs(dates[endIndex]);
-        // Update RangePicker logic
-        setDateRange([startMoment, endMoment]);
-      }
-    });
-  }, [chartData, selectedMAs, dateRange, restoreToLastVisible]);
-
-  // Handlers
   const handlePresetClick = (type: string) => {
-    const lastDate = dayjs(rawData[rawData.length - 1].marketDate);
-    let startDate = lastDate;
+    if (!dataBounds) return;
 
-    switch (type) {
-      case 'ytd':
-        startDate = lastDate.startOf('year');
-        break;
-      case '3m':
-        startDate = startDate.subtract(3, 'months');
-        break;
-      case '6m':
-        startDate = startDate.subtract(6, 'months');
-        break;
-      case '1y':
-        startDate = startDate.subtract(1, 'year');
-        break;
-      case '3y':
-        startDate = startDate.subtract(3, 'years');
-        break;
-      case '5y':
-        startDate = startDate.subtract(5, 'years');
-        break;
-      case '10y':
-        startDate = startDate.subtract(10, 'years');
-        break;
-    }
+    const presetMap: Record<string, (d: dayjs.Dayjs) => dayjs.Dayjs> = {
+      ytd: (d) => d.startOf('year'),
+      '3m': (d) => d.subtract(3, 'months'),
+      '6m': (d) => d.subtract(6, 'months'),
+      '1y': (d) => d.subtract(1, 'year'),
+      '3y': (d) => d.subtract(3, 'years'),
+      '5y': (d) => d.subtract(5, 'years'),
+      '10y': (d) => d.subtract(10, 'years'),
+    };
 
-    // Find nearest trading day? ECharts dataZoom handles range, we just set dates.
-    // Ensure start date is not before first data point
-    const firstDate = dayjs(rawData[0].marketDate);
-    if (startDate.isBefore(firstDate)) startDate = firstDate;
+    const calcStart = presetMap[type];
+    let startDate = (calcStart ? calcStart(dataBounds.last) : dataBounds.last)
+      .clone()
+      .startOf('day');
 
-    setDateRange([startDate, lastDate]);
+    if (startDate.isBefore(dataBounds.first)) startDate = dataBounds.first;
+    setDateRange([startDate, dataBounds.last]);
   };
 
   const disabledDate = (current: dayjs.Dayjs) => {
-    if (rawData.length === 0) return false;
-    const firstDate = dayjs(rawData[0].marketDate);
-    const lastDate = dayjs(rawData[rawData.length - 1].marketDate);
-    return current && (current < firstDate || current > lastDate);
+    if (!dataBounds) return false;
+    return current && (current < dataBounds.first || current > dataBounds.last);
   };
 
-  const handleDateChange = (dates: any) => {
-    if (!dates) return;
-
-    // "日期选择非交易日日期，显示后面第一个交易日"
-    // Find nearest available date in data for start and end
-    const adjustDate = (inputDate: dayjs.Dayjs) => {
+  const adjustStartToTradingDay = useCallback(
+    (inputDate: dayjs.Dayjs) => {
       const dateStr = inputDate.format('YYYY-MM-DD');
-      // Find exact match or next
       const found = rawData.find((d) => d.marketDate >= dateStr);
       return found ? dayjs(found.marketDate) : inputDate;
-    };
+    },
+    [rawData],
+  );
 
-    const newStart = adjustDate(dates[0]);
-    const newEnd = dates[1]; // End date usually implies "up to", maybe adjust to previous or next?
-    // Usually "End" is inclusive, so we find nearest <= or just let it be.
-    // Let's adjust Start to be safe.
-
-    setDateRange([newStart, newEnd]);
+  const handleDateChange = (nextDates: [dayjs.Dayjs, dayjs.Dayjs] | null) => {
+    if (!nextDates) return;
+    setDateRange([adjustStartToTradingDay(nextDates[0]), nextDates[1]]);
   };
 
   return (
@@ -509,53 +559,49 @@ const KChart: React.FC = () => {
                 <div className={styles.dataItem}>
                   <span className={styles.label}>收盘</span>
                   <span
-                    className={`${styles.value} ${
-                      (currentInfo.closeValue ?? 0) >=
-                      (currentInfo.openValue ?? 0)
-                        ? styles.up
-                        : styles.down
-                    }`}
+                    className={`${styles.value} ${getUpDownClass(
+                      currentInfo.closeValue,
+                      currentInfo.openValue,
+                      true,
+                    )}`}
                   >
-                    {currentInfo.closeValue?.toFixed(2) ?? '--'}
+                    {formatFixed(currentInfo.closeValue)}
                   </span>
                 </div>
                 <div className={styles.dataItem}>
                   <span className={styles.label}>开盘</span>
                   <span
-                    className={`${styles.value} ${
-                      (currentInfo.openValue ?? 0) >=
-                      (currentInfo.closeValue ?? 0)
-                        ? styles.down
-                        : styles.up
-                    }`}
+                    className={`${styles.value} ${getUpDownClass(
+                      currentInfo.openValue,
+                      currentInfo.closeValue,
+                      false,
+                    )}`}
                   >
-                    {currentInfo.openValue?.toFixed(2) ?? '--'}
+                    {formatFixed(currentInfo.openValue)}
                   </span>
                 </div>
                 <div className={styles.dataItem}>
                   <span className={styles.label}>最高</span>
                   <span
-                    className={`${styles.value} ${
-                      (currentInfo.highValue ?? 0) >=
-                      (currentInfo.closeValue ?? 0)
-                        ? styles.down
-                        : styles.up
-                    }`}
+                    className={`${styles.value} ${getUpDownClass(
+                      currentInfo.highValue,
+                      currentInfo.closeValue,
+                      false,
+                    )}`}
                   >
-                    {currentInfo.highValue?.toFixed(2) ?? '--'}
+                    {formatFixed(currentInfo.highValue)}
                   </span>
                 </div>
                 <div className={styles.dataItem}>
                   <span className={styles.label}>最低</span>
                   <span
-                    className={`${styles.value} ${
-                      (currentInfo.lowValue ?? 0) >=
-                      (currentInfo.closeValue ?? 0)
-                        ? styles.down
-                        : styles.up
-                    }`}
+                    className={`${styles.value} ${getUpDownClass(
+                      currentInfo.lowValue,
+                      currentInfo.closeValue,
+                      false,
+                    )}`}
                   >
-                    {currentInfo.lowValue?.toFixed(2) ?? '--'}
+                    {formatFixed(currentInfo.lowValue)}
                   </span>
                 </div>
               </div>
@@ -588,15 +634,7 @@ const KChart: React.FC = () => {
                         className={styles.value}
                         style={{ color: ma.color }}
                       >
-                        {!!currentInfo[ma.key]
-                          ? Number(currentInfo[ma.key]).toLocaleString(
-                              'en-US',
-                              {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              },
-                            )
-                          : '-'}
+                        {formatLocaleNumber(currentInfo[ma.key])}
                       </span>
                     </div>
                   ),
