@@ -21,6 +21,7 @@
   align-items: center;
   margin-bottom: 12px;
   flex-wrap: wrap;
+  justify-content: space-between;
 }
 .ohlcGroup {
   display: flex;
@@ -86,6 +87,9 @@
 }
 .value.down {
   color: #26a69a;
+}
+.value.flat {
+  color: #333;
 }
 .toolbar {
   margin-bottom: 16px;

@@ -86,20 +86,20 @@ const KChart: React.FC = () => {
   const chartInstance = useRef<echarts.ECharts | null>(null);
   const isChartUpdating = useRef(false);
 
-  const getUpDownClass = (
-    a: number | null | undefined,
-    b: number | null | undefined,
-    geIsUp: boolean,
+  const getCompareClass = (
+    value: number | null | undefined,
+    base: number | null | undefined,
   ) => {
-    const left = a ?? 0;
-    const right = b ?? 0;
-    return left >= right
-      ? geIsUp
-        ? styles.up
-        : styles.down
-      : geIsUp
-      ? styles.down
-      : styles.up;
+    const v =
+      typeof value === 'number' && Number.isFinite(value) ? value : null;
+    const b = typeof base === 'number' && Number.isFinite(base) ? base : null;
+    if (v === null || b === null) return styles.flat;
+
+    const diff = v - b;
+    const eps = 1e-8;
+    if (Math.abs(diff) <= eps) return styles.flat;
+
+    return diff > 0 ? styles.up : styles.down;
   };
 
   const formatFixed = (value: number | null | undefined, digits = 2) => {
@@ -134,6 +134,15 @@ const KChart: React.FC = () => {
       (a, b) => dayjs(a.marketDate).valueOf() - dayjs(b.marketDate).valueOf(),
     );
   }, []);
+
+  const prevClose = useMemo(() => {
+    if (!currentInfo) return null;
+    const idx = rawData.findIndex(
+      (d) => d.marketDate === currentInfo.marketDate,
+    );
+    if (idx <= 0) return null;
+    return rawData[idx - 1]?.closeValue ?? null;
+  }, [currentInfo, rawData]);
 
   const dataBounds = useMemo(() => {
     if (rawData.length === 0) return null;
@@ -562,10 +571,9 @@ const KChart: React.FC = () => {
                 <div className={styles.dataItem}>
                   <span className={styles.label}>收盘</span>
                   <span
-                    className={`${styles.value} ${getUpDownClass(
+                    className={`${styles.value} ${getCompareClass(
                       currentInfo.closeValue,
-                      currentInfo.openValue,
-                      true,
+                      prevClose,
                     )}`}
                   >
                     {formatFixed(currentInfo.closeValue)}
@@ -574,10 +582,9 @@ const KChart: React.FC = () => {
                 <div className={styles.dataItem}>
                   <span className={styles.label}>开盘</span>
                   <span
-                    className={`${styles.value} ${getUpDownClass(
+                    className={`${styles.value} ${getCompareClass(
                       currentInfo.openValue,
-                      currentInfo.closeValue,
-                      false,
+                      prevClose,
                     )}`}
                   >
                     {formatFixed(currentInfo.openValue)}
@@ -586,10 +593,9 @@ const KChart: React.FC = () => {
                 <div className={styles.dataItem}>
                   <span className={styles.label}>最高</span>
                   <span
-                    className={`${styles.value} ${getUpDownClass(
+                    className={`${styles.value} ${getCompareClass(
                       currentInfo.highValue,
-                      currentInfo.closeValue,
-                      false,
+                      prevClose,
                     )}`}
                   >
                     {formatFixed(currentInfo.highValue)}
@@ -598,10 +604,9 @@ const KChart: React.FC = () => {
                 <div className={styles.dataItem}>
                   <span className={styles.label}>最低</span>
                   <span
-                    className={`${styles.value} ${getUpDownClass(
+                    className={`${styles.value} ${getCompareClass(
                       currentInfo.lowValue,
-                      currentInfo.closeValue,
-                      false,
+                      prevClose,
                     )}`}
                   >
                     {formatFixed(currentInfo.lowValue)}
