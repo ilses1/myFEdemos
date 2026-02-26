@@ -164,30 +164,34 @@ const IncomeChart: React.FC = () => {
     setDateRange([startDate, lastDate]);
   };
 
-  // Filter and normalize data based on date range
-  const getProcessedData = () => {
-    const [start, end] = dateRange;
-    const startDateStr = start.format('YYYY-MM-DD');
-    const endDateStr = end.format('YYYY-MM-DD');
+  const buildDateValueMap = (
+    items: Array<{ unitNavDate: string; unitNavValue: number }>,
+  ) => {
+    const map = new Map<string, number>();
+    items.forEach((it) => {
+      if (it.unitNavDate) map.set(it.unitNavDate, it.unitNavValue);
+    });
+    return map;
+  };
 
-    const filterOnly = (data: typeof line1Data) => {
-      const filtered = data.filter(
-        (item) =>
-          item.unitNavDate >= startDateStr && item.unitNavDate <= endDateStr,
-      );
+  const getPrevTradingDate = (sortedDates: string[], startDateStr: string) => {
+    for (let i = sortedDates.length - 1; i >= 0; i -= 1) {
+      const d = sortedDates[i];
+      if (d < startDateStr) return d;
+    }
+    return null;
+  };
 
-      if (filtered.length === 0) return [];
-
-      return filtered.map((item) => ({
-        date: item.unitNavDate,
-        value: item.unitNavValue,
-      }));
-    };
-
-    return {
-      line1: filterOnly(line1Data),
-      line2: filterOnly(line2Data),
-    };
+  const findFirstCompleteDate = (
+    candidateDates: string[],
+    requiredMaps: Array<Map<string, unknown>>,
+  ) => {
+    for (let i = 0; i < candidateDates.length; i += 1) {
+      const d = candidateDates[i];
+      const ok = requiredMaps.every((m) => m.has(d));
+      if (ok) return d;
+    }
+    return null;
   };
 
   useEffect(() => {
@@ -197,39 +201,87 @@ const IncomeChart: React.FC = () => {
       chartInstance.current = echarts.init(chartRef.current);
     }
 
-    const { line1, line2 } = getProcessedData();
-    const percentFromBaseIndex = (
-      points: Array<{ value: number }>,
-      baseIndex: number,
-    ) => {
-      const base = points[baseIndex]?.value;
-      if (base === undefined || base === 0) return points.map(() => 0);
-      return points.map((p) => ((p.value - base) / base) * 100);
-    };
-    const rebaseBySubtract = (data: number[], baseIndex: number) => {
-      const base = data[baseIndex] ?? 0;
-      return data.map((v) => v - base);
-    };
+    const [pickedStart, pickedEnd] = dateRange;
+    const pickedStartStr = pickedStart.format('YYYY-MM-DD');
+    const pickedEndStr = pickedEnd.format('YYYY-MM-DD');
+
+    const candidateStartStr =
+      getPrevTradingDate(allDates, pickedStartStr) ?? pickedStartStr;
+
+    const candidateDates = allDates.filter(
+      (d) => d >= candidateStartStr && d <= pickedEndStr,
+    );
+
+    const line1Map = buildDateValueMap(line1Data);
+    const line2Map = buildDateValueMap(line2Data);
+
     const round4 = (v: number) => Number(v.toFixed(4));
 
-    // Common dates (assuming both lines align on dates, which is typical)
-    const dates = line1.map((item) => item.date);
-    const line2PercentBase0 = percentFromBaseIndex(line2, 0);
+    const round4Nullable = (v: number | null) =>
+      v === null ? null : round4(v);
 
-    const overlayRawSeries = overlaySelected.map((item, idx) => {
+    const percentSeriesFromMap = (
+      dateAxis: string[],
+      valueMap: Map<string, number>,
+      baseIndex: number,
+    ) => {
+      const baseDate = dateAxis[baseIndex];
+      const base = baseDate ? valueMap.get(baseDate) : undefined;
+      if (base === undefined || base === 0) {
+        return dateAxis.map(() => 0);
+      }
+      return dateAxis.map((d) => {
+        const v = valueMap.get(d);
+        if (v === undefined) return null;
+        return ((v - base) / base) * 100;
+      });
+    };
+
+    const subtractSeriesFromMap = (
+      dateAxis: string[],
+      rawMap: Map<string, number>,
+      baseIndex: number,
+    ) => {
+      const baseDate = dateAxis[baseIndex];
+      const base = baseDate ? rawMap.get(baseDate) : undefined;
+      const baseValue = base ?? 0;
+      return dateAxis.map((d) => {
+        const v = rawMap.get(d);
+        if (v === undefined) return null;
+        return v - baseValue;
+      });
+    };
+
+    const line2ShapeBase0 = (() => {
+      const baseDate = candidateDates[0];
+      const base = baseDate ? line2Map.get(baseDate) : undefined;
+      if (base === undefined || base === 0) return candidateDates.map(() => 0);
+      return candidateDates.map((d) => {
+        const v = line2Map.get(d);
+        if (v === undefined) return 0;
+        return ((v - base) / base) * 100;
+      });
+    })();
+
+    const overlayRawSeriesCandidate = overlaySelected.map((item, idx) => {
       const seed = hashStringTo01(item.securityId);
       const amplitude = 0.2 + seed * 0.8;
       const phase = seed * Math.PI * 2;
       const drift = (seed - 0.5) * 0.08;
-      const data = line2PercentBase0.map((p, i) => {
+      const data = line2ShapeBase0.map((p, i) => {
         const wobble = Math.sin(i / 7 + phase) * amplitude;
         return round4(p + wobble + i * drift);
+      });
+      const rawMap = new Map<string, number>();
+      candidateDates.forEach((d, i) => {
+        const v = data[i];
+        if (v !== undefined && v !== null) rawMap.set(d, v);
       });
       return {
         id: `overlay-${item.securityId}`,
         name: item.securityName,
         type: 'line',
-        rawData: data,
+        rawMap,
         symbol: 'emptyCircle',
         showSymbol: false,
         symbolSize: 6,
@@ -241,6 +293,35 @@ const IncomeChart: React.FC = () => {
         emphasis: { focus: 'series', scale: true },
       };
     });
+
+    const requiredMaps: Array<Map<string, unknown>> = [
+      line1Map as unknown as Map<string, unknown>,
+      line2Map as unknown as Map<string, unknown>,
+      ...(overlaySelected.length > 0
+        ? overlayRawSeriesCandidate.map(
+            (s) => s.rawMap as unknown as Map<string, unknown>,
+          )
+        : []),
+    ];
+
+    const computedBaseDate =
+      findFirstCompleteDate(candidateDates, requiredMaps) ??
+      findFirstCompleteDate(candidateDates, [
+        line1Map as unknown as Map<string, unknown>,
+        line2Map as unknown as Map<string, unknown>,
+      ]) ??
+      candidateDates[0] ??
+      null;
+
+    const baseIndexInCandidate =
+      computedBaseDate && candidateDates.length > 0
+        ? Math.max(0, candidateDates.indexOf(computedBaseDate))
+        : 0;
+
+    const dates =
+      candidateDates.length > 0
+        ? candidateDates.slice(baseIndexInCandidate)
+        : [];
 
     const buildOverlayPointSeries = (baseIndex: number) => ({
       id: 'overlay-point',
@@ -317,16 +398,24 @@ const IncomeChart: React.FC = () => {
       const overlayPointSeries = buildOverlayPointSeries(baseIndex);
       const mainLine1Series = {
         ...mainLine1SeriesBase,
-        data: percentFromBaseIndex(line1, baseIndex).map(round4),
+        data: percentSeriesFromMap(dates, line1Map, baseIndex).map(
+          round4Nullable,
+        ),
       };
       const mainLine2Series = {
         ...mainLine2SeriesBase,
-        data: percentFromBaseIndex(line2, baseIndex).map(round4),
+        data: percentSeriesFromMap(dates, line2Map, baseIndex).map(
+          round4Nullable,
+        ),
       };
-      const overlaySeries = overlayRawSeries.map(({ rawData, ...rest }) => ({
-        ...rest,
-        data: rebaseBySubtract(rawData, baseIndex).map(round4),
-      }));
+      const overlaySeries = overlayRawSeriesCandidate.map(
+        ({ rawMap, ...rest }) => ({
+          ...rest,
+          data: subtractSeriesFromMap(dates, rawMap, baseIndex).map(
+            round4Nullable,
+          ),
+        }),
+      );
 
       return overlaySelected.length > 0
         ? [
@@ -353,7 +442,13 @@ const IncomeChart: React.FC = () => {
         formatter: (params: any) => {
           let result = `<div style="margin-bottom: 5px; color: #777E8C; font-size: 12px;">${params[0].axisValue}</div>`;
           params.forEach((param: any) => {
-            const val = param.value.toFixed(2) + '%';
+            const rawVal = Array.isArray(param.value)
+              ? param.value?.[1]
+              : param.value;
+            const val =
+              typeof rawVal === 'number' && Number.isFinite(rawVal)
+                ? rawVal.toFixed(2) + '%'
+                : '--';
             const color = param.color;
             result += `
               <div style="display: flex; align-items: center; margin-top: 5px;">
@@ -681,7 +776,6 @@ const IncomeChart: React.FC = () => {
   return (
     <div
       style={{
-        padding: '20px',
         background: '#fff',
         borderRadius: '8px',
         minHeight: '500px',
