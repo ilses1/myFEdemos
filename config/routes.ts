@@ -73,6 +73,11 @@ export default [
         path: '/frontend-card/line-chart',
         component: './FrontendCard/LineChart',
       },
+      {
+        name: '目录滚动',
+        path: '/frontend-card/catalog-scroll',
+        component: './FrontendCard/CatalogScroll',
+      },
     ],
   },
   {
