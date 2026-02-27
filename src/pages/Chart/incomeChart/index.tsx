@@ -505,7 +505,7 @@ const IncomeChart: React.FC = () => {
         borderWidth: 0,
         left: '4%',
         right: '4%',
-        bottom: '15%', // Space for dataZoom
+        bottom: '15%',
         top: '10%',
         containLabel: true,
       },
@@ -609,13 +609,35 @@ const IncomeChart: React.FC = () => {
     };
     chartInstance.current.on('datazoom', handleDataZoom);
 
-    const handleResize = () => {
-      chartInstance.current?.resize();
+    // 防抖：避免连续触发 resize 导致多次重绘，用 RAF 保证只在下一帧执行一次图表重绘
+    let rafId = 0;
+    const scheduleResize = () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        chartInstance.current?.resize();
+      });
     };
-    window.addEventListener('resize', handleResize);
+
+    // 立即执行一次，确保图表初始尺寸正确
+    scheduleResize();
+
+    let resizeObserver: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(() => {
+        scheduleResize();
+      });
+      resizeObserver.observe(chartRef.current);
+    } else {
+      window.addEventListener('resize', scheduleResize);
+    }
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      if (rafId) cancelAnimationFrame(rafId);
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      } else {
+        window.removeEventListener('resize', scheduleResize);
+      }
       chartInstance.current?.off('datazoom', handleDataZoom);
     };
   }, [dateRange, overlaySelected]);
@@ -881,7 +903,7 @@ const IncomeChart: React.FC = () => {
       </div>
 
       {/* Chart Section */}
-      <div ref={chartRef} style={{ width: '100%', height: '400px' }} />
+      <div ref={chartRef} style={{ width: '100%', height: '509px' }} />
     </div>
   );
 };
