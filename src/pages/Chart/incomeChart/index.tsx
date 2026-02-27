@@ -333,7 +333,7 @@ const IncomeChart: React.FC = () => {
       itemStyle: {
         color: '#FECA7A',
       },
-      tooltip: { show: false },
+      tooltip: { show: true },
       emphasis: { disabled: true },
       z: 10,
     });
@@ -482,8 +482,19 @@ const IncomeChart: React.FC = () => {
         pageButtonPosition: 'end',
         pageButtonGap: 8,
         pageIconSize: 12,
+        textStyle: {
+          rich: {
+            a: {
+              verticalAlign: 'middle',
+            },
+          },
+          padding: [0, 0, 0, 0],
+        },
         data: [
           mainLine1Name,
+          {
+            name: '叠加点',
+          },
           mainLine2Name,
           ...overlaySelected.map((it) => it.securityName),
         ],
