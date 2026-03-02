@@ -1,5 +1,6 @@
+import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { Menu } from 'antd';
+import { Button, Menu } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './index.less';
 
@@ -99,6 +100,7 @@ const CatalogScrollPage: React.FC = () => {
     sectionItems[0]?.key ?? '',
   );
   const [openKeys, setOpenKeys] = useState<string[]>(defaultOpenKeys);
+  const [isCatalogCollapsed, setIsCatalogCollapsed] = useState(false);
 
   const scrollToSection = (key: string) => {
     const container = contentRef.current;
@@ -162,7 +164,14 @@ const CatalogScrollPage: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.catalog}>
+      <div
+        className={[
+          styles.catalog,
+          isCatalogCollapsed ? styles.catalogCollapsed : '',
+        ]
+          .filter(Boolean)
+          .join(' ')}
+      >
         <div className={styles.menuWrapper}>
           <Menu
             className={styles.menu}
@@ -175,6 +184,17 @@ const CatalogScrollPage: React.FC = () => {
             onClick={handleMenuClick}
           />
         </div>
+      </div>
+
+      <div className={styles.collapseHandle}>
+        <Button
+          className={styles.collapseButton}
+          type="text"
+          size="small"
+          icon={isCatalogCollapsed ? <RightOutlined /> : <LeftOutlined />}
+          aria-label={isCatalogCollapsed ? '展开目录' : '收起目录'}
+          onClick={() => setIsCatalogCollapsed((prev) => !prev)}
+        />
       </div>
 
       <div ref={contentRef} className={styles.content}>
