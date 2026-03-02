@@ -60,6 +60,54 @@ const paragraphs = [
   '如果你希望目录跟随窗口滚动而不是容器滚动，可以把右侧内容改成页面整体滚动并调整 getContainer。',
 ];
 
+const RangeSelectIcon: React.FC = () => {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      width="16"
+      height="16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path
+        d="M3.5 2.5H2.5V3.5"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M12.5 2.5H13.5V3.5"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M3.5 13.5H2.5V12.5"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M12.5 13.5H13.5V12.5"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
+      <rect
+        x="4.3"
+        y="4.3"
+        width="7.4"
+        height="7.4"
+        rx="1.2"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        opacity="0.7"
+      />
+    </svg>
+  );
+};
+
 const CatalogScrollPage: React.FC = () => {
   const contentRef = useRef<HTMLDivElement>(null);
   const rafLockRef = useRef<number | null>(null);
@@ -198,6 +246,20 @@ const CatalogScrollPage: React.FC = () => {
       </div>
 
       <div ref={contentRef} className={styles.content}>
+        <div className={styles.topBar}>
+          <div className={styles.topBarLeft}>
+            <div className={styles.brand}>REITS</div>
+            <div className={styles.name}>中证REITs全收益</div>
+            <div className={styles.stats}>
+              <span className={styles.code}>932006</span>
+              <span className={styles.price}>1,031.50</span>
+              <span className={styles.change}>-0.17%</span>
+            </div>
+          </div>
+          <button type="button" className={styles.rangeButton}>
+            <span className={styles.rangeText}>概览F5</span>
+          </button>
+        </div>
         {sectionItems.map((s) => (
           <section key={s.key} id={s.key} className={styles.section}>
             <div className={styles.sectionTitle}>{s.title}</div>
