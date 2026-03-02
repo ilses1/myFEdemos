@@ -6,11 +6,13 @@
 }
 .catalog {
   width: 220px;
-  height: calc(100% - 24px);
   flex: 0 0 220px;
-  align-self: flex-start;
-  position: sticky;
-  top: 12px;
+  height: 100%;
+  align-self: stretch;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
   overflow: hidden;
   transition: width 180ms ease, flex-basis 180ms ease, opacity 180ms ease;
   border-radius: 10px;
@@ -105,6 +107,9 @@
   border-radius: inherit;
   padding: 8px 0;
   box-shadow: none;
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
 }
 .menu {
   background: transparent;

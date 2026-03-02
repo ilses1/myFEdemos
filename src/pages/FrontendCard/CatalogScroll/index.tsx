@@ -112,8 +112,13 @@ const CatalogScrollPage: React.FC = () => {
     if (!container) return;
     const el = container.querySelector<HTMLElement>(`#${key}`);
     if (!el) return;
+    const containerRect = container.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    const offset = 12;
+    const targetTop =
+      container.scrollTop + (elRect.top - containerRect.top) - offset;
     container.scrollTo({
-      top: Math.max(0, el.offsetTop),
+      top: Math.max(0, targetTop),
       behavior: 'smooth',
     });
   }, []);
