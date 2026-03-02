@@ -314,19 +314,157 @@
   border-bottom: 1px solid #f0f0f0;
   scroll-margin-top: 12px;
 }
-.sectionTitle {
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 24px;
+.nodeSection {
+  padding: 10px 0 14px;
+  border-bottom: none;
+}
+.nodeLevel0 {
+  padding-top: 12px;
+}
+.nodeLevel1 {
+  padding-left: 12px;
+}
+.nodeLevel2 {
+  padding-left: 24px;
+}
+.nodeHeading {
+  font-weight: 700;
   color: #1f2329;
+  letter-spacing: 0.2px;
+}
+.nodeLevel0 .nodeHeading {
+  font-size: 18px;
+  line-height: 26px;
   margin-bottom: 8px;
 }
-.sectionBody {
-  color: #4e5969;
+.nodeLevel1 .nodeHeading {
+  font-size: 16px;
+  line-height: 24px;
+  margin: 10px 0 8px;
 }
-.paragraph {
-  margin: 0 0 10px 0;
+.nodeLevel2 .nodeHeading {
+  font-size: 14px;
   line-height: 22px;
+  margin: 8px 0 8px;
+  color: #2b3340;
+}
+.nodeBody {
+  min-width: 0;
+}
+.leafLayout {
+  border: 1px solid #f0f0f0;
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(247, 251, 255, 0.8) 0%, #ffffff 55%);
+  box-shadow: 0 2px 6px rgba(23, 51, 108, 0.06);
+  padding: 12px 12px 14px;
+}
+.leafTitle {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 700;
+  color: #3a4a66;
+  margin-bottom: 10px;
+}
+.leafPanels {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.panelCard {
+  border: 1px solid #e9eef8;
+  border-radius: 10px;
+  background: #ffffff;
+  overflow: hidden;
+}
+.panelCardLarge {
+  min-height: 240px;
+}
+.panelCardSmall {
+  min-height: 140px;
+}
+.panelCardHeader {
+  height: 34px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+  color: #2b3340;
+  background: linear-gradient(180deg, #f7fbff 0%, #eef5ff 100%);
+  border-bottom: 1px solid #e9eef8;
+}
+.panelCardBody {
+  padding: 12px;
+}
+.mockChart {
+  height: 140px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #f3f6fb 0%, #eef3ff 40%, #f3f6fb 100%);
+  border: 1px dashed #d6e4ff;
+}
+.mockText {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mockLine {
+  height: 10px;
+  border-radius: 6px;
+  background: #f3f6fb;
+}
+.mockLineShort {
+  height: 10px;
+  width: 60%;
+  border-radius: 6px;
+  background: #f3f6fb;
+}
+.mockList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.mockListItem {
+  height: 12px;
+  border-radius: 6px;
+  background: #f3f6fb;
+}
+.mockKpis {
+  display: flex;
+  gap: 10px;
+}
+.mockKpi {
+  flex: 1;
+  height: 54px;
+  border-radius: 10px;
+  background: #f3f6fb;
+  border: 1px solid #edf1fa;
+}
+.mockTable {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.mockTableHeader {
+  height: 12px;
+  border-radius: 6px;
+  background: #eaf0ff;
+}
+.mockTableRow {
+  height: 12px;
+  border-radius: 6px;
+  background: #f3f6fb;
+}
+.mockBars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.mockBar {
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #cfe0ff 0%, #f3f6fb 70%);
 }
 @media (max-width: 768px) {
   .container {

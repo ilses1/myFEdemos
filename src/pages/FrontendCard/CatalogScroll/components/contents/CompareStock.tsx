@@ -1,0 +1,26 @@
+import React from 'react';
+import styles from '../../index.less';
+import LeafLayout from '../LeafLayout';
+import PanelCard from '../PanelCard';
+
+export type CompareStockProps = {
+  title: string;
+};
+
+const CompareStock: React.FC<CompareStockProps> = ({ title }) => {
+  return (
+    <LeafLayout title={title}>
+      <PanelCard title="与股票收益对比" size="lg">
+        <div className={styles.mockChart} />
+      </PanelCard>
+      <PanelCard title="相关性" size="sm">
+        <div className={styles.mockKpis}>
+          <div className={styles.mockKpi} />
+          <div className={styles.mockKpi} />
+        </div>
+      </PanelCard>
+    </LeafLayout>
+  );
+};
+
+export default CompareStock;

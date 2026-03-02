@@ -13,6 +13,8 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import CatalogSection from './components/CatalogSection';
+import { renderLeafContent } from './components/registry';
 import styles from './index.less';
 
 type MenuNode = {
@@ -63,12 +65,6 @@ const menuStructure: MenuNode[] = [
       { key: 'compare-stock', title: 'REITs与股票' },
     ],
   },
-];
-
-const paragraphs = [
-  '这是一段用于制造滚动高度的示例文本，用来演示“目录滚动”的交互效果。',
-  '左侧目录点击后，右侧内容区域会滚动到对应章节；滚动内容区域时，目录高亮也会同步变化。',
-  '如果你希望目录跟随窗口滚动而不是容器滚动，可以把右侧内容改成页面整体滚动并调整 getContainer。',
 ];
 
 const CatalogScrollPage: React.FC = () => {
@@ -192,6 +188,7 @@ const CatalogScrollPage: React.FC = () => {
       rafLockRef.current = window.requestAnimationFrame(() => {
         rafLockRef.current = null;
         const scrollTop = container.scrollTop;
+        const containerRect = container.getBoundingClientRect();
         const stickyOffset = 12;
         let nextActive = sections[0]?.key ?? '';
 
@@ -199,7 +196,9 @@ const CatalogScrollPage: React.FC = () => {
           const id = sections[i].key;
           const el = container.querySelector<HTMLElement>(`#${id}`);
           if (!el) continue;
-          if (el.offsetTop - stickyOffset <= scrollTop) nextActive = id;
+          const elRect = el.getBoundingClientRect();
+          const elTop = elRect.top - containerRect.top + scrollTop;
+          if (elTop - stickyOffset <= scrollTop) nextActive = id;
           else break;
         }
 
@@ -222,6 +221,24 @@ const CatalogScrollPage: React.FC = () => {
       }
     };
   }, [keyToAncestorKeys, sections, selectedKey]);
+
+  const renderNodes = (nodes: MenuNode[], level = 0): React.ReactNode => {
+    return nodes.map((node) => {
+      const hasChildren = Boolean(node.children && node.children.length > 0);
+      return (
+        <CatalogSection
+          key={node.key}
+          id={node.key}
+          title={node.title}
+          level={level}
+        >
+          {hasChildren
+            ? renderNodes(node.children ?? [], level + 1)
+            : renderLeafContent({ key: node.key, title: node.title })}
+        </CatalogSection>
+      );
+    });
+  };
 
   return (
     <div className={styles.container}>
@@ -279,18 +296,7 @@ const CatalogScrollPage: React.FC = () => {
           </button>
         </div>
         <div ref={contentRef} className={styles.contentBody}>
-          {sections.map((s) => (
-            <section key={s.key} id={s.key} className={styles.section}>
-              <div className={styles.sectionTitle}>{s.title}</div>
-              <div className={styles.sectionBody}>
-                {Array.from({ length: 10 }).map((_, idx) => (
-                  <p key={idx} className={styles.paragraph}>
-                    {paragraphs[idx % paragraphs.length]}
-                  </p>
-                ))}
-              </div>
-            </section>
-          ))}
+          {renderNodes(menuStructure)}
         </div>
       </div>
     </div>
