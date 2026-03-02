@@ -1,7 +1,18 @@
-import { LeftOutlined, RightOutlined } from '@ant-design/icons';
+import {
+  DownOutlined,
+  LeftOutlined,
+  RightOutlined,
+  UpOutlined,
+} from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Button, Menu } from 'antd';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import styles from './index.less';
 
 type MenuNode = {
@@ -112,63 +123,109 @@ const CatalogScrollPage: React.FC = () => {
   const contentRef = useRef<HTMLDivElement>(null);
   const rafLockRef = useRef<number | null>(null);
 
-  const { menuItems, sectionItems, keyToAncestorKeys, defaultOpenKeys } =
-    useMemo(() => {
-      const ancestorMap = new Map<string, string[]>();
-      const leafSections: Array<{ key: string; title: string }> = [];
-      const openKeySet = new Set<string>();
+  const { sections, keyToAncestorKeys, defaultOpenKeys } = useMemo(() => {
+    const ancestorMap = new Map<string, string[]>();
+    const openKeySet = new Set<string>();
+    const flatSections: Array<{ key: string; title: string; level: number }> =
+      [];
 
-      const toMenuItems = (nodes: MenuNode[], ancestors: string[] = []) => {
-        return nodes.map((node): NonNullable<MenuProps['items']>[number] => {
-          if (node.children && node.children.length > 0) {
-            openKeySet.add(node.key);
-            return {
-              key: node.key,
-              label: node.title,
-              children: toMenuItems(node.children, [...ancestors, node.key]),
-            };
-          }
+    const walk = (nodes: MenuNode[], ancestors: string[] = [], level = 0) => {
+      nodes.forEach((node) => {
+        ancestorMap.set(node.key, ancestors);
+        flatSections.push({ key: node.key, title: node.title, level });
 
-          leafSections.push({ key: node.key, title: node.title });
-          ancestorMap.set(node.key, ancestors);
-          return { key: node.key, label: node.title };
-        });
-      };
+        if (node.children && node.children.length > 0) {
+          openKeySet.add(node.key);
+          walk(node.children, [...ancestors, node.key], level + 1);
+        }
+      });
+    };
 
-      const items: MenuProps['items'] = toMenuItems(menuStructure);
-      return {
-        menuItems: items,
-        sectionItems: leafSections,
-        keyToAncestorKeys: ancestorMap,
-        defaultOpenKeys: Array.from(openKeySet),
-      };
-    }, []);
+    walk(menuStructure);
+    return {
+      sections: flatSections,
+      keyToAncestorKeys: ancestorMap,
+      defaultOpenKeys: Array.from(openKeySet),
+    };
+  }, []);
 
   const [selectedKey, setSelectedKey] = useState<string>(
-    sectionItems[0]?.key ?? '',
+    sections[0]?.key ?? '',
   );
   const [openKeys, setOpenKeys] = useState<string[]>(defaultOpenKeys);
   const [isCatalogCollapsed, setIsCatalogCollapsed] = useState(false);
 
-  const scrollToSection = (key: string) => {
+  const scrollToSection = useCallback((key: string) => {
     const container = contentRef.current;
     if (!container) return;
     const el = container.querySelector<HTMLElement>(`#${key}`);
     if (!el) return;
+    const topBarEl = container.querySelector<HTMLElement>(`.${styles.topBar}`);
+    const stickyOffset = (topBarEl?.offsetHeight ?? 0) + 12;
     container.scrollTo({
-      top: Math.max(0, el.offsetTop - 8),
+      top: Math.max(0, el.offsetTop - stickyOffset),
       behavior: 'smooth',
     });
-  };
+  }, []);
+
+  const handleCatalogNodeClick = useCallback(
+    (nextKey: string) => {
+      setSelectedKey(nextKey);
+      const ancestors = keyToAncestorKeys.get(nextKey) ?? [];
+      if (ancestors.length > 0) {
+        setOpenKeys((prev) => Array.from(new Set([...prev, ...ancestors])));
+      }
+      scrollToSection(nextKey);
+    },
+    [keyToAncestorKeys, scrollToSection],
+  );
+
+  const menuItems: MenuProps['items'] = useMemo(() => {
+    const toMenuItems = (nodes: MenuNode[]): MenuProps['items'] => {
+      return nodes.map((node) => {
+        if (node.children && node.children.length > 0) {
+          const submenuKey = node.key;
+          return {
+            key: submenuKey,
+            label: node.title,
+            onTitleClick: ({ key, domEvent }) => {
+              domEvent.preventDefault();
+              domEvent.stopPropagation();
+              handleCatalogNodeClick(String(key));
+            },
+            expandIcon: ({ isOpen }) => {
+              return (
+                <span
+                  className={styles.submenuExpandIcon}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setOpenKeys((prev) => {
+                      const next = new Set(prev);
+                      if (next.has(submenuKey)) next.delete(submenuKey);
+                      else next.add(submenuKey);
+                      return Array.from(next);
+                    });
+                  }}
+                  aria-label={isOpen ? '收起子目录' : '展开子目录'}
+                >
+                  {isOpen ? <UpOutlined /> : <DownOutlined />}
+                </span>
+              );
+            },
+            children: toMenuItems(node.children),
+          } as any;
+        }
+
+        return { key: node.key, label: node.title } as any;
+      });
+    };
+
+    return toMenuItems(menuStructure);
+  }, [handleCatalogNodeClick]);
 
   const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
-    const nextKey = String(key);
-    setSelectedKey(nextKey);
-    const ancestors = keyToAncestorKeys.get(nextKey) ?? [];
-    if (ancestors.length > 0) {
-      setOpenKeys((prev) => Array.from(new Set([...prev, ...ancestors])));
-    }
-    scrollToSection(nextKey);
+    handleCatalogNodeClick(String(key));
   };
 
   useEffect(() => {
@@ -180,13 +237,17 @@ const CatalogScrollPage: React.FC = () => {
       rafLockRef.current = window.requestAnimationFrame(() => {
         rafLockRef.current = null;
         const scrollTop = container.scrollTop;
-        let nextActive = sectionItems[0]?.key ?? '';
+        const topBarEl = container.querySelector<HTMLElement>(
+          `.${styles.topBar}`,
+        );
+        const stickyOffset = (topBarEl?.offsetHeight ?? 0) + 12;
+        let nextActive = sections[0]?.key ?? '';
 
-        for (let i = 0; i < sectionItems.length; i += 1) {
-          const id = sectionItems[i].key;
+        for (let i = 0; i < sections.length; i += 1) {
+          const id = sections[i].key;
           const el = container.querySelector<HTMLElement>(`#${id}`);
           if (!el) continue;
-          if (el.offsetTop - 12 <= scrollTop) nextActive = id;
+          if (el.offsetTop - stickyOffset <= scrollTop) nextActive = id;
           else break;
         }
 
@@ -208,7 +269,7 @@ const CatalogScrollPage: React.FC = () => {
         rafLockRef.current = null;
       }
     };
-  }, [keyToAncestorKeys, openKeys, sectionItems, selectedKey]);
+  }, [keyToAncestorKeys, sections, selectedKey]);
 
   return (
     <div className={styles.container}>
@@ -227,7 +288,7 @@ const CatalogScrollPage: React.FC = () => {
             inlineIndent={16}
             items={menuItems}
             openKeys={openKeys}
-            onOpenChange={(keys) => setOpenKeys(keys as string[])}
+            onOpenChange={() => {}}
             selectedKeys={selectedKey ? [selectedKey] : []}
             onClick={handleMenuClick}
           />
@@ -260,7 +321,7 @@ const CatalogScrollPage: React.FC = () => {
             <span className={styles.rangeText}>概览F5</span>
           </button>
         </div>
-        {sectionItems.map((s) => (
+        {sections.map((s) => (
           <section key={s.key} id={s.key} className={styles.section}>
             <div className={styles.sectionTitle}>{s.title}</div>
             <div className={styles.sectionBody}>
