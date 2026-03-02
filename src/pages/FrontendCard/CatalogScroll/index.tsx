@@ -112,10 +112,8 @@ const CatalogScrollPage: React.FC = () => {
     if (!container) return;
     const el = container.querySelector<HTMLElement>(`#${key}`);
     if (!el) return;
-    const topBarEl = container.querySelector<HTMLElement>(`.${styles.topBar}`);
-    const stickyOffset = (topBarEl?.offsetHeight ?? 0) + 12;
     container.scrollTo({
-      top: Math.max(0, el.offsetTop - stickyOffset),
+      top: Math.max(0, el.offsetTop),
       behavior: 'smooth',
     });
   }, []);
@@ -189,10 +187,7 @@ const CatalogScrollPage: React.FC = () => {
       rafLockRef.current = window.requestAnimationFrame(() => {
         rafLockRef.current = null;
         const scrollTop = container.scrollTop;
-        const topBarEl = container.querySelector<HTMLElement>(
-          `.${styles.topBar}`,
-        );
-        const stickyOffset = (topBarEl?.offsetHeight ?? 0) + 12;
+        const stickyOffset = 12;
         let nextActive = sections[0]?.key ?? '';
 
         for (let i = 0; i < sections.length; i += 1) {
@@ -263,7 +258,7 @@ const CatalogScrollPage: React.FC = () => {
         </button>
       </div>
 
-      <div ref={contentRef} className={styles.content}>
+      <div className={styles.content}>
         <div className={styles.topBar}>
           <div className={styles.topBarLeft}>
             <div className={styles.brand}>REITS</div>
@@ -278,18 +273,20 @@ const CatalogScrollPage: React.FC = () => {
             <span className={styles.rangeText}>概览F5</span>
           </button>
         </div>
-        {sections.map((s) => (
-          <section key={s.key} id={s.key} className={styles.section}>
-            <div className={styles.sectionTitle}>{s.title}</div>
-            <div className={styles.sectionBody}>
-              {Array.from({ length: 10 }).map((_, idx) => (
-                <p key={idx} className={styles.paragraph}>
-                  {paragraphs[idx % paragraphs.length]}
-                </p>
-              ))}
-            </div>
-          </section>
-        ))}
+        <div ref={contentRef} className={styles.contentBody}>
+          {sections.map((s) => (
+            <section key={s.key} id={s.key} className={styles.section}>
+              <div className={styles.sectionTitle}>{s.title}</div>
+              <div className={styles.sectionBody}>
+                {Array.from({ length: 10 }).map((_, idx) => (
+                  <p key={idx} className={styles.paragraph}>
+                    {paragraphs[idx % paragraphs.length]}
+                  </p>
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
       </div>
     </div>
   );
