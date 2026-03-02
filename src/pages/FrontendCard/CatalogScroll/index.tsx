@@ -5,7 +5,7 @@ import {
   UpOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { Button, Menu } from 'antd';
+import { Menu } from 'antd';
 import React, {
   useCallback,
   useEffect,
@@ -248,14 +248,19 @@ const CatalogScrollPage: React.FC = () => {
       </div>
 
       <div className={styles.collapseHandle}>
-        <Button
+        <button
+          type="button"
           className={styles.collapseButton}
-          type="text"
-          size="small"
-          icon={isCatalogCollapsed ? <RightOutlined /> : <LeftOutlined />}
           aria-label={isCatalogCollapsed ? '展开目录' : '收起目录'}
           onClick={() => setIsCatalogCollapsed((prev) => !prev)}
-        />
+        >
+          <span className={styles.collapseIcon} aria-hidden="true">
+            {isCatalogCollapsed ? <RightOutlined /> : <LeftOutlined />}
+          </span>
+          <span className={styles.collapseLabel}>
+            {isCatalogCollapsed ? '展开目录' : '收起目录'}
+          </span>
+        </button>
       </div>
 
       <div ref={contentRef} className={styles.content}>

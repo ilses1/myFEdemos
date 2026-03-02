@@ -34,13 +34,70 @@
   position: relative;
 }
 .collapseButton {
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border-radius: 8px;
-  background: #f1f6ff;
-  border: 1px solid #e3ecff;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  appearance: none;
+  font: inherit;
+  width: 26px;
+  height: 92px;
+  padding: 8px 0 10px;
+  border-radius: 999px;
+  border: 1px solid #cfe0ff;
+  background: linear-gradient(180deg, #f7fbff 0%, #e9f1ff 100%);
+  box-shadow: 0 10px 18px rgba(47, 95, 255, 0.1), 0 1px 2px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.collapseButton::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0) 45%,
+    rgba(78, 129, 255, 0.08) 100%
+  );
+  pointer-events: none;
+}
+.collapseButton:hover {
+  border-color: #b7d0ff;
+  box-shadow: 0 12px 22px rgba(47, 95, 255, 0.14), 0 2px 6px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+.collapseButton:active {
+  transform: translateY(1px);
+  box-shadow: 0 8px 14px rgba(47, 95, 255, 0.12), 0 1px 2px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+.collapseButton:focus-visible {
+  outline: 2px solid rgba(47, 95, 255, 0.55);
+  outline-offset: 2px;
+}
+.collapseIcon {
+  position: relative;
+  z-index: 1;
+  font-size: 14px;
+  line-height: 1;
+  color: #2f5fff;
+}
+.collapseLabel {
+  position: relative;
+  z-index: 1;
+  font-size: 12px;
+  line-height: 14px;
+  font-weight: 600;
+  color: #3a4a66;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  letter-spacing: 1px;
 }
 .menuWrapper {
   background: transparent;
