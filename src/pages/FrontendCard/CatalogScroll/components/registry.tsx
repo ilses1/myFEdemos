@@ -1,9 +1,9 @@
 import React from 'react';
-import CompareStock from './contents/CompareStock';
+import CompareStock from './Compare/CompareStock';
 import DefaultLeaf from './contents/DefaultLeaf';
-import Overview from './contents/Overview';
-import VolHist from './contents/VolHist';
-import YieldDividend from './contents/YieldDividend';
+import Overview from './Overview/Overview';
+import VolHist from './Volatility/VolHist';
+import YieldDividend from './Yield/YieldDividend';
 
 export type LeafRenderContext = {
   key: string;

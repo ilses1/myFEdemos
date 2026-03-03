@@ -69,6 +69,7 @@ const menuStructure: MenuNode[] = [
 
 const CatalogScrollPage: React.FC = () => {
   const contentRef = useRef<HTMLDivElement>(null);
+  const sectionRefMap = useRef<Record<string, HTMLElement | null>>({});
   const rafLockRef = useRef<number | null>(null);
 
   const { sections, keyToAncestorKeys, defaultOpenKeys } = useMemo(() => {
@@ -100,13 +101,18 @@ const CatalogScrollPage: React.FC = () => {
   const [selectedKey, setSelectedKey] = useState<string>(
     sections[0]?.key ?? '',
   );
+  const selectedKeyRef = useRef<string>(selectedKey);
   const [openKeys, setOpenKeys] = useState<string[]>(defaultOpenKeys);
   const [isCatalogCollapsed, setIsCatalogCollapsed] = useState(false);
+
+  useEffect(() => {
+    selectedKeyRef.current = selectedKey;
+  }, [selectedKey]);
 
   const scrollToSection = useCallback((key: string) => {
     const container = contentRef.current;
     if (!container) return;
-    const el = container.querySelector<HTMLElement>(`#${key}`);
+    const el = sectionRefMap.current[key];
     if (!el) return;
     const containerRect = container.getBoundingClientRect();
     const elRect = el.getBoundingClientRect();
@@ -194,7 +200,7 @@ const CatalogScrollPage: React.FC = () => {
 
         for (let i = 0; i < sections.length; i += 1) {
           const id = sections[i].key;
-          const el = container.querySelector<HTMLElement>(`#${id}`);
+          const el = sectionRefMap.current[id];
           if (!el) continue;
           const elRect = el.getBoundingClientRect();
           const elTop = elRect.top - containerRect.top + scrollTop;
@@ -202,7 +208,7 @@ const CatalogScrollPage: React.FC = () => {
           else break;
         }
 
-        if (nextActive && nextActive !== selectedKey) {
+        if (nextActive && nextActive !== selectedKeyRef.current) {
           setSelectedKey(nextActive);
           const ancestors = keyToAncestorKeys.get(nextActive) ?? [];
           if (ancestors.length > 0) {
@@ -220,7 +226,7 @@ const CatalogScrollPage: React.FC = () => {
         rafLockRef.current = null;
       }
     };
-  }, [keyToAncestorKeys, sections, selectedKey]);
+  }, [keyToAncestorKeys, sections]);
 
   const renderNodes = (nodes: MenuNode[], level = 0): React.ReactNode => {
     return nodes.map((node) => {
@@ -228,6 +234,9 @@ const CatalogScrollPage: React.FC = () => {
       return (
         <CatalogSection
           key={node.key}
+          ref={(el) => {
+            sectionRefMap.current[node.key] = el;
+          }}
           id={node.key}
           title={node.title}
           level={level}
