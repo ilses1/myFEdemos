@@ -9,6 +9,7 @@ import {
   MoonOutlined,
   SunOutlined,
   ToolOutlined,
+  UploadOutlined,
 } from '@ant-design/icons';
 import { ConfigProvider, Switch, theme as antdTheme } from 'antd';
 import React from 'react';
@@ -88,6 +89,7 @@ export const layout = ({ initialState, setInitialState }: any) => {
   const menuIconMap: Record<string, React.ReactNode> = {
     '/dev-tools': React.createElement(ToolOutlined),
     '/animations': React.createElement(AppstoreOutlined),
+    '/upload': React.createElement(UploadOutlined),
     '/frontend-card': React.createElement(FileTextOutlined),
     '/chart': React.createElement(LineChartOutlined),
     '/chart/line': React.createElement(LineChartOutlined),

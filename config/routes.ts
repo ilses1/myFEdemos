@@ -78,6 +78,11 @@ export default [
         path: '/frontend-card/catalog-scroll',
         component: './FrontendCard/CatalogScroll',
       },
+      {
+        name: '多维度筛选',
+        path: '/frontend-card/multi-filter',
+        component: './FrontendCard/MultiFilter',
+      },
     ],
   },
   {
