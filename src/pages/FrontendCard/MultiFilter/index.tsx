@@ -2,19 +2,18 @@ import { InfoCircleOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-components';
 import {
   Button,
-  Card,
   Checkbox,
   Form,
   Input,
   InputNumber,
   Select,
   Space,
-  Tag,
   Tooltip,
   Typography,
   message,
 } from 'antd';
 import React from 'react';
+import styles from './index.less';
 
 type FormValues = {
   enableEtfSearch: boolean;
@@ -115,6 +114,7 @@ const MultiFilterPage: React.FC = () => {
     if (values.lowFee) filters.lowFee = true;
     if (values.top20) filters.top20 = true;
     if (values.featured) filters.featured = true;
+    console.log({ ...filters });
 
     message.success('已提交筛选条件');
   };
@@ -125,9 +125,10 @@ const MultiFilterPage: React.FC = () => {
 
   return (
     <PageContainer ghost>
-      <Card
-        bodyStyle={{
-          padding: 12,
+      <div
+        style={{
+          padding: 20,
+          backgroundColor: '#fff',
         }}
       >
         <Form<FormValues>
@@ -328,12 +329,7 @@ const MultiFilterPage: React.FC = () => {
                 <Form.Item name="lead" valuePropName="checked" noStyle>
                   <Checkbox />
                 </Form.Item>
-                <Tag
-                  color="#A06637"
-                  style={{ marginInlineEnd: 0, borderRadius: 4 }}
-                >
-                  领先
-                </Tag>
+                <div className={styles.leadTag}>领先</div>
                 <Typography.Text
                   style={{ fontSize: 12, color: 'rgba(0, 0, 0, 0.65)' }}
                 >
@@ -350,12 +346,7 @@ const MultiFilterPage: React.FC = () => {
                 <Form.Item name="margin" valuePropName="checked" noStyle>
                   <Checkbox />
                 </Form.Item>
-                <Tag
-                  color="#2C66D5"
-                  style={{ marginInlineEnd: 0, borderRadius: 4 }}
-                >
-                  两融
-                </Tag>
+                <div className={styles.marginTag}>两融</div>
                 <Typography.Text
                   style={{ fontSize: 12, color: 'rgba(0, 0, 0, 0.65)' }}
                 >
@@ -369,12 +360,7 @@ const MultiFilterPage: React.FC = () => {
                 <Form.Item name="lowFee" valuePropName="checked" noStyle>
                   <Checkbox />
                 </Form.Item>
-                <Tag
-                  color="red"
-                  style={{ marginInlineEnd: 0, borderRadius: 4 }}
-                >
-                  最低
-                </Tag>
+                <div className={styles.lowFeeTag}>最低</div>
                 <Typography.Text
                   style={{ fontSize: 12, color: 'rgba(0, 0, 0, 0.65)' }}
                 >
@@ -388,12 +374,7 @@ const MultiFilterPage: React.FC = () => {
                 <Form.Item name="top20" valuePropName="checked" noStyle>
                   <Checkbox />
                 </Form.Item>
-                <Tag
-                  color="#005E91"
-                  style={{ marginInlineEnd: 0, borderRadius: 4 }}
-                >
-                  ±20%
-                </Tag>
+                <div className={styles.top20Tag}>±20%</div>
                 <Typography.Text
                   style={{ fontSize: 12, color: 'rgba(0, 0, 0, 0.65)' }}
                 >
@@ -407,16 +388,11 @@ const MultiFilterPage: React.FC = () => {
                 <Form.Item name="featured" valuePropName="checked" noStyle>
                   <Checkbox />
                 </Form.Item>
-                <Tag
-                  color="#BF0008"
-                  style={{ marginInlineEnd: 0, borderRadius: 4 }}
-                >
-                  特色
-                </Tag>
+                <div className={styles.featureTag}>特色</div>
                 <Typography.Text
                   style={{ fontSize: 12, color: 'rgba(0, 0, 0, 0.65)' }}
                 >
-                  指数为一线ETF
+                  指数唯一挂钩ETF
                 </Typography.Text>
               </div>
 
@@ -428,15 +404,15 @@ const MultiFilterPage: React.FC = () => {
                   gap: 12,
                 }}
               >
+                <Button onClick={handleReset}>重置</Button>
                 <Button type="primary" htmlType="submit">
                   查询
                 </Button>
-                <Button onClick={handleReset}>重置</Button>
               </div>
             </div>
           </div>
         </Form>
-      </Card>
+      </div>
     </PageContainer>
   );
 };
