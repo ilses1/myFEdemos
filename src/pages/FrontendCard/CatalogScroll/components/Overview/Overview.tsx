@@ -1,11 +1,8 @@
 import React from 'react';
+import type { LeafProps } from '../types';
 import styles from './index.less';
 
-export type OverviewProps = {
-  title: string;
-};
-
-const Overview: React.FC<OverviewProps> = ({ title }) => {
+const Overview: React.FC<LeafProps> = ({ title }) => {
   const timeRanges = [
     '成立以来',
     '今年以来',

@@ -7,6 +7,7 @@ import CorrCross from './Correlation/CorrCross';
 import Correlation from './Correlation/Correlation';
 import CorrInner from './Correlation/CorrInner';
 import Overview from './Overview/Overview';
+import type { LeafProps } from './types';
 import Volatility from './Volatility/Volatility';
 import VolHist from './Volatility/VolHist';
 import VolRiskReturn from './Volatility/VolRiskReturn';
@@ -21,14 +22,11 @@ import YieldSource from './Yield/YieldSource';
  * - value 为该节点在内容区需要渲染的 React 组件
  * 未注册的 key 会回退到 DefaultLeaf。
  */
-export type LeafRenderContext = {
+export type NodeRenderContext = {
   key: string;
   title: string;
 };
-
-export type NodeRenderContext = LeafRenderContext;
-
-type NodeRenderer = React.FC<{ title: string }>;
+type NodeRenderer = React.FC<LeafProps>;
 
 const nodeRegistry: Record<string, NodeRenderer> = {
   overview: Overview,

@@ -1,10 +1,7 @@
 import React from 'react';
+import type { LeafProps } from '../types';
 
-export type CorrCrossProps = {
-  title: string;
-};
-
-const CorrCross: React.FC<CorrCrossProps> = ({ title }) => {
+const CorrCross: React.FC<LeafProps> = ({ title }) => {
   return (
     <div style={{ background: '#FF0' }}>
       CorrCrossCorrCrossCorrCrossCorrCross {title}

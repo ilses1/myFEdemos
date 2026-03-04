@@ -1,10 +1,7 @@
 import React from 'react';
+import type { LeafProps } from '../types';
 
-export type ReturnDecompositionProps = {
-  title: string;
-};
-
-const ReturnDecomposition: React.FC<ReturnDecompositionProps> = ({ title }) => {
+const ReturnDecomposition: React.FC<LeafProps> = ({ title }) => {
   return (
     <div style={{ background: '#FF0' }}>
       ReturnDecompositionReturnDecompositionReturnDecompositionReturnDecomposition{' '}

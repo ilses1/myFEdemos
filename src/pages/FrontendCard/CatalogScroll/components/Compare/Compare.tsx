@@ -1,10 +1,7 @@
 import React from 'react';
+import type { LeafProps } from '../types';
 
-export type CompareProps = {
-  title: string;
-};
-
-const Compare: React.FC<CompareProps> = ({ title }) => {
+const Compare: React.FC<LeafProps> = ({ title }) => {
   return (
     <div style={{ background: '#FF0' }}>
       CompareCompareCompareCompare {title}

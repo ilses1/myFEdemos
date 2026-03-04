@@ -1,10 +1,7 @@
 import React from 'react';
+import type { LeafProps } from '../types';
 
-export type CorrelationProps = {
-  title: string;
-};
-
-const Correlation: React.FC<CorrelationProps> = ({ title }) => {
+const Correlation: React.FC<LeafProps> = ({ title }) => {
   return (
     <div style={{ background: '#FF0' }}>
       CorrelationCorrelationCorrelationCorrelation {title}

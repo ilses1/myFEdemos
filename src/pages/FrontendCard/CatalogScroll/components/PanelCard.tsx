@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from '../index.less';
+import { cx } from './cx';
 
 export type PanelCardSize = 'lg' | 'sm';
 
@@ -17,9 +18,7 @@ const PanelCard: React.FC<PanelCardProps> = ({
   const sizeClassName =
     size === 'lg' ? styles.panelCardLarge : styles.panelCardSmall;
   return (
-    <div
-      className={[styles.panelCard, sizeClassName].filter(Boolean).join(' ')}
-    >
+    <div className={cx(styles.panelCard, sizeClassName)}>
       <div className={styles.panelCardHeader}>{title}</div>
       <div className={styles.panelCardBody}>{children}</div>
     </div>

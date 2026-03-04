@@ -2,12 +2,9 @@ import React from 'react';
 import styles from '../../index.less';
 import LeafLayout from '../LeafLayout';
 import PanelCard from '../PanelCard';
+import type { LeafProps } from '../types';
 
-export type CompareStockProps = {
-  title: string;
-};
-
-const CompareStock: React.FC<CompareStockProps> = ({ title }) => {
+const CompareStock: React.FC<LeafProps> = ({ title }) => {
   return (
     <LeafLayout title={title}>
       <PanelCard title="与股票收益对比" size="lg">

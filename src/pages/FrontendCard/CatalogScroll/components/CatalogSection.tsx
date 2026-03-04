@@ -1,15 +1,15 @@
 import React from 'react';
 import styles from '../index.less';
+import { cx } from './cx';
 
 export type CatalogSectionProps = {
   id: string;
-  title: React.ReactNode;
   level: number;
   children?: React.ReactNode;
 };
 
 const CatalogSection = React.forwardRef<HTMLElement, CatalogSectionProps>(
-  ({ id, title, level, children }, ref) => {
+  ({ id, level, children }, ref) => {
     const levelClassName =
       level === 0 && id !== 'overview'
         ? styles.nodeLevel0
@@ -23,9 +23,7 @@ const CatalogSection = React.forwardRef<HTMLElement, CatalogSectionProps>(
       <section
         ref={ref}
         id={id}
-        className={[styles.section, styles.nodeSection, levelClassName]
-          .filter(Boolean)
-          .join(' ')}
+        className={cx(styles.section, styles.nodeSection, levelClassName)}
       >
         {children ? <div className={styles.nodeBody}>{children}</div> : null}
       </section>

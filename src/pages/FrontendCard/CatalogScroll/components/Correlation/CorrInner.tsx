@@ -1,10 +1,7 @@
 import React from 'react';
+import type { LeafProps } from '../types';
 
-export type CorrInnerProps = {
-  title: string;
-};
-
-const CorrInner: React.FC<CorrInnerProps> = ({ title }) => {
+const CorrInner: React.FC<LeafProps> = ({ title }) => {
   return (
     <div style={{ background: '#FF0' }}>
       CorrInnerCorrInnerCorrInnerCorrInner {title}

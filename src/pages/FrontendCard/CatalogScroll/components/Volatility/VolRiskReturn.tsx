@@ -1,10 +1,7 @@
 import React from 'react';
+import type { LeafProps } from '../types';
 
-export type VolRiskReturnProps = {
-  title: string;
-};
-
-const VolRiskReturn: React.FC<VolRiskReturnProps> = ({ title }) => {
+const VolRiskReturn: React.FC<LeafProps> = ({ title }) => {
   return (
     <div style={{ background: '#FF0' }}>
       VolRiskReturnVolRiskReturnVolRiskReturnVolRiskReturn {title}

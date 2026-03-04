@@ -2,12 +2,9 @@ import React from 'react';
 import styles from '../../index.less';
 import LeafLayout from '../LeafLayout';
 import PanelCard from '../PanelCard';
+import type { LeafProps } from '../types';
 
-export type VolHistProps = {
-  title: string;
-};
-
-const VolHist: React.FC<VolHistProps> = ({ title }) => {
+const VolHist: React.FC<LeafProps> = ({ title }) => {
   return (
     <LeafLayout title={title}>
       <PanelCard title="波动率曲线" size="lg">

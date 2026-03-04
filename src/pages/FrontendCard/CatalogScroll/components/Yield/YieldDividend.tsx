@@ -1,10 +1,7 @@
 import React from 'react';
+import type { LeafProps } from '../types';
 
-export type YieldDividendProps = {
-  title: string;
-};
-
-const YieldDividend: React.FC<YieldDividendProps> = ({ title }) => {
+const YieldDividend: React.FC<LeafProps> = ({ title }) => {
   return (
     <div style={{ background: '#0F0' }}>
       YieldDividendYieldDividendYieldDividend{title}
