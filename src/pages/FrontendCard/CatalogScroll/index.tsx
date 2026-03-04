@@ -14,7 +14,7 @@ import React, {
   useState,
 } from 'react';
 import CatalogSection from './components/CatalogSection';
-import { renderLeafContent } from './components/registry';
+import { renderNodeContent } from './components/registry';
 import styles from './index.less';
 
 type MenuNode = {
@@ -228,6 +228,11 @@ const CatalogScrollPage: React.FC = () => {
     };
   }, [keyToAncestorKeys, sections]);
 
+  /**
+   * 递归渲染目录对应的内容区块（CatalogSection）。
+   * - level 表示层级深度，用于样式/缩进等展示
+   * - 通过 sectionRefMap 记录每个区块 DOM 引用，供滚动联动与定位计算使用
+   */
   const renderNodes = (nodes: MenuNode[], level = 0): React.ReactNode => {
     return nodes.map((node) => {
       const hasChildren = Boolean(node.children && node.children.length > 0);
@@ -241,9 +246,8 @@ const CatalogScrollPage: React.FC = () => {
           title={node.title}
           level={level}
         >
-          {hasChildren
-            ? renderNodes(node.children ?? [], level + 1)
-            : renderLeafContent({ key: node.key, title: node.title })}
+          {renderNodeContent({ key: node.key, title: node.title })}
+          {hasChildren ? renderNodes(node.children ?? [], level + 1) : null}
         </CatalogSection>
       );
     });

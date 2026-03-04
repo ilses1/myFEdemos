@@ -11,11 +11,13 @@ export type CatalogSectionProps = {
 const CatalogSection = React.forwardRef<HTMLElement, CatalogSectionProps>(
   ({ id, title, level, children }, ref) => {
     const levelClassName =
-      level === 0
+      level === 0 && id !== 'overview'
         ? styles.nodeLevel0
         : level === 1
         ? styles.nodeLevel1
-        : styles.nodeLevel2;
+        : level === 2
+        ? styles.nodeLevel2
+        : '';
 
     return (
       <section
@@ -25,7 +27,6 @@ const CatalogSection = React.forwardRef<HTMLElement, CatalogSectionProps>(
           .filter(Boolean)
           .join(' ')}
       >
-        <div className={styles.nodeHeading}>{title}</div>
         {children ? <div className={styles.nodeBody}>{children}</div> : null}
       </section>
     );
