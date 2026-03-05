@@ -1,17 +1,24 @@
-import { InfoCircleOutlined } from '@ant-design/icons';
+import { DownloadOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-components';
 import {
   Button,
+  Card,
   Checkbox,
+  Col,
   Form,
+  Grid,
   Input,
   InputNumber,
+  Row,
   Select,
   Space,
+  Table,
+  Tabs,
   Tooltip,
   Typography,
   message,
 } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import React from 'react';
 import styles from './index.less';
 
@@ -90,8 +97,75 @@ const itemWrapStyle: React.CSSProperties = {
   gap: 8,
 };
 
+type HighlightKey = 'lead' | 'margin' | 'lowFee' | 'top20' | 'featured';
+
+type EtfRecord = {
+  id: string;
+  category: string;
+  track: string;
+  name: string;
+  code: string;
+  highlights: HighlightKey[];
+  latestScale: number;
+  dailyAvgAmount: number;
+  linkedCodes: string[];
+  desc: string;
+};
+
+const highlightLabelMap: Record<HighlightKey, string> = {
+  lead: '领先',
+  margin: '两融',
+  lowFee: '最低',
+  top20: '±20%',
+  featured: '特色',
+};
+
+const highlightClassMap: Record<HighlightKey, string> = {
+  lead: styles.leadTag,
+  margin: styles.marginTag,
+  lowFee: styles.lowFeeTag,
+  top20: styles.top20Tag,
+  featured: styles.featureTag,
+};
+
+const MOCK_DATA: EtfRecord[] = Array.from({ length: 35 }).map((_, i) => {
+  const mod = i % 10;
+  const highlights: HighlightKey[] =
+    mod === 0
+      ? ['featured', 'margin']
+      : mod === 1
+      ? ['lowFee', 'top20']
+      : mod === 2
+      ? ['lead', 'margin']
+      : mod === 3
+      ? ['lead']
+      : mod === 4
+      ? ['margin']
+      : mod === 5
+      ? ['featured']
+      : mod === 6
+      ? ['top20']
+      : mod === 7
+      ? ['lowFee']
+      : ['lead', 'featured'];
+  return {
+    id: String(i + 1),
+    category: '宽基',
+    track: '科创板',
+    name: '科创50ETF',
+    code: '588000',
+    highlights,
+    latestScale: 677.76,
+    dailyAvgAmount: 677.76,
+    linkedCodes: ['022945', '011612', '011613'],
+    desc: '文本占位文本占位文本占位文本占位文本占位文本占位…',
+  };
+});
+
 const MultiFilterPage: React.FC = () => {
   const [form] = Form.useForm<FormValues>();
+  const screens = Grid.useBreakpoint();
+  const [activeView, setActiveView] = React.useState<'card' | 'list'>('list');
 
   const handleFinish = (values: FormValues) => {
     const filters: Record<string, unknown> = {};
@@ -122,6 +196,105 @@ const MultiFilterPage: React.FC = () => {
   const handleReset = () => {
     form.setFieldsValue(INITIAL_VALUES);
   };
+
+  const handleExport = () => {
+    message.success('已导出数据');
+  };
+
+  const columns: ColumnsType<EtfRecord> = [
+    {
+      title: '类型',
+      dataIndex: 'category',
+      key: 'category',
+      width: 80,
+    },
+    {
+      title: '赛道',
+      dataIndex: 'track',
+      key: 'track',
+      width: 90,
+    },
+    {
+      title: '简称',
+      dataIndex: 'name',
+      key: 'name',
+      width: 120,
+      render: (text: string) => (
+        <Typography.Link className={styles.linkText}>{text}</Typography.Link>
+      ),
+    },
+    {
+      title: '代码',
+      dataIndex: 'code',
+      key: 'code',
+      width: 90,
+      render: (text: string) => (
+        <Typography.Link className={styles.linkText}>{text}</Typography.Link>
+      ),
+    },
+    {
+      title: '产品亮点',
+      dataIndex: 'highlights',
+      key: 'highlights',
+      width: 160,
+      render: (keys: HighlightKey[]) => (
+        <Space size={6} wrap>
+          {keys.map((k) => (
+            <span key={k} className={highlightClassMap[k]}>
+              {highlightLabelMap[k]}
+            </span>
+          ))}
+        </Space>
+      ),
+    },
+    {
+      title: '最新规模（亿元）',
+      dataIndex: 'latestScale',
+      key: 'latestScale',
+      width: 140,
+      align: 'right',
+      sorter: (a, b) => a.latestScale - b.latestScale,
+      render: (v: number) => v.toFixed(2),
+    },
+    {
+      title: '月日均成交金额（万元）',
+      dataIndex: 'dailyAvgAmount',
+      key: 'dailyAvgAmount',
+      width: 180,
+      align: 'right',
+      sorter: (a, b) => a.dailyAvgAmount - b.dailyAvgAmount,
+      render: (v: number) => v.toFixed(2),
+    },
+    {
+      title: '联接基金代码',
+      dataIndex: 'linkedCodes',
+      key: 'linkedCodes',
+      width: 170,
+      render: (codes: string[]) => (
+        <Space size={10} wrap>
+          {codes.map((c) => (
+            <Typography.Link key={c} className={styles.codeLink}>
+              {c}
+            </Typography.Link>
+          ))}
+        </Space>
+      ),
+    },
+    {
+      title: '说明',
+      dataIndex: 'desc',
+      key: 'desc',
+      render: (text: string) => (
+        <Tooltip title={text}>
+          <Typography.Text className={styles.descText} ellipsis>
+            {text}
+          </Typography.Text>
+        </Tooltip>
+      ),
+    },
+  ];
+
+  const cardCols = screens.xl ? 6 : screens.lg ? 8 : screens.md ? 12 : 24;
 
   return (
     <PageContainer ghost>
@@ -412,6 +585,122 @@ const MultiFilterPage: React.FC = () => {
             </div>
           </div>
         </Form>
+
+        <div className={styles.resultSection}>
+          <div className={styles.resultHeader}>
+            <div className={styles.titleTabs}>
+              <Typography.Text className={styles.resultTitle}>
+                ETF产品
+              </Typography.Text>
+              <Tabs
+                className={styles.viewTabs}
+                activeKey={activeView}
+                onChange={(k) => setActiveView(k as 'card' | 'list')}
+                items={[
+                  { key: 'card', label: '卡片' },
+                  { key: 'list', label: '列表' },
+                ]}
+              />
+            </div>
+            <Button
+              className={styles.exportBtn}
+              icon={<DownloadOutlined />}
+              onClick={handleExport}
+            >
+              导出数据
+            </Button>
+          </div>
+
+          {activeView === 'list' ? (
+            <div className={styles.tableWrap}>
+              <Table<EtfRecord>
+                className={styles.resultTable}
+                rowKey="id"
+                columns={columns}
+                dataSource={MOCK_DATA}
+                size="middle"
+                pagination={{
+                  total: MOCK_DATA.length,
+                  defaultPageSize: 10,
+                  showSizeChanger: true,
+                  showQuickJumper: true,
+                  pageSizeOptions: [10, 20, 50, 100],
+                  showTotal: (total, range) =>
+                    `第${range[0]}-${range[1]}条 / 共${total}条`,
+                }}
+                rowClassName={(_, index) =>
+                  index % 2 === 1 ? styles.rowAlt : ''
+                }
+                scroll={{ x: 1180 }}
+              />
+            </div>
+          ) : (
+            <Row gutter={[12, 12]} className={styles.cardGrid}>
+              {MOCK_DATA.map((item) => (
+                <Col key={item.id} span={cardCols}>
+                  <Card className={styles.etfCard} bordered>
+                    <div className={styles.cardHeader}>
+                      <Typography.Link className={styles.cardName}>
+                        {item.name}
+                      </Typography.Link>
+                      <Typography.Link className={styles.cardCode}>
+                        {item.code}
+                      </Typography.Link>
+                    </div>
+                    <div className={styles.cardHighlights}>
+                      <Space size={6} wrap>
+                        {item.highlights.map((k) => (
+                          <span key={k} className={highlightClassMap[k]}>
+                            {highlightLabelMap[k]}
+                          </span>
+                        ))}
+                      </Space>
+                    </div>
+                    <div className={styles.cardMeta}>
+                      <div className={styles.metaItem}>
+                        <Typography.Text className={styles.metaLabel}>
+                          最新规模
+                        </Typography.Text>
+                        <Typography.Text className={styles.metaValue}>
+                          {item.latestScale.toFixed(2)}
+                        </Typography.Text>
+                        <Typography.Text className={styles.metaUnit}>
+                          亿
+                        </Typography.Text>
+                      </div>
+                      <div className={styles.metaItem}>
+                        <Typography.Text className={styles.metaLabel}>
+                          月日均成交金额
+                        </Typography.Text>
+                        <Typography.Text className={styles.metaValue}>
+                          {item.dailyAvgAmount.toFixed(2)}
+                        </Typography.Text>
+                        <Typography.Text className={styles.metaUnit}>
+                          万
+                        </Typography.Text>
+                      </div>
+                    </div>
+                    <div className={styles.cardLinks}>
+                      <Typography.Text className={styles.metaLabel}>
+                        联接基金代码：
+                      </Typography.Text>
+                      <Space size={10} wrap>
+                        {item.linkedCodes.map((c) => (
+                          <Typography.Link key={c} className={styles.codeLink}>
+                            {c}
+                          </Typography.Link>
+                        ))}
+                      </Space>
+                    </div>
+                    <Typography.Text className={styles.cardDesc} ellipsis>
+                      {item.desc}
+                    </Typography.Text>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          )}
+        </div>
       </div>
     </PageContainer>
   );
