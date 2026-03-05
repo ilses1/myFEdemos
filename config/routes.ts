@@ -83,6 +83,11 @@ export default [
         path: '/frontend-card/multi-filter',
         component: './FrontendCard/MultiFilter',
       },
+      {
+        name: '行业',
+        path: '/frontend-card/industry',
+        component: './FrontendCard/Industry',
+      },
     ],
   },
   {
