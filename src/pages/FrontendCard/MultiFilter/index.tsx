@@ -1,5 +1,4 @@
 import { ExportOutlined, InfoCircleOutlined } from '@ant-design/icons';
-import { PageContainer } from '@ant-design/pro-components';
 import {
   Button,
   Card,
@@ -288,429 +287,423 @@ const MultiFilterPage: React.FC = () => {
   const cardCols = screens.xl ? 6 : screens.lg ? 8 : screens.md ? 12 : 24;
 
   return (
-    <PageContainer ghost>
-      <div
-        style={{
-          padding: 20,
-          backgroundColor: '#fff',
-        }}
+    <div
+      style={{
+        padding: 20,
+        backgroundColor: '#fff',
+      }}
+    >
+      <Form<FormValues>
+        form={form}
+        initialValues={INITIAL_VALUES}
+        onFinish={handleFinish}
       >
-        <Form<FormValues>
-          form={form}
-          initialValues={INITIAL_VALUES}
-          onFinish={handleFinish}
-        >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <div style={rowStyle}>
-              <div style={itemWrapStyle}>
-                <Form.Item
-                  name="enableEtfSearch"
-                  valuePropName="checked"
-                  noStyle
-                >
-                  <Checkbox />
-                </Form.Item>
-                <Typography.Text style={labelStyle}>ETF搜索</Typography.Text>
-                <Form.Item name="etfSearch" style={{ margin: 0 }}>
-                  <Input
-                    allowClear
-                    placeholder="请输入基金名称或代码检索"
-                    style={{ width: 280 }}
-                  />
-                </Form.Item>
-              </div>
-            </div>
-
-            <div style={rowStyle}>
-              <div style={itemWrapStyle}>
-                <Form.Item
-                  name="enableCategoryTrack"
-                  valuePropName="checked"
-                  noStyle
-                >
-                  <Checkbox />
-                </Form.Item>
-                <Typography.Text style={labelStyle}>类型/赛道</Typography.Text>
-                <Space size={8}>
-                  <Form.Item name="category" style={{ margin: 0 }}>
-                    <Select
-                      style={{ width: 120 }}
-                      options={[
-                        { label: '全部类型', value: 'all' },
-                        { label: '股票型', value: 'stock' },
-                        { label: '债券型', value: 'bond' },
-                        { label: '商品型', value: 'commodity' },
-                      ]}
-                    />
-                  </Form.Item>
-                  <Form.Item name="track" style={{ margin: 0 }}>
-                    <Select
-                      style={{ width: 120 }}
-                      options={[
-                        { label: '全部赛道', value: 'all' },
-                        { label: '宽基', value: 'broad' },
-                        { label: '行业', value: 'industry' },
-                        { label: '主题', value: 'theme' },
-                      ]}
-                    />
-                  </Form.Item>
-                </Space>
-              </div>
-
-              <div style={itemWrapStyle}>
-                <Form.Item
-                  name="enableLatestScaleGt"
-                  valuePropName="checked"
-                  noStyle
-                >
-                  <Checkbox />
-                </Form.Item>
-                <Typography.Text style={labelStyle}>
-                  最新规模 &gt;
-                </Typography.Text>
-                <Form.Item name="latestScaleGt" style={{ margin: 0 }}>
-                  <InputNumber
-                    min={0}
-                    precision={1}
-                    step={0.1}
-                    controls={false}
-                    formatter={(val) => {
-                      if (val === null || val === undefined || val === '')
-                        return '';
-                      const n = typeof val === 'number' ? val : Number(val);
-                      if (Number.isNaN(n)) return '';
-                      return n.toFixed(1);
-                    }}
-                    parser={(val) => {
-                      const s = (val ?? '').toString().replace(/[^\d.-]/g, '');
-                      const n = Number(s);
-                      if (Number.isNaN(n)) return 0;
-                      return n;
-                    }}
-                    style={{ width: 84 }}
-                  />
-                </Form.Item>
-                <Typography.Text
-                  style={{ ...labelStyle, color: 'rgba(0, 0, 0, 0.45)' }}
-                >
-                  亿
-                </Typography.Text>
-                <Tooltip title="截至上一日，ETF基金规模(不含联接基金)，单位亿元">
-                  <InfoCircleOutlined />
-                </Tooltip>
-              </div>
-
-              <div style={itemWrapStyle}>
-                <Form.Item
-                  name="enableScaleRankTop"
-                  valuePropName="checked"
-                  noStyle
-                >
-                  <Checkbox />
-                </Form.Item>
-                <Typography.Text style={labelStyle}>规模排名</Typography.Text>
-                <Typography.Text style={labelStyle}>前</Typography.Text>
-                <Form.Item name="scaleRankTop" style={{ margin: 0 }}>
-                  <Select
-                    style={{ width: 72 }}
-                    options={[1, 3, 5, 10, 20, 50, 100].map((n) => ({
-                      label: String(n),
-                      value: n,
-                    }))}
-                  />
-                </Form.Item>
-              </div>
-
-              <div style={itemWrapStyle}>
-                <Form.Item
-                  name="enableDailyAvgAmountGt"
-                  valuePropName="checked"
-                  noStyle
-                >
-                  <Checkbox />
-                </Form.Item>
-                <Typography.Text style={labelStyle}>
-                  月日均成交金额 &gt;
-                </Typography.Text>
-                <Form.Item name="dailyAvgAmountGt" style={{ margin: 0 }}>
-                  <InputNumber
-                    min={0}
-                    precision={1}
-                    step={0.1}
-                    controls={false}
-                    formatter={(val) => {
-                      if (val === null || val === undefined || val === '')
-                        return '';
-                      const n = typeof val === 'number' ? val : Number(val);
-                      if (Number.isNaN(n)) return '';
-                      return n.toFixed(1);
-                    }}
-                    parser={(val) => {
-                      const s = (val ?? '').toString().replace(/[^\d.-]/g, '');
-                      const n = Number(s);
-                      if (Number.isNaN(n)) return 0;
-                      return n;
-                    }}
-                    style={{ width: 84 }}
-                  />
-                </Form.Item>
-                <Typography.Text
-                  style={{ ...labelStyle, color: 'rgba(0, 0, 0, 0.45)' }}
-                >
-                  万
-                </Typography.Text>
-                <Tooltip title="截至上一日，ETF基金规模(不含联接基金)，单位亿元">
-                  <InfoCircleOutlined />
-                </Tooltip>
-              </div>
-
-              <div style={itemWrapStyle}>
-                <Form.Item
-                  name="enableTradeRankTop"
-                  valuePropName="checked"
-                  noStyle
-                >
-                  <Checkbox />
-                </Form.Item>
-                <Typography.Text style={labelStyle}>成交排名</Typography.Text>
-                <Typography.Text style={labelStyle}>前</Typography.Text>
-                <Form.Item name="tradeRankTop" style={{ margin: 0 }}>
-                  <Select
-                    style={{ width: 72 }}
-                    options={[1, 3, 5, 10, 20, 50, 100].map((n) => ({
-                      label: String(n),
-                      value: n,
-                    }))}
-                  />
-                </Form.Item>
-              </div>
-            </div>
-
-            <div style={{ ...rowStyle, columnGap: 14 }}>
-              <div
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
-              >
-                <Form.Item name="lead" valuePropName="checked" noStyle>
-                  <Checkbox />
-                </Form.Item>
-                <div className={styles.leadTag}>领先</div>
-                <Typography.Text
-                  style={{ fontSize: 12, color: 'rgba(0, 0, 0, 0.65)' }}
-                >
-                  规模或流动性领先
-                </Typography.Text>
-                <Tooltip title="截至上一日，ETF基金规模(不含联接基金)，单位亿元">
-                  <InfoCircleOutlined />
-                </Tooltip>
-              </div>
-
-              <div
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
-              >
-                <Form.Item name="margin" valuePropName="checked" noStyle>
-                  <Checkbox />
-                </Form.Item>
-                <div className={styles.marginTag}>两融</div>
-                <Typography.Text
-                  style={{ fontSize: 12, color: 'rgba(0, 0, 0, 0.65)' }}
-                >
-                  是否两融标的
-                </Typography.Text>
-              </div>
-
-              <div
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
-              >
-                <Form.Item name="lowFee" valuePropName="checked" noStyle>
-                  <Checkbox />
-                </Form.Item>
-                <div className={styles.lowFeeTag}>最低</div>
-                <Typography.Text
-                  style={{ fontSize: 12, color: 'rgba(0, 0, 0, 0.65)' }}
-                >
-                  费率低于阈值：管理费0.15%
-                </Typography.Text>
-              </div>
-
-              <div
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
-              >
-                <Form.Item name="top20" valuePropName="checked" noStyle>
-                  <Checkbox />
-                </Form.Item>
-                <div className={styles.top20Tag}>±20%</div>
-                <Typography.Text
-                  style={{ fontSize: 12, color: 'rgba(0, 0, 0, 0.65)' }}
-                >
-                  涨跌幅位居前20%
-                </Typography.Text>
-              </div>
-
-              <div
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
-              >
-                <Form.Item name="featured" valuePropName="checked" noStyle>
-                  <Checkbox />
-                </Form.Item>
-                <div className={styles.featuredTag}>特色</div>
-                <Typography.Text
-                  style={{ fontSize: 12, color: 'rgba(0, 0, 0, 0.65)' }}
-                >
-                  指数唯一挂钩ETF
-                </Typography.Text>
-              </div>
-
-              <div
-                style={{
-                  marginLeft: 'auto',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 12,
-                }}
-              >
-                <Button onClick={handleReset}>重置</Button>
-                <Button type="primary" htmlType="submit">
-                  查询
-                </Button>
-              </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={rowStyle}>
+            <div style={itemWrapStyle}>
+              <Form.Item name="enableEtfSearch" valuePropName="checked" noStyle>
+                <Checkbox />
+              </Form.Item>
+              <Typography.Text style={labelStyle}>ETF搜索</Typography.Text>
+              <Form.Item name="etfSearch" style={{ margin: 0 }}>
+                <Input
+                  allowClear
+                  placeholder="请输入基金名称或代码检索"
+                  style={{ width: 280 }}
+                />
+              </Form.Item>
             </div>
           </div>
-        </Form>
 
-        <div className={styles.resultSection}>
-          <div className={styles.resultHeader}>
-            <div className={styles.titleTabs}>
-              <Typography.Text className={styles.resultTitle}>
-                ETF产品
+          <div style={rowStyle}>
+            <div style={itemWrapStyle}>
+              <Form.Item
+                name="enableCategoryTrack"
+                valuePropName="checked"
+                noStyle
+              >
+                <Checkbox />
+              </Form.Item>
+              <Typography.Text style={labelStyle}>类型/赛道</Typography.Text>
+              <Space size={8}>
+                <Form.Item name="category" style={{ margin: 0 }}>
+                  <Select
+                    style={{ width: 120 }}
+                    options={[
+                      { label: '全部类型', value: 'all' },
+                      { label: '股票型', value: 'stock' },
+                      { label: '债券型', value: 'bond' },
+                      { label: '商品型', value: 'commodity' },
+                    ]}
+                  />
+                </Form.Item>
+                <Form.Item name="track" style={{ margin: 0 }}>
+                  <Select
+                    style={{ width: 120 }}
+                    options={[
+                      { label: '全部赛道', value: 'all' },
+                      { label: '宽基', value: 'broad' },
+                      { label: '行业', value: 'industry' },
+                      { label: '主题', value: 'theme' },
+                    ]}
+                  />
+                </Form.Item>
+              </Space>
+            </div>
+
+            <div style={itemWrapStyle}>
+              <Form.Item
+                name="enableLatestScaleGt"
+                valuePropName="checked"
+                noStyle
+              >
+                <Checkbox />
+              </Form.Item>
+              <Typography.Text style={labelStyle}>
+                最新规模 &gt;
               </Typography.Text>
-              <div
-                className={styles.viewTabs}
-                role="tablist"
-                aria-label="视图切换"
+              <Form.Item name="latestScaleGt" style={{ margin: 0 }}>
+                <InputNumber
+                  min={0}
+                  precision={1}
+                  step={0.1}
+                  controls={false}
+                  formatter={(val) => {
+                    if (val === null || val === undefined || val === '')
+                      return '';
+                    const n = typeof val === 'number' ? val : Number(val);
+                    if (Number.isNaN(n)) return '';
+                    return n.toFixed(1);
+                  }}
+                  parser={(val) => {
+                    const s = (val ?? '').toString().replace(/[^\d.-]/g, '');
+                    const n = Number(s);
+                    if (Number.isNaN(n)) return 0;
+                    return n;
+                  }}
+                  style={{ width: 84 }}
+                />
+              </Form.Item>
+              <Typography.Text
+                style={{ ...labelStyle, color: 'rgba(0, 0, 0, 0.45)' }}
               >
-                <div
-                  role="tab"
-                  tabIndex={0}
-                  aria-selected={activeView === 'card'}
-                  className={`${styles.viewTab} ${
-                    activeView === 'card' ? styles.viewTabActive : ''
-                  }`}
-                  onClick={() => setActiveView('card')}
-                >
-                  卡片
-                </div>
-                <div className={styles.viewTabDivider} aria-hidden="true" />
-                <div
-                  role="tab"
-                  tabIndex={0}
-                  aria-selected={activeView === 'list'}
-                  className={`${styles.viewTab} ${
-                    activeView === 'list' ? styles.viewTabActive : ''
-                  }`}
-                  onClick={() => setActiveView('list')}
-                >
-                  列表
-                </div>
-              </div>
+                亿
+              </Typography.Text>
+              <Tooltip title="截至上一日，ETF基金规模(不含联接基金)，单位亿元">
+                <InfoCircleOutlined />
+              </Tooltip>
             </div>
-            <Button onClick={handleExport}>
-              <span>导出数据</span>
-              <ExportOutlined />
-            </Button>
+
+            <div style={itemWrapStyle}>
+              <Form.Item
+                name="enableScaleRankTop"
+                valuePropName="checked"
+                noStyle
+              >
+                <Checkbox />
+              </Form.Item>
+              <Typography.Text style={labelStyle}>规模排名</Typography.Text>
+              <Typography.Text style={labelStyle}>前</Typography.Text>
+              <Form.Item name="scaleRankTop" style={{ margin: 0 }}>
+                <Select
+                  style={{ width: 72 }}
+                  options={[1, 3, 5, 10, 20, 50, 100].map((n) => ({
+                    label: String(n),
+                    value: n,
+                  }))}
+                />
+              </Form.Item>
+            </div>
+
+            <div style={itemWrapStyle}>
+              <Form.Item
+                name="enableDailyAvgAmountGt"
+                valuePropName="checked"
+                noStyle
+              >
+                <Checkbox />
+              </Form.Item>
+              <Typography.Text style={labelStyle}>
+                月日均成交金额 &gt;
+              </Typography.Text>
+              <Form.Item name="dailyAvgAmountGt" style={{ margin: 0 }}>
+                <InputNumber
+                  min={0}
+                  precision={1}
+                  step={0.1}
+                  controls={false}
+                  formatter={(val) => {
+                    if (val === null || val === undefined || val === '')
+                      return '';
+                    const n = typeof val === 'number' ? val : Number(val);
+                    if (Number.isNaN(n)) return '';
+                    return n.toFixed(1);
+                  }}
+                  parser={(val) => {
+                    const s = (val ?? '').toString().replace(/[^\d.-]/g, '');
+                    const n = Number(s);
+                    if (Number.isNaN(n)) return 0;
+                    return n;
+                  }}
+                  style={{ width: 84 }}
+                />
+              </Form.Item>
+              <Typography.Text
+                style={{ ...labelStyle, color: 'rgba(0, 0, 0, 0.45)' }}
+              >
+                万
+              </Typography.Text>
+              <Tooltip title="截至上一日，ETF基金规模(不含联接基金)，单位亿元">
+                <InfoCircleOutlined />
+              </Tooltip>
+            </div>
+
+            <div style={itemWrapStyle}>
+              <Form.Item
+                name="enableTradeRankTop"
+                valuePropName="checked"
+                noStyle
+              >
+                <Checkbox />
+              </Form.Item>
+              <Typography.Text style={labelStyle}>成交排名</Typography.Text>
+              <Typography.Text style={labelStyle}>前</Typography.Text>
+              <Form.Item name="tradeRankTop" style={{ margin: 0 }}>
+                <Select
+                  style={{ width: 72 }}
+                  options={[1, 3, 5, 10, 20, 50, 100].map((n) => ({
+                    label: String(n),
+                    value: n,
+                  }))}
+                />
+              </Form.Item>
+            </div>
           </div>
 
-          {activeView === 'list' ? (
-            <div className={styles.tableWrap}>
-              <Table<EtfRecord>
-                className={styles.resultTable}
-                rowKey="id"
-                columns={columns}
-                dataSource={MOCK_DATA}
-                size="middle"
-                pagination={{
-                  total: MOCK_DATA.length,
-                  defaultPageSize: 10,
-                  showSizeChanger: true,
-                  showQuickJumper: true,
-                  pageSizeOptions: [10, 20, 50, 100],
-                  showTotal: (total, range) =>
-                    `第${range[0]}-${range[1]}条 / 共${total}条`,
-                }}
-                rowClassName={(_, index) =>
-                  index % 2 === 1 ? styles.rowAlt : ''
-                }
-                scroll={{ x: 1180 }}
-              />
+          <div style={{ ...rowStyle, columnGap: 14 }}>
+            <div
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            >
+              <Form.Item name="lead" valuePropName="checked" noStyle>
+                <Checkbox />
+              </Form.Item>
+              <div className={styles.leadTag}>领先</div>
+              <Typography.Text
+                style={{ fontSize: 12, color: 'rgba(0, 0, 0, 0.65)' }}
+              >
+                规模或流动性领先
+              </Typography.Text>
+              <Tooltip title="截至上一日，ETF基金规模(不含联接基金)，单位亿元">
+                <InfoCircleOutlined />
+              </Tooltip>
             </div>
-          ) : (
-            <Row gutter={[12, 12]} className={styles.cardGrid}>
-              {MOCK_DATA.map((item) => (
-                <Col key={item.id} span={cardCols}>
-                  <Card className={styles.etfCard} bordered>
-                    <div className={styles.cardHeader}>
-                      <Typography.Link className={styles.cardName}>
-                        {item.name}
-                      </Typography.Link>
-                      <Typography.Link className={styles.cardCode}>
-                        {item.code}
-                      </Typography.Link>
-                    </div>
-                    <div className={styles.cardHighlights}>
-                      <Space size={6} wrap>
-                        {item.highlights.map((k) => (
-                          <span key={k} className={styles[`${k}Tag`]}>
-                            {highlightLabelMap[k]}
-                          </span>
-                        ))}
-                      </Space>
-                    </div>
-                    <div className={styles.cardMeta}>
-                      <div className={styles.metaItem}>
-                        <Typography.Text className={styles.metaLabel}>
-                          最新规模
-                        </Typography.Text>
-                        <Typography.Text className={styles.metaValue}>
-                          {item.latestScale.toFixed(2)}
-                        </Typography.Text>
-                        <Typography.Text className={styles.metaUnit}>
-                          亿
-                        </Typography.Text>
-                      </div>
-                      <div className={styles.metaItem}>
-                        <Typography.Text className={styles.metaLabel}>
-                          月日均成交金额
-                        </Typography.Text>
-                        <Typography.Text className={styles.metaValue}>
-                          {item.dailyAvgAmount.toFixed(2)}
-                        </Typography.Text>
-                        <Typography.Text className={styles.metaUnit}>
-                          万
-                        </Typography.Text>
-                      </div>
-                    </div>
-                    <div className={styles.cardLinks}>
-                      <Typography.Text className={styles.metaLabel}>
-                        联接基金代码：
-                      </Typography.Text>
-                      <Space size={10} wrap>
-                        {item.linkedCodes.map((c) => (
-                          <Typography.Link key={c} className={styles.codeLink}>
-                            {c}
-                          </Typography.Link>
-                        ))}
-                      </Space>
-                    </div>
-                    <Typography.Text className={styles.cardDesc} ellipsis>
-                      {item.desc}
-                    </Typography.Text>
-                  </Card>
-                </Col>
-              ))}
-            </Row>
-          )}
+
+            <div
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            >
+              <Form.Item name="margin" valuePropName="checked" noStyle>
+                <Checkbox />
+              </Form.Item>
+              <div className={styles.marginTag}>两融</div>
+              <Typography.Text
+                style={{ fontSize: 12, color: 'rgba(0, 0, 0, 0.65)' }}
+              >
+                是否两融标的
+              </Typography.Text>
+            </div>
+
+            <div
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            >
+              <Form.Item name="lowFee" valuePropName="checked" noStyle>
+                <Checkbox />
+              </Form.Item>
+              <div className={styles.lowFeeTag}>最低</div>
+              <Typography.Text
+                style={{ fontSize: 12, color: 'rgba(0, 0, 0, 0.65)' }}
+              >
+                费率低于阈值：管理费0.15%
+              </Typography.Text>
+            </div>
+
+            <div
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            >
+              <Form.Item name="top20" valuePropName="checked" noStyle>
+                <Checkbox />
+              </Form.Item>
+              <div className={styles.top20Tag}>±20%</div>
+              <Typography.Text
+                style={{ fontSize: 12, color: 'rgba(0, 0, 0, 0.65)' }}
+              >
+                涨跌幅位居前20%
+              </Typography.Text>
+            </div>
+
+            <div
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            >
+              <Form.Item name="featured" valuePropName="checked" noStyle>
+                <Checkbox />
+              </Form.Item>
+              <div className={styles.featuredTag}>特色</div>
+              <Typography.Text
+                style={{ fontSize: 12, color: 'rgba(0, 0, 0, 0.65)' }}
+              >
+                指数唯一挂钩ETF
+              </Typography.Text>
+            </div>
+
+            <div
+              style={{
+                marginLeft: 'auto',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 12,
+              }}
+            >
+              <Button onClick={handleReset}>重置</Button>
+              <Button type="primary" htmlType="submit">
+                查询
+              </Button>
+            </div>
+          </div>
         </div>
+      </Form>
+
+      <div className={styles.resultSection}>
+        <div className={styles.resultHeader}>
+          <div className={styles.titleTabs}>
+            <Typography.Text className={styles.resultTitle}>
+              ETF产品
+            </Typography.Text>
+            <div
+              className={styles.viewTabs}
+              role="tablist"
+              aria-label="视图切换"
+            >
+              <div
+                role="tab"
+                tabIndex={0}
+                aria-selected={activeView === 'card'}
+                className={`${styles.viewTab} ${
+                  activeView === 'card' ? styles.viewTabActive : ''
+                }`}
+                onClick={() => setActiveView('card')}
+              >
+                卡片
+              </div>
+              <div className={styles.viewTabDivider} aria-hidden="true" />
+              <div
+                role="tab"
+                tabIndex={0}
+                aria-selected={activeView === 'list'}
+                className={`${styles.viewTab} ${
+                  activeView === 'list' ? styles.viewTabActive : ''
+                }`}
+                onClick={() => setActiveView('list')}
+              >
+                列表
+              </div>
+            </div>
+          </div>
+          <Button onClick={handleExport}>
+            <span>导出数据</span>
+            <ExportOutlined />
+          </Button>
+        </div>
+
+        {activeView === 'list' ? (
+          <div className={styles.tableWrap}>
+            <Table<EtfRecord>
+              className={styles.resultTable}
+              rowKey="id"
+              columns={columns}
+              dataSource={MOCK_DATA}
+              size="middle"
+              pagination={{
+                total: MOCK_DATA.length,
+                defaultPageSize: 10,
+                showSizeChanger: true,
+                showQuickJumper: true,
+                pageSizeOptions: [10, 20, 50, 100],
+                showTotal: (total, range) =>
+                  `第${range[0]}-${range[1]}条 / 共${total}条`,
+              }}
+              rowClassName={(_, index) =>
+                index % 2 === 1 ? styles.rowAlt : ''
+              }
+              scroll={{ x: 1180 }}
+            />
+          </div>
+        ) : (
+          <Row gutter={[12, 12]} className={styles.cardGrid}>
+            {MOCK_DATA.map((item) => (
+              <Col key={item.id} span={cardCols}>
+                <Card className={styles.etfCard} bordered>
+                  <div className={styles.cardHeader}>
+                    <Typography.Link className={styles.cardName}>
+                      {item.name}
+                    </Typography.Link>
+                    <Typography.Link className={styles.cardCode}>
+                      {item.code}
+                    </Typography.Link>
+                  </div>
+                  <div className={styles.cardHighlights}>
+                    <Space size={6} wrap>
+                      {item.highlights.map((k) => (
+                        <span key={k} className={styles[`${k}Tag`]}>
+                          {highlightLabelMap[k]}
+                        </span>
+                      ))}
+                    </Space>
+                  </div>
+                  <div className={styles.cardMeta}>
+                    <div className={styles.metaItem}>
+                      <Typography.Text className={styles.metaLabel}>
+                        最新规模
+                      </Typography.Text>
+                      <Typography.Text className={styles.metaValue}>
+                        {item.latestScale.toFixed(2)}
+                      </Typography.Text>
+                      <Typography.Text className={styles.metaUnit}>
+                        亿
+                      </Typography.Text>
+                    </div>
+                    <div className={styles.metaItem}>
+                      <Typography.Text className={styles.metaLabel}>
+                        月日均成交金额
+                      </Typography.Text>
+                      <Typography.Text className={styles.metaValue}>
+                        {item.dailyAvgAmount.toFixed(2)}
+                      </Typography.Text>
+                      <Typography.Text className={styles.metaUnit}>
+                        万
+                      </Typography.Text>
+                    </div>
+                  </div>
+                  <div className={styles.cardLinks}>
+                    <Typography.Text className={styles.metaLabel}>
+                      联接基金代码：
+                    </Typography.Text>
+                    <Space size={10} wrap>
+                      {item.linkedCodes.map((c) => (
+                        <Typography.Link key={c} className={styles.codeLink}>
+                          {c}
+                        </Typography.Link>
+                      ))}
+                    </Space>
+                  </div>
+                  <Typography.Text className={styles.cardDesc} ellipsis>
+                    {item.desc}
+                  </Typography.Text>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        )}
       </div>
-    </PageContainer>
+    </div>
   );
 };
 
