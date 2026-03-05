@@ -1,4 +1,4 @@
-import { DownloadOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { ExportOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-components';
 import {
   Button,
@@ -13,7 +13,6 @@ import {
   Select,
   Space,
   Table,
-  Tabs,
   Tooltip,
   Typography,
   message,
@@ -118,14 +117,6 @@ const highlightLabelMap: Record<HighlightKey, string> = {
   lowFee: '最低',
   top20: '±20%',
   featured: '特色',
-};
-
-const highlightClassMap: Record<HighlightKey, string> = {
-  lead: styles.leadTag,
-  margin: styles.marginTag,
-  lowFee: styles.lowFeeTag,
-  top20: styles.top20Tag,
-  featured: styles.featureTag,
 };
 
 const MOCK_DATA: EtfRecord[] = Array.from({ length: 35 }).map((_, i) => {
@@ -240,7 +231,7 @@ const MultiFilterPage: React.FC = () => {
       render: (keys: HighlightKey[]) => (
         <Space size={6} wrap>
           {keys.map((k) => (
-            <span key={k} className={highlightClassMap[k]}>
+            <span key={k} className={styles[`${k}Tag`]}>
               {highlightLabelMap[k]}
             </span>
           ))}
@@ -561,7 +552,7 @@ const MultiFilterPage: React.FC = () => {
                 <Form.Item name="featured" valuePropName="checked" noStyle>
                   <Checkbox />
                 </Form.Item>
-                <div className={styles.featureTag}>特色</div>
+                <div className={styles.featuredTag}>特色</div>
                 <Typography.Text
                   style={{ fontSize: 12, color: 'rgba(0, 0, 0, 0.65)' }}
                 >
@@ -592,22 +583,39 @@ const MultiFilterPage: React.FC = () => {
               <Typography.Text className={styles.resultTitle}>
                 ETF产品
               </Typography.Text>
-              <Tabs
+              <div
                 className={styles.viewTabs}
-                activeKey={activeView}
-                onChange={(k) => setActiveView(k as 'card' | 'list')}
-                items={[
-                  { key: 'card', label: '卡片' },
-                  { key: 'list', label: '列表' },
-                ]}
-              />
+                role="tablist"
+                aria-label="视图切换"
+              >
+                <div
+                  role="tab"
+                  tabIndex={0}
+                  aria-selected={activeView === 'card'}
+                  className={`${styles.viewTab} ${
+                    activeView === 'card' ? styles.viewTabActive : ''
+                  }`}
+                  onClick={() => setActiveView('card')}
+                >
+                  卡片
+                </div>
+                <div className={styles.viewTabDivider} aria-hidden="true" />
+                <div
+                  role="tab"
+                  tabIndex={0}
+                  aria-selected={activeView === 'list'}
+                  className={`${styles.viewTab} ${
+                    activeView === 'list' ? styles.viewTabActive : ''
+                  }`}
+                  onClick={() => setActiveView('list')}
+                >
+                  列表
+                </div>
+              </div>
             </div>
-            <Button
-              className={styles.exportBtn}
-              icon={<DownloadOutlined />}
-              onClick={handleExport}
-            >
-              导出数据
+            <Button onClick={handleExport}>
+              <span>导出数据</span>
+              <ExportOutlined />
             </Button>
           </div>
 
@@ -650,7 +658,7 @@ const MultiFilterPage: React.FC = () => {
                     <div className={styles.cardHighlights}>
                       <Space size={6} wrap>
                         {item.highlights.map((k) => (
-                          <span key={k} className={highlightClassMap[k]}>
+                          <span key={k} className={styles[`${k}Tag`]}>
                             {highlightLabelMap[k]}
                           </span>
                         ))}

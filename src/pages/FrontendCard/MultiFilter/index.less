@@ -36,7 +36,7 @@
   color: #005e91;
 }
 
-.featureTag {
+.featuredTag {
   .pillBase();
   border: 1px solid #bf0008;
   color: #bf0008;
@@ -66,24 +66,41 @@
 }
 
 .viewTabs {
-  :global(.ant-tabs-nav) {
-    margin: 0;
-  }
-
-  :global(.ant-tabs-tab) {
-    padding: 6px 0;
-    font-size: 13px;
-  }
-
-  :global(.ant-tabs-ink-bar) {
-    height: 2px;
-  }
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  user-select: none;
 }
 
-.exportBtn {
-  border-color: #ff4d4f;
-  color: #ff4d4f;
-  background: #fff;
+.viewTab {
+  font-size: 13px;
+  line-height: 22px;
+  padding: 2px 0;
+  color: rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  transition: color 0.2s;
+  outline: none;
+}
+
+.viewTab:hover {
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.viewTab:focus-visible {
+  outline: 2px solid rgba(22, 119, 255, 0.35);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.viewTabActive {
+  color: #1677ff;
+  font-weight: 600;
+}
+
+.viewTabDivider {
+  width: 1px;
+  height: 12px;
+  background: rgba(0, 0, 0, 0.15);
 }
 
 .tableWrap {
