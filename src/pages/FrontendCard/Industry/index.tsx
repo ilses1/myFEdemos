@@ -1,5 +1,5 @@
 import { ExportOutlined, InfoCircleOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Select, Table } from 'antd';
+import { Button, Form, Input, Select, Table, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './index.less';
@@ -183,7 +183,10 @@ const IndustryPage: React.FC = () => {
       {
         title: (
           <div>
-            暴露权重 <InfoCircleOutlined />
+            暴露权重
+            <Tooltip title="查询ETF基金跟踪指数与对应行业/主题指数重合的成分股，对上述重合个股在基金跟踪指数中的权重求和。">
+              <InfoCircleOutlined />
+            </Tooltip>
           </div>
         ),
         dataIndex: 'exposureWeight',
