@@ -107,7 +107,7 @@
   min-width: 64px;
   padding: 0 10px;
   border-radius: 2px;
-  background: #f6b7b9;
+  background: rgba(234, 134, 139, 0.1);
   color: #595959;
   font-weight: 500;
 }

@@ -79,6 +79,13 @@ const TOP_N_OPTIONS = Array.from({ length: 10 }, (_, i) => ({
   label: i + 1,
 }));
 
+const getWeightOpacity = (weight: number) => {
+  const safe = Number.isFinite(weight) ? weight : 0;
+  const clamped = Math.min(100, Math.max(0, safe));
+  if (clamped <= 10) return 0.1;
+  return Math.min(1, Math.ceil(clamped / 10) / 10);
+};
+
 const buildTableRows = (groups: IndustryGroup[]): TableRow[] => {
   return groups.flatMap((group, groupIdx) =>
     group.funds.map((fund, idx) => ({
@@ -185,7 +192,16 @@ const IndustryPage: React.FC = () => {
         width: 120,
         render: (value: number, _record, index) => ({
           children: (
-            <span className={styles.weightBadge}>{value.toFixed(3)}</span>
+            <span
+              className={styles.weightBadge}
+              style={{
+                backgroundColor: `rgba(234, 134, 139, ${getWeightOpacity(
+                  value,
+                )})`,
+              }}
+            >
+              {value.toFixed(3)}
+            </span>
           ),
           props: { rowSpan: getRowSpanForIndustry(index) },
         }),
