@@ -333,6 +333,8 @@ const StylePage: React.FC = () => {
       const available = metricAvailableRanges[field];
       const filtered =
         typeof range.min === 'number' || typeof range.max === 'number';
+      const sorted = sortState.field === field && !!sortState.order;
+      const headerActive = filtered || sorted;
 
       return {
         title,
@@ -340,6 +342,7 @@ const StylePage: React.FC = () => {
         key: field,
         width,
         align: 'center' as const,
+        className: headerActive ? styles.metricHeaderCellActive : '',
         sorter: (a: StyleRow, b: StyleRow) => a[field] - b[field],
         sortOrder: sortState.field === field ? sortState.order : null,
         filterIcon: ({ filtered: isFiltered }: { filtered: boolean }) => (
