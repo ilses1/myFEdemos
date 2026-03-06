@@ -92,6 +92,19 @@
     display: none;
   }
 
+  :global(.ant-table-filter-trigger) {
+    padding: 0;
+    margin-left: 2px;
+    display: inline-flex;
+    align-items: center;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  :global(.ant-table-filter-trigger:hover) {
+    background: transparent;
+  }
+
   :global(.ant-table-thead > tr > th) {
     background: #f3f5f7;
     color: rgba(0, 0, 0, 0.65);
@@ -174,55 +187,130 @@
 }
 
 .metricFilterIcon {
-  font-size: 12px;
-  margin-left: 6px;
-  color: rgba(0, 0, 0, 0.25);
+  display: inline-flex;
+  align-items: center;
+  font-size: 9px;
+  line-height: 1;
+  transform: translateY(1px);
+  color: rgba(0, 0, 0, 0.45);
 }
 
 .metricFilterIconActive {
-  font-size: 12px;
-  margin-left: 6px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 9px;
+  line-height: 1;
+  transform: translateY(1px);
   color: #ff4d4f;
 }
 
 .metricDropdown {
-  width: 240px;
-  padding: 12px 12px 10px;
+  width: 210px;
+  max-width: 78vw;
+  padding: 12px 20px 20px 20px;
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
 }
 
 .metricSortRow {
   display: flex;
   align-items: center;
-  gap: 14px;
+  justify-content: space-between;
+  gap: 10px;
   padding-bottom: 10px;
   border-bottom: 1px solid #f0f0f0;
 }
 
-.metricSortBtn {
-  appearance: none;
-  background: transparent;
-  border: none;
-  padding: 0;
+.metricSortIndex {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+  background: #f5f5f5;
+  color: rgba(0, 0, 0, 0.45);
   font-size: 12px;
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.metricSortActions {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+}
+
+.metricSortDivider {
+  flex: 0 0 auto;
+  width: 1px;
+  height: 12px;
+  background: #f0f0f0;
+}
+
+.metricSortBtn {
+  background: transparent;
+  font-size: 14px;
   color: rgba(0, 0, 0, 0.65);
   cursor: pointer;
+
+  :global(&.ant-btn) {
+    height: 20px;
+    padding: 0;
+  }
+
+  :global(&.ant-btn-text:hover),
+  :global(&.ant-btn-text:active) {
+    background: transparent;
+  }
 }
 
 .metricSortBtnActive {
-  appearance: none;
   background: transparent;
-  border: none;
-  padding: 0;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: #ff4d4f;
   cursor: pointer;
+
+  :global(&.ant-btn) {
+    height: 20px;
+    padding: 0;
+  }
+
+  :global(&.ant-btn-text:hover),
+  :global(&.ant-btn-text:active) {
+    background: transparent;
+  }
+}
+
+.metricSortBtnContent {
+  display: inline-flex;
+  align-items: center;
+}
+
+.metricSortBtnIcon {
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+  flex: 0 0 auto;
 }
 
 .metricRangeLabel {
   margin-top: 10px;
   font-size: 12px;
   color: rgba(0, 0, 0, 0.65);
+}
+
+.metricRangeLabelText {
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.metricRangeLabelMetric {
+  color: rgba(0, 0, 0, 0.88);
+  font-weight: 600;
 }
 
 .metricRangeInputs {
@@ -233,7 +321,11 @@
 }
 
 .metricRangeInput {
-  width: 92px;
+  width: 60px;
+
+  :global(.ant-input-number) {
+    border-radius: 2px;
+  }
 }
 
 .metricRangeSep {
@@ -247,7 +339,7 @@
 }
 
 .metricDropdownActions {
-  margin-top: 12px;
+  margin-top: 20px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -256,6 +348,7 @@
 
 .metricActionBtn {
   border-radius: 2px;
+  min-width: 64px;
 }
 
 .footerNote {

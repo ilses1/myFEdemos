@@ -1,8 +1,10 @@
-import { DownOutlined, ExportOutlined } from '@ant-design/icons';
+import { CaretDownOutlined, ExportOutlined } from '@ant-design/icons';
 import { Button, Form, Input, InputNumber, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import React, { useMemo, useState } from 'react';
+import { ReactComponent as SortDownIcon } from './down.svg';
 import styles from './index.less';
+import { ReactComponent as SortUpIcon } from './up.svg';
 
 type StyleRow = {
   key: string;
@@ -282,9 +284,10 @@ const StylePage: React.FC = () => {
         dataIndex: 'beta',
         key: 'beta',
         width: 86,
+        align: 'center',
         sortOrder: sortState.field === 'beta' ? sortState.order : null,
         filterIcon: ({ filtered }) => (
-          <DownOutlined
+          <CaretDownOutlined
             className={
               filtered ? styles.metricFilterIconActive : styles.metricFilterIcon
             }
@@ -303,9 +306,10 @@ const StylePage: React.FC = () => {
         filtered: Object.keys(betaRange).length > 0,
         filterDropdown: ({ close }) => (
           <div className={styles.metricDropdown}>
-            <div className={styles.metricSortRow}>
-              <button
-                type="button"
+            <div className={styles.metricSortActions}>
+              <Button
+                type="text"
+                size="small"
                 className={
                   betaDraft.order === 'ascend'
                     ? styles.metricSortBtnActive
@@ -318,10 +322,15 @@ const StylePage: React.FC = () => {
                   }))
                 }
               >
-                升序
-              </button>
-              <button
-                type="button"
+                <span className={styles.metricSortBtnContent}>
+                  <SortUpIcon className={styles.metricSortBtnIcon} />
+                  升序
+                </span>
+              </Button>
+              <span className={styles.metricSortDivider} />
+              <Button
+                type="text"
+                size="small"
                 className={
                   betaDraft.order === 'descend'
                     ? styles.metricSortBtnActive
@@ -334,11 +343,19 @@ const StylePage: React.FC = () => {
                   }))
                 }
               >
-                降序
-              </button>
+                <span className={styles.metricSortBtnContent}>
+                  <SortDownIcon className={styles.metricSortBtnIcon} />
+                  降序
+                </span>
+              </Button>
             </div>
 
-            <div className={styles.metricRangeLabel}>自定义区间筛选： beta</div>
+            <div className={styles.metricRangeLabel}>
+              <span className={styles.metricRangeLabelText}>
+                自定义区间筛选：
+              </span>
+              <span className={styles.metricRangeLabelMetric}> beta</span>
+            </div>
             <div className={styles.metricRangeInputs}>
               <InputNumber
                 value={betaDraft.min}
@@ -374,6 +391,7 @@ const StylePage: React.FC = () => {
             <div className={styles.metricDropdownActions}>
               <Button
                 danger
+                size="small"
                 className={styles.metricActionBtn}
                 onClick={() => {
                   setBetaRange({});
@@ -387,6 +405,7 @@ const StylePage: React.FC = () => {
               <Button
                 type="primary"
                 danger
+                size="small"
                 className={styles.metricActionBtn}
                 onClick={() => {
                   const rawMin = betaDraft.min;
