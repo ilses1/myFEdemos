@@ -218,6 +218,8 @@ const getMetricBadgeStyle = (value: number): React.CSSProperties => {
   };
 };
 
+type MetricField = keyof Omit<StyleRow, 'key' | 'fundCode' | 'fundName'>;
+
 const StylePage: React.FC = () => {
   const [form] = Form.useForm<FilterValues>();
   const [keyword, setKeyword] = useState('');
@@ -225,40 +227,310 @@ const StylePage: React.FC = () => {
     field?: string;
     order: SortOrder;
   }>({ field: undefined, order: null });
-  const [betaRange, setBetaRange] = useState<{ min?: number; max?: number }>(
-    {},
-  );
-  const [betaDraft, setBetaDraft] = useState<{
-    min?: number;
-    max?: number;
-    order: SortOrder;
-  }>({ order: null });
 
-  const betaAvailableRange = useMemo(() => {
-    const values = MOCK_ROWS.map((row) => row.beta).filter(Number.isFinite);
-    const min = values.length ? Math.min(...values) : 0;
-    const max = values.length ? Math.max(...values) : 0;
-    return { min, max };
-  }, []);
+  const metrics = useMemo(
+    () =>
+      [
+        { field: 'beta', title: 'beta', width: 86 },
+        { field: 'momentum', title: '动量', width: 86 },
+        { field: 'mktValue', title: '市值', width: 86 },
+        { field: 'profitability', title: '盈利', width: 86 },
+        { field: 'volatility', title: '波动', width: 86 },
+        { field: 'growth', title: '成长', width: 86 },
+        { field: 'value', title: '价值', width: 86 },
+        { field: 'dividend', title: '红利', width: 86 },
+        { field: 'turnover', title: '换手', width: 86 },
+        { field: 'eventValue', title: '事件性价比', width: 108 },
+      ] as const satisfies readonly {
+        field: MetricField;
+        title: string;
+        width: number;
+      }[],
+    [],
+  );
+
+  const [metricRanges, setMetricRanges] = useState<
+    Record<MetricField, { min?: number; max?: number }>
+  >({
+    beta: {},
+    momentum: {},
+    mktValue: {},
+    profitability: {},
+    volatility: {},
+    growth: {},
+    value: {},
+    dividend: {},
+    turnover: {},
+    eventValue: {},
+  });
+
+  const [metricDrafts, setMetricDrafts] = useState<
+    Record<MetricField, { min?: number; max?: number; order: SortOrder }>
+  >({
+    beta: { order: null },
+    momentum: { order: null },
+    mktValue: { order: null },
+    profitability: { order: null },
+    volatility: { order: null },
+    growth: { order: null },
+    value: { order: null },
+    dividend: { order: null },
+    turnover: { order: null },
+    eventValue: { order: null },
+  });
+
+  const metricAvailableRanges = useMemo(() => {
+    const calc = (field: MetricField) => {
+      const values = MOCK_ROWS.map((row) => row[field]).filter(
+        (v): v is number => typeof v === 'number' && Number.isFinite(v),
+      );
+      const min = values.length ? Math.min(...values) : 0;
+      const max = values.length ? Math.max(...values) : 0;
+      return { min, max };
+    };
+
+    return metrics.reduce((acc, item) => {
+      acc[item.field] = calc(item.field);
+      return acc;
+    }, {} as Record<MetricField, { min: number; max: number }>);
+  }, [metrics]);
 
   const dataSource = useMemo(() => {
     const kw = keyword.trim();
-    const min = betaRange.min;
-    const max = betaRange.max;
 
     return MOCK_ROWS.filter((row) => {
       if (kw && !row.fundCode.includes(kw) && !row.fundName.includes(kw))
         return false;
-      if (typeof min === 'number' && Number.isFinite(min) && row.beta < min)
-        return false;
-      if (typeof max === 'number' && Number.isFinite(max) && row.beta > max)
-        return false;
+      for (const item of metrics) {
+        const range = metricRanges[item.field];
+        const min = range.min;
+        const max = range.max;
+        if (
+          typeof min === 'number' &&
+          Number.isFinite(min) &&
+          row[item.field] < min
+        )
+          return false;
+        if (
+          typeof max === 'number' &&
+          Number.isFinite(max) &&
+          row[item.field] > max
+        )
+          return false;
+      }
       return true;
     });
-  }, [betaRange.max, betaRange.min, keyword]);
+  }, [keyword, metricRanges, metrics]);
 
-  const columns: ColumnsType<StyleRow> = useMemo(
-    () => [
+  const columns: ColumnsType<StyleRow> = useMemo(() => {
+    const buildMetricColumn = (
+      field: MetricField,
+      title: string,
+      width: number,
+    ) => {
+      const range = metricRanges[field];
+      const draft = metricDrafts[field];
+      const available = metricAvailableRanges[field];
+      const filtered =
+        typeof range.min === 'number' || typeof range.max === 'number';
+
+      return {
+        title,
+        dataIndex: field,
+        key: field,
+        width,
+        align: 'center' as const,
+        sorter: (a: StyleRow, b: StyleRow) => a[field] - b[field],
+        sortOrder: sortState.field === field ? sortState.order : null,
+        filterIcon: ({ filtered: isFiltered }: { filtered: boolean }) => (
+          <CaretDownOutlined
+            className={
+              isFiltered
+                ? styles.metricFilterIconActive
+                : styles.metricFilterIcon
+            }
+          />
+        ),
+        filterDropdownProps: {
+          onOpenChange: (open: boolean) => {
+            if (!open) return;
+            setMetricDrafts((prev) => ({
+              ...prev,
+              [field]: {
+                min: range.min,
+                max: range.max,
+                order: sortState.field === field ? sortState.order : null,
+              },
+            }));
+          },
+        },
+        filtered,
+        filterDropdown: ({ close }: { close: () => void }) => (
+          <div className={styles.metricDropdown}>
+            <div className={styles.metricSortActions}>
+              <Button
+                type="text"
+                size="small"
+                className={
+                  draft.order === 'ascend'
+                    ? styles.metricSortBtnActive
+                    : styles.metricSortBtn
+                }
+                onClick={() =>
+                  setMetricDrafts((prev) => ({
+                    ...prev,
+                    [field]: {
+                      ...prev[field],
+                      order: prev[field].order === 'ascend' ? null : 'ascend',
+                    },
+                  }))
+                }
+              >
+                <span className={styles.metricSortBtnContent}>
+                  <SortUpIcon className={styles.metricSortBtnIcon} />
+                  升序
+                </span>
+              </Button>
+              <span className={styles.metricSortDivider} />
+              <Button
+                type="text"
+                size="small"
+                className={
+                  draft.order === 'descend'
+                    ? styles.metricSortBtnActive
+                    : styles.metricSortBtn
+                }
+                onClick={() =>
+                  setMetricDrafts((prev) => ({
+                    ...prev,
+                    [field]: {
+                      ...prev[field],
+                      order: prev[field].order === 'descend' ? null : 'descend',
+                    },
+                  }))
+                }
+              >
+                <span className={styles.metricSortBtnContent}>
+                  <SortDownIcon className={styles.metricSortBtnIcon} />
+                  降序
+                </span>
+              </Button>
+            </div>
+
+            <div className={styles.metricRangeLabel}>
+              <span className={styles.metricRangeLabelText}>
+                自定义区间筛选：
+              </span>
+              <span className={styles.metricRangeLabelMetric}> {title}</span>
+            </div>
+            <div className={styles.metricRangeInputs}>
+              <InputNumber
+                value={draft.min}
+                placeholder="0"
+                controls={false}
+                className={styles.metricRangeInput}
+                onChange={(value) =>
+                  setMetricDrafts((prev) => ({
+                    ...prev,
+                    [field]: {
+                      ...prev[field],
+                      min: typeof value === 'number' ? value : undefined,
+                    },
+                  }))
+                }
+              />
+              <span className={styles.metricRangeSep}>~</span>
+              <InputNumber
+                value={draft.max}
+                placeholder="110"
+                controls={false}
+                className={styles.metricRangeInput}
+                onChange={(value) =>
+                  setMetricDrafts((prev) => ({
+                    ...prev,
+                    [field]: {
+                      ...prev[field],
+                      max: typeof value === 'number' ? value : undefined,
+                    },
+                  }))
+                }
+              />
+            </div>
+            <div className={styles.metricRangeHint}>
+              可选区间：{available.min.toFixed(1)}~{available.max.toFixed(1)}
+            </div>
+
+            <div className={styles.metricDropdownActions}>
+              <Button
+                danger
+                size="small"
+                className={styles.metricActionBtn}
+                onClick={() => {
+                  setMetricRanges((prev) => ({ ...prev, [field]: {} }));
+                  setMetricDrafts((prev) => ({
+                    ...prev,
+                    [field]: { order: null },
+                  }));
+                  if (sortState.field === field) {
+                    setSortState({ field: undefined, order: null });
+                  }
+                  close();
+                }}
+              >
+                重置
+              </Button>
+              <Button
+                type="primary"
+                danger
+                size="small"
+                className={styles.metricActionBtn}
+                onClick={() => {
+                  const rawMin = draft.min;
+                  const rawMax = draft.max;
+                  const min =
+                    typeof rawMin === 'number' && Number.isFinite(rawMin)
+                      ? rawMin
+                      : undefined;
+                  const max =
+                    typeof rawMax === 'number' && Number.isFinite(rawMax)
+                      ? rawMax
+                      : undefined;
+
+                  let next: { min?: number; max?: number } = {};
+                  if (
+                    typeof min === 'number' &&
+                    typeof max === 'number' &&
+                    min > max
+                  ) {
+                    next = { min: max, max: min };
+                  } else {
+                    if (typeof min === 'number') next.min = min;
+                    if (typeof max === 'number') next.max = max;
+                  }
+                  setMetricRanges((prev) => ({ ...prev, [field]: next }));
+
+                  if (draft.order) {
+                    setSortState({ field, order: draft.order });
+                  } else if (sortState.field === field) {
+                    setSortState({ field: undefined, order: null });
+                  }
+                  close();
+                }}
+              >
+                确认
+              </Button>
+            </div>
+          </div>
+        ),
+        render: (v: number) => (
+          <span className={styles.metricBadge} style={getMetricBadgeStyle(v)}>
+            {v.toFixed(2)}
+          </span>
+        ),
+      };
+    };
+
+    return [
       {
         title: '基金代码',
         dataIndex: 'fundCode',
@@ -279,296 +551,9 @@ const StylePage: React.FC = () => {
           <span className={styles.linkText}>{text}</span>
         ),
       },
-      {
-        title: 'beta',
-        dataIndex: 'beta',
-        key: 'beta',
-        width: 86,
-        align: 'center',
-        sortOrder: sortState.field === 'beta' ? sortState.order : null,
-        filterIcon: ({ filtered }) => (
-          <CaretDownOutlined
-            className={
-              filtered ? styles.metricFilterIconActive : styles.metricFilterIcon
-            }
-          />
-        ),
-        filterDropdownProps: {
-          onOpenChange: (open) => {
-            if (!open) return;
-            setBetaDraft({
-              min: betaRange.min,
-              max: betaRange.max,
-              order: sortState.field === 'beta' ? sortState.order : null,
-            });
-          },
-        },
-        filtered: Object.keys(betaRange).length > 0,
-        filterDropdown: ({ close }) => (
-          <div className={styles.metricDropdown}>
-            <div className={styles.metricSortActions}>
-              <Button
-                type="text"
-                size="small"
-                className={
-                  betaDraft.order === 'ascend'
-                    ? styles.metricSortBtnActive
-                    : styles.metricSortBtn
-                }
-                onClick={() =>
-                  setBetaDraft((prev) => ({
-                    ...prev,
-                    order: prev.order === 'ascend' ? null : 'ascend',
-                  }))
-                }
-              >
-                <span className={styles.metricSortBtnContent}>
-                  <SortUpIcon className={styles.metricSortBtnIcon} />
-                  升序
-                </span>
-              </Button>
-              <span className={styles.metricSortDivider} />
-              <Button
-                type="text"
-                size="small"
-                className={
-                  betaDraft.order === 'descend'
-                    ? styles.metricSortBtnActive
-                    : styles.metricSortBtn
-                }
-                onClick={() =>
-                  setBetaDraft((prev) => ({
-                    ...prev,
-                    order: prev.order === 'descend' ? null : 'descend',
-                  }))
-                }
-              >
-                <span className={styles.metricSortBtnContent}>
-                  <SortDownIcon className={styles.metricSortBtnIcon} />
-                  降序
-                </span>
-              </Button>
-            </div>
-
-            <div className={styles.metricRangeLabel}>
-              <span className={styles.metricRangeLabelText}>
-                自定义区间筛选：
-              </span>
-              <span className={styles.metricRangeLabelMetric}> beta</span>
-            </div>
-            <div className={styles.metricRangeInputs}>
-              <InputNumber
-                value={betaDraft.min}
-                placeholder="0"
-                controls={false}
-                className={styles.metricRangeInput}
-                onChange={(value) =>
-                  setBetaDraft((prev) => ({
-                    ...prev,
-                    min: typeof value === 'number' ? value : undefined,
-                  }))
-                }
-              />
-              <span className={styles.metricRangeSep}>~</span>
-              <InputNumber
-                value={betaDraft.max}
-                placeholder="110"
-                controls={false}
-                className={styles.metricRangeInput}
-                onChange={(value) =>
-                  setBetaDraft((prev) => ({
-                    ...prev,
-                    max: typeof value === 'number' ? value : undefined,
-                  }))
-                }
-              />
-            </div>
-            <div className={styles.metricRangeHint}>
-              可选区间：{betaAvailableRange.min.toFixed(1)}~
-              {betaAvailableRange.max.toFixed(1)}
-            </div>
-
-            <div className={styles.metricDropdownActions}>
-              <Button
-                danger
-                size="small"
-                className={styles.metricActionBtn}
-                onClick={() => {
-                  setBetaRange({});
-                  setSortState({ field: undefined, order: null });
-                  setBetaDraft({ order: null });
-                  close();
-                }}
-              >
-                重置
-              </Button>
-              <Button
-                type="primary"
-                danger
-                size="small"
-                className={styles.metricActionBtn}
-                onClick={() => {
-                  const rawMin = betaDraft.min;
-                  const rawMax = betaDraft.max;
-                  const min =
-                    typeof rawMin === 'number' && Number.isFinite(rawMin)
-                      ? rawMin
-                      : undefined;
-                  const max =
-                    typeof rawMax === 'number' && Number.isFinite(rawMax)
-                      ? rawMax
-                      : undefined;
-
-                  if (
-                    typeof min === 'number' &&
-                    typeof max === 'number' &&
-                    min > max
-                  ) {
-                    setBetaRange({ min: max, max: min });
-                  } else {
-                    const next: { min?: number; max?: number } = {};
-                    if (typeof min === 'number') next.min = min;
-                    if (typeof max === 'number') next.max = max;
-                    setBetaRange(next);
-                  }
-
-                  if (betaDraft.order) {
-                    setSortState({ field: 'beta', order: betaDraft.order });
-                  } else if (sortState.field === 'beta') {
-                    setSortState({ field: undefined, order: null });
-                  }
-
-                  close();
-                }}
-              >
-                确认
-              </Button>
-            </div>
-          </div>
-        ),
-        render: (v: number) => (
-          <span className={styles.metricBadge} style={getMetricBadgeStyle(v)}>
-            {v.toFixed(2)}
-          </span>
-        ),
-      },
-      {
-        title: '动量',
-        dataIndex: 'momentum',
-        key: 'momentum',
-        width: 86,
-        sorter: (a, b) => a.momentum - b.momentum,
-        render: (v: number) => (
-          <span className={styles.metricBadge} style={getMetricBadgeStyle(v)}>
-            {v.toFixed(2)}
-          </span>
-        ),
-      },
-      {
-        title: '市值',
-        dataIndex: 'mktValue',
-        key: 'mktValue',
-        width: 86,
-        sorter: (a, b) => a.mktValue - b.mktValue,
-        render: (v: number) => (
-          <span className={styles.metricBadge} style={getMetricBadgeStyle(v)}>
-            {v.toFixed(2)}
-          </span>
-        ),
-      },
-      {
-        title: '盈利',
-        dataIndex: 'profitability',
-        key: 'profitability',
-        width: 86,
-        sorter: (a, b) => a.profitability - b.profitability,
-        render: (v: number) => (
-          <span className={styles.metricBadge} style={getMetricBadgeStyle(v)}>
-            {v.toFixed(2)}
-          </span>
-        ),
-      },
-      {
-        title: '波动',
-        dataIndex: 'volatility',
-        key: 'volatility',
-        width: 86,
-        sorter: (a, b) => a.volatility - b.volatility,
-        render: (v: number) => (
-          <span className={styles.metricBadge} style={getMetricBadgeStyle(v)}>
-            {v.toFixed(2)}
-          </span>
-        ),
-      },
-      {
-        title: '成长',
-        dataIndex: 'growth',
-        key: 'growth',
-        width: 86,
-        sorter: (a, b) => a.growth - b.growth,
-        render: (v: number) => (
-          <span className={styles.metricBadge} style={getMetricBadgeStyle(v)}>
-            {v.toFixed(2)}
-          </span>
-        ),
-      },
-      {
-        title: '价值',
-        dataIndex: 'value',
-        key: 'value',
-        width: 86,
-        sorter: (a, b) => a.value - b.value,
-        render: (v: number) => (
-          <span className={styles.metricBadge} style={getMetricBadgeStyle(v)}>
-            {v.toFixed(2)}
-          </span>
-        ),
-      },
-      {
-        title: '红利',
-        dataIndex: 'dividend',
-        key: 'dividend',
-        width: 86,
-        sorter: (a, b) => a.dividend - b.dividend,
-        render: (v: number) => (
-          <span className={styles.metricBadge} style={getMetricBadgeStyle(v)}>
-            {v.toFixed(2)}
-          </span>
-        ),
-      },
-      {
-        title: '换手',
-        dataIndex: 'turnover',
-        key: 'turnover',
-        width: 86,
-        sorter: (a, b) => a.turnover - b.turnover,
-        render: (v: number) => (
-          <span className={styles.metricBadge} style={getMetricBadgeStyle(v)}>
-            {v.toFixed(2)}
-          </span>
-        ),
-      },
-      {
-        title: '事件性价比',
-        dataIndex: 'eventValue',
-        key: 'eventValue',
-        width: 108,
-        sorter: (a, b) => a.eventValue - b.eventValue,
-        render: (v: number) => (
-          <span className={styles.metricBadge} style={getMetricBadgeStyle(v)}>
-            {v.toFixed(2)}
-          </span>
-        ),
-      },
-    ],
-    [
-      betaAvailableRange.max,
-      betaAvailableRange.min,
-      betaDraft,
-      betaRange,
-      sortState,
-    ],
-  );
+      ...metrics.map((m) => buildMetricColumn(m.field, m.title, m.width)),
+    ];
+  }, [metricAvailableRanges, metricDrafts, metricRanges, metrics, sortState]);
 
   return (
     <div className={styles.page}>
