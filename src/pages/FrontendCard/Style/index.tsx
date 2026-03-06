@@ -195,20 +195,23 @@ const MOCK_ROWS: StyleRow[] = Array.from({ length: 35 }).map((_, i) => {
 
 const getMetricBadgeStyle = (value: number): React.CSSProperties => {
   const safe = Number.isFinite(value) ? value : 0;
-  const abs = Math.min(2.2, Math.abs(safe));
-  const alpha = Math.min(0.68, Math.max(0.18, 0.18 + (abs / 2.2) * 0.5));
+  if (safe === 0)
+    return { backgroundColor: 'rgba(0, 0, 0, 0.08)', color: '#595959' };
 
-  if (safe > 0)
+  const clamped = Math.max(-2, Math.min(2, safe));
+  const abs = Math.abs(clamped);
+  const bucket = Math.min(10, Math.ceil(abs / 0.2));
+  const alpha = Number((bucket * 0.1).toFixed(1));
+
+  if (clamped > 0)
     return {
-      backgroundColor: `rgba(255, 77, 79, ${alpha})`,
-      color: '#ffffff',
+      backgroundColor: `rgba(234, 134, 139, ${alpha})`,
+      color: '#484B59',
     };
-  if (safe < 0)
-    return {
-      backgroundColor: `rgba(22, 119, 255, ${alpha})`,
-      color: '#ffffff',
-    };
-  return { backgroundColor: 'rgba(0, 0, 0, 0.08)', color: '#595959' };
+  return {
+    backgroundColor: `rgba(64, 150, 193, ${alpha})`,
+    color: '#484B59',
+  };
 };
 
 const StylePage: React.FC = () => {
