@@ -93,6 +93,11 @@ export default [
         path: '/frontend-card/theme',
         component: './FrontendCard/Theme',
       },
+      {
+        name: '风格',
+        path: '/frontend-card/style',
+        component: './FrontendCard/Style',
+      },
     ],
   },
   {

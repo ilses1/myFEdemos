@@ -1,0 +1,449 @@
+import { ExportOutlined } from '@ant-design/icons';
+import { Button, Form, Input, Table } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import React, { useMemo, useState } from 'react';
+import styles from './index.less';
+
+type StyleRow = {
+  key: string;
+  fundCode: string;
+  fundName: string;
+  beta: number;
+  momentum: number;
+  mktValue: number;
+  profitability: number;
+  volatility: number;
+  growth: number;
+  value: number;
+  dividend: number;
+  turnover: number;
+  eventValue: number;
+};
+
+type FilterValues = {
+  keyword: string;
+};
+
+const SOURCE_NOTE =
+  '数据来源:Wind，截至2025-11-18，数据根据ETF基金跟踪指数成分股财务统计汇总。';
+
+const BASE_ROWS: Omit<StyleRow, 'key'>[] = [
+  {
+    fundCode: '159381.SZ',
+    fundName: '创业板人工智能ETF华夏',
+    beta: 2.03,
+    momentum: 0.65,
+    mktValue: 0.32,
+    profitability: -1.01,
+    volatility: 0.68,
+    growth: 0.77,
+    value: -1.27,
+    dividend: -0.88,
+    turnover: 1.94,
+    eventValue: -0.01,
+  },
+  {
+    fundCode: '159381.SZ',
+    fundName: '创业板成长ETF',
+    beta: 2.0,
+    momentum: 1.28,
+    mktValue: 0.76,
+    profitability: -0.82,
+    volatility: 0.44,
+    growth: 0.99,
+    value: -1.32,
+    dividend: -0.62,
+    turnover: 1.75,
+    eventValue: -0.33,
+  },
+  {
+    fundCode: '159381.SZ',
+    fundName: '5G通信ETF',
+    beta: 1.96,
+    momentum: 1.39,
+    mktValue: 0.77,
+    profitability: -0.76,
+    volatility: 0.71,
+    growth: 0.65,
+    value: -1.11,
+    dividend: -0.61,
+    turnover: 1.7,
+    eventValue: -0.34,
+  },
+  {
+    fundCode: '159381.SZ',
+    fundName: '创业板新能源ETF华夏',
+    beta: 1.77,
+    momentum: 0.8,
+    mktValue: 0.39,
+    profitability: -0.63,
+    volatility: 0.17,
+    growth: 1.1,
+    value: -0.93,
+    dividend: -0.15,
+    turnover: 1.48,
+    eventValue: -0.05,
+  },
+  {
+    fundCode: '159381.SZ',
+    fundName: '创业板50ETF华夏',
+    beta: 1.75,
+    momentum: 0.94,
+    mktValue: 0.85,
+    profitability: -0.71,
+    volatility: 0.04,
+    growth: 1.03,
+    value: -1.14,
+    dividend: -0.52,
+    turnover: 1.34,
+    eventValue: -0.4,
+  },
+  {
+    fundCode: '159381.SZ',
+    fundName: '创业板价值ETF华夏',
+    beta: 1.71,
+    momentum: -1.03,
+    mktValue: -0.4,
+    profitability: -1.26,
+    volatility: -0.49,
+    growth: -0.31,
+    value: -1.03,
+    dividend: -0.76,
+    turnover: 1.33,
+    eventValue: 0.53,
+  },
+  {
+    fundCode: '159381.SZ',
+    fundName: '金融科技ETF华夏',
+    beta: 1.62,
+    momentum: -0.5,
+    mktValue: -0.38,
+    profitability: -1.1,
+    volatility: -0.52,
+    growth: -0.33,
+    value: -1.11,
+    dividend: -0.87,
+    turnover: 1.37,
+    eventValue: 0.38,
+  },
+  {
+    fundCode: '159381.SZ',
+    fundName: '消费电子ETF',
+    beta: 1.61,
+    momentum: 0.63,
+    mktValue: 0.59,
+    profitability: -0.55,
+    volatility: -0.03,
+    growth: 0.27,
+    value: -0.75,
+    dividend: -0.13,
+    turnover: 1.52,
+    eventValue: -0.2,
+  },
+  {
+    fundCode: '159381.SZ',
+    fundName: '科创人工智能ETF华夏',
+    beta: 1.57,
+    momentum: 0.17,
+    mktValue: 0.12,
+    profitability: -1.2,
+    volatility: 0.27,
+    growth: 0.5,
+    value: -1.27,
+    dividend: -1.03,
+    turnover: 1.03,
+    eventValue: 0.16,
+  },
+  {
+    fundCode: '159381.SZ',
+    fundName: '人工智能AIETF',
+    beta: 1.57,
+    momentum: 0.8,
+    mktValue: 0.71,
+    profitability: -1.0,
+    volatility: 0.37,
+    growth: 0.61,
+    value: -1.21,
+    dividend: 0.83,
+    turnover: 1.67,
+    eventValue: -0.29,
+  },
+];
+
+const tweakMetric = (value: number, rowIndex: number, seed: number) => {
+  const drift = ((rowIndex % 9) - 4) * 0.03 + ((seed % 5) - 2) * 0.01;
+  return Number((value + drift).toFixed(2));
+};
+
+const MOCK_ROWS: StyleRow[] = Array.from({ length: 35 }).map((_, i) => {
+  const base = BASE_ROWS[i % BASE_ROWS.length];
+  return {
+    ...base,
+    key: String(i + 1),
+    beta: tweakMetric(base.beta, i, 1),
+    momentum: tweakMetric(base.momentum, i, 2),
+    mktValue: tweakMetric(base.mktValue, i, 3),
+    profitability: tweakMetric(base.profitability, i, 4),
+    volatility: tweakMetric(base.volatility, i, 5),
+    growth: tweakMetric(base.growth, i, 6),
+    value: tweakMetric(base.value, i, 7),
+    dividend: tweakMetric(base.dividend, i, 8),
+    turnover: tweakMetric(base.turnover, i, 9),
+    eventValue: tweakMetric(base.eventValue, i, 10),
+  };
+});
+
+const getMetricBadgeStyle = (value: number): React.CSSProperties => {
+  const safe = Number.isFinite(value) ? value : 0;
+  const abs = Math.min(2.2, Math.abs(safe));
+  const alpha = Math.min(0.68, Math.max(0.18, 0.18 + (abs / 2.2) * 0.5));
+
+  if (safe > 0)
+    return {
+      backgroundColor: `rgba(255, 77, 79, ${alpha})`,
+      color: '#ffffff',
+    };
+  if (safe < 0)
+    return {
+      backgroundColor: `rgba(22, 119, 255, ${alpha})`,
+      color: '#ffffff',
+    };
+  return { backgroundColor: 'rgba(0, 0, 0, 0.08)', color: '#595959' };
+};
+
+const StylePage: React.FC = () => {
+  const [form] = Form.useForm<FilterValues>();
+  const [keyword, setKeyword] = useState('');
+
+  const dataSource = useMemo(() => {
+    const kw = keyword.trim();
+    if (!kw) return MOCK_ROWS;
+    return MOCK_ROWS.filter(
+      (r) => r.fundCode.includes(kw) || r.fundName.includes(kw),
+    );
+  }, [keyword]);
+
+  const columns: ColumnsType<StyleRow> = useMemo(
+    () => [
+      {
+        title: '基金代码',
+        dataIndex: 'fundCode',
+        key: 'fundCode',
+        width: 120,
+        fixed: 'left',
+        render: (text: string) => (
+          <span className={styles.linkText}>{text}</span>
+        ),
+      },
+      {
+        title: '基金名称',
+        dataIndex: 'fundName',
+        key: 'fundName',
+        width: 230,
+        fixed: 'left',
+        render: (text: string) => (
+          <span className={styles.linkText}>{text}</span>
+        ),
+      },
+      {
+        title: 'beta',
+        dataIndex: 'beta',
+        key: 'beta',
+        width: 86,
+        sorter: (a, b) => a.beta - b.beta,
+        render: (v: number) => (
+          <span className={styles.metricBadge} style={getMetricBadgeStyle(v)}>
+            {v.toFixed(2)}
+          </span>
+        ),
+      },
+      {
+        title: '动量',
+        dataIndex: 'momentum',
+        key: 'momentum',
+        width: 86,
+        sorter: (a, b) => a.momentum - b.momentum,
+        render: (v: number) => (
+          <span className={styles.metricBadge} style={getMetricBadgeStyle(v)}>
+            {v.toFixed(2)}
+          </span>
+        ),
+      },
+      {
+        title: '市值',
+        dataIndex: 'mktValue',
+        key: 'mktValue',
+        width: 86,
+        sorter: (a, b) => a.mktValue - b.mktValue,
+        render: (v: number) => (
+          <span className={styles.metricBadge} style={getMetricBadgeStyle(v)}>
+            {v.toFixed(2)}
+          </span>
+        ),
+      },
+      {
+        title: '盈利',
+        dataIndex: 'profitability',
+        key: 'profitability',
+        width: 86,
+        sorter: (a, b) => a.profitability - b.profitability,
+        render: (v: number) => (
+          <span className={styles.metricBadge} style={getMetricBadgeStyle(v)}>
+            {v.toFixed(2)}
+          </span>
+        ),
+      },
+      {
+        title: '波动',
+        dataIndex: 'volatility',
+        key: 'volatility',
+        width: 86,
+        sorter: (a, b) => a.volatility - b.volatility,
+        render: (v: number) => (
+          <span className={styles.metricBadge} style={getMetricBadgeStyle(v)}>
+            {v.toFixed(2)}
+          </span>
+        ),
+      },
+      {
+        title: '成长',
+        dataIndex: 'growth',
+        key: 'growth',
+        width: 86,
+        sorter: (a, b) => a.growth - b.growth,
+        render: (v: number) => (
+          <span className={styles.metricBadge} style={getMetricBadgeStyle(v)}>
+            {v.toFixed(2)}
+          </span>
+        ),
+      },
+      {
+        title: '价值',
+        dataIndex: 'value',
+        key: 'value',
+        width: 86,
+        sorter: (a, b) => a.value - b.value,
+        render: (v: number) => (
+          <span className={styles.metricBadge} style={getMetricBadgeStyle(v)}>
+            {v.toFixed(2)}
+          </span>
+        ),
+      },
+      {
+        title: '红利',
+        dataIndex: 'dividend',
+        key: 'dividend',
+        width: 86,
+        sorter: (a, b) => a.dividend - b.dividend,
+        render: (v: number) => (
+          <span className={styles.metricBadge} style={getMetricBadgeStyle(v)}>
+            {v.toFixed(2)}
+          </span>
+        ),
+      },
+      {
+        title: '换手',
+        dataIndex: 'turnover',
+        key: 'turnover',
+        width: 86,
+        sorter: (a, b) => a.turnover - b.turnover,
+        render: (v: number) => (
+          <span className={styles.metricBadge} style={getMetricBadgeStyle(v)}>
+            {v.toFixed(2)}
+          </span>
+        ),
+      },
+      {
+        title: '事件性价比',
+        dataIndex: 'eventValue',
+        key: 'eventValue',
+        width: 108,
+        sorter: (a, b) => a.eventValue - b.eventValue,
+        render: (v: number) => (
+          <span className={styles.metricBadge} style={getMetricBadgeStyle(v)}>
+            {v.toFixed(2)}
+          </span>
+        ),
+      },
+    ],
+    [],
+  );
+
+  return (
+    <div className={styles.page}>
+      <div className={styles.filterCard}>
+        <Form<FilterValues>
+          form={form}
+          initialValues={{ keyword: '' }}
+          className={styles.filters}
+          onFinish={(values) => setKeyword(values.keyword || '')}
+        >
+          <div className={styles.filterItem}>
+            <div className={styles.filterLabel}>ETF名称/代码</div>
+            <Form.Item name="keyword" noStyle>
+              <Input
+                placeholder="请输入ETF名称/代码"
+                allowClear
+                className={styles.filterInput}
+              />
+            </Form.Item>
+          </div>
+
+          <div className={styles.actions}>
+            <Button
+              danger
+              className={styles.resetBtn}
+              onClick={() => {
+                form.resetFields();
+                setKeyword('');
+              }}
+            >
+              重置
+            </Button>
+            <Button
+              type="primary"
+              danger
+              className={styles.queryBtn}
+              htmlType="submit"
+            >
+              查询
+            </Button>
+          </div>
+        </Form>
+      </div>
+
+      <div className={styles.tableCard}>
+        <div className={styles.tableHeader}>
+          <div className={styles.tableTitle}>风格</div>
+          <Button danger className={styles.exportBtn} icon={<ExportOutlined />}>
+            导出数据
+          </Button>
+        </div>
+
+        <div className={styles.tableWrap}>
+          <Table<StyleRow>
+            className={styles.styleTable}
+            rowKey="key"
+            columns={columns}
+            dataSource={dataSource}
+            tableLayout="fixed"
+            scroll={{ x: 'max-content' }}
+            rowClassName={(_, idx) => (idx % 2 === 1 ? styles.rowAlt : '')}
+            pagination={{
+              showQuickJumper: true,
+              showSizeChanger: true,
+              pageSizeOptions: [10, 20, 50],
+              defaultPageSize: 10,
+              showTotal: (total, range) =>
+                `第 ${range[0]}-${range[1]} 条 / 共 ${total} 条`,
+            }}
+          />
+        </div>
+
+        <div className={styles.footerNote}>{SOURCE_NOTE}</div>
+      </div>
+    </div>
+  );
+};
+
+export default StylePage;
