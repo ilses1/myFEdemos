@@ -1,5 +1,5 @@
-import { ExportOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Table } from 'antd';
+import { DownOutlined, ExportOutlined } from '@ant-design/icons';
+import { Button, Form, Input, InputNumber, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import React, { useMemo, useState } from 'react';
 import styles from './index.less';
@@ -23,6 +23,8 @@ type StyleRow = {
 type FilterValues = {
   keyword: string;
 };
+
+type SortOrder = 'ascend' | 'descend' | null;
 
 const SOURCE_NOTE =
   '数据来源:Wind，截至2025-11-18，数据根据ETF基金跟踪指数成分股财务统计汇总。';
@@ -217,14 +219,41 @@ const getMetricBadgeStyle = (value: number): React.CSSProperties => {
 const StylePage: React.FC = () => {
   const [form] = Form.useForm<FilterValues>();
   const [keyword, setKeyword] = useState('');
+  const [sortState, setSortState] = useState<{
+    field?: string;
+    order: SortOrder;
+  }>({ field: undefined, order: null });
+  const [betaRange, setBetaRange] = useState<{ min?: number; max?: number }>(
+    {},
+  );
+  const [betaDraft, setBetaDraft] = useState<{
+    min?: number;
+    max?: number;
+    order: SortOrder;
+  }>({ order: null });
+
+  const betaAvailableRange = useMemo(() => {
+    const values = MOCK_ROWS.map((row) => row.beta).filter(Number.isFinite);
+    const min = values.length ? Math.min(...values) : 0;
+    const max = values.length ? Math.max(...values) : 0;
+    return { min, max };
+  }, []);
 
   const dataSource = useMemo(() => {
     const kw = keyword.trim();
-    if (!kw) return MOCK_ROWS;
-    return MOCK_ROWS.filter(
-      (r) => r.fundCode.includes(kw) || r.fundName.includes(kw),
-    );
-  }, [keyword]);
+    const min = betaRange.min;
+    const max = betaRange.max;
+
+    return MOCK_ROWS.filter((row) => {
+      if (kw && !row.fundCode.includes(kw) && !row.fundName.includes(kw))
+        return false;
+      if (typeof min === 'number' && Number.isFinite(min) && row.beta < min)
+        return false;
+      if (typeof max === 'number' && Number.isFinite(max) && row.beta > max)
+        return false;
+      return true;
+    });
+  }, [betaRange.max, betaRange.min, keyword]);
 
   const columns: ColumnsType<StyleRow> = useMemo(
     () => [
@@ -253,7 +282,151 @@ const StylePage: React.FC = () => {
         dataIndex: 'beta',
         key: 'beta',
         width: 86,
-        sorter: (a, b) => a.beta - b.beta,
+        sortOrder: sortState.field === 'beta' ? sortState.order : null,
+        filterIcon: ({ filtered }) => (
+          <DownOutlined
+            className={
+              filtered ? styles.metricFilterIconActive : styles.metricFilterIcon
+            }
+          />
+        ),
+        filterDropdownProps: {
+          onOpenChange: (open) => {
+            if (!open) return;
+            setBetaDraft({
+              min: betaRange.min,
+              max: betaRange.max,
+              order: sortState.field === 'beta' ? sortState.order : null,
+            });
+          },
+        },
+        filtered: Object.keys(betaRange).length > 0,
+        filterDropdown: ({ close }) => (
+          <div className={styles.metricDropdown}>
+            <div className={styles.metricSortRow}>
+              <button
+                type="button"
+                className={
+                  betaDraft.order === 'ascend'
+                    ? styles.metricSortBtnActive
+                    : styles.metricSortBtn
+                }
+                onClick={() =>
+                  setBetaDraft((prev) => ({
+                    ...prev,
+                    order: prev.order === 'ascend' ? null : 'ascend',
+                  }))
+                }
+              >
+                升序
+              </button>
+              <button
+                type="button"
+                className={
+                  betaDraft.order === 'descend'
+                    ? styles.metricSortBtnActive
+                    : styles.metricSortBtn
+                }
+                onClick={() =>
+                  setBetaDraft((prev) => ({
+                    ...prev,
+                    order: prev.order === 'descend' ? null : 'descend',
+                  }))
+                }
+              >
+                降序
+              </button>
+            </div>
+
+            <div className={styles.metricRangeLabel}>自定义区间筛选： beta</div>
+            <div className={styles.metricRangeInputs}>
+              <InputNumber
+                value={betaDraft.min}
+                placeholder="0"
+                controls={false}
+                className={styles.metricRangeInput}
+                onChange={(value) =>
+                  setBetaDraft((prev) => ({
+                    ...prev,
+                    min: typeof value === 'number' ? value : undefined,
+                  }))
+                }
+              />
+              <span className={styles.metricRangeSep}>~</span>
+              <InputNumber
+                value={betaDraft.max}
+                placeholder="110"
+                controls={false}
+                className={styles.metricRangeInput}
+                onChange={(value) =>
+                  setBetaDraft((prev) => ({
+                    ...prev,
+                    max: typeof value === 'number' ? value : undefined,
+                  }))
+                }
+              />
+            </div>
+            <div className={styles.metricRangeHint}>
+              可选区间：{betaAvailableRange.min.toFixed(1)}~
+              {betaAvailableRange.max.toFixed(1)}
+            </div>
+
+            <div className={styles.metricDropdownActions}>
+              <Button
+                danger
+                className={styles.metricActionBtn}
+                onClick={() => {
+                  setBetaRange({});
+                  setSortState({ field: undefined, order: null });
+                  setBetaDraft({ order: null });
+                  close();
+                }}
+              >
+                重置
+              </Button>
+              <Button
+                type="primary"
+                danger
+                className={styles.metricActionBtn}
+                onClick={() => {
+                  const rawMin = betaDraft.min;
+                  const rawMax = betaDraft.max;
+                  const min =
+                    typeof rawMin === 'number' && Number.isFinite(rawMin)
+                      ? rawMin
+                      : undefined;
+                  const max =
+                    typeof rawMax === 'number' && Number.isFinite(rawMax)
+                      ? rawMax
+                      : undefined;
+
+                  if (
+                    typeof min === 'number' &&
+                    typeof max === 'number' &&
+                    min > max
+                  ) {
+                    setBetaRange({ min: max, max: min });
+                  } else {
+                    const next: { min?: number; max?: number } = {};
+                    if (typeof min === 'number') next.min = min;
+                    if (typeof max === 'number') next.max = max;
+                    setBetaRange(next);
+                  }
+
+                  if (betaDraft.order) {
+                    setSortState({ field: 'beta', order: betaDraft.order });
+                  } else if (sortState.field === 'beta') {
+                    setSortState({ field: undefined, order: null });
+                  }
+
+                  close();
+                }}
+              >
+                确认
+              </Button>
+            </div>
+          </div>
+        ),
         render: (v: number) => (
           <span className={styles.metricBadge} style={getMetricBadgeStyle(v)}>
             {v.toFixed(2)}
@@ -369,7 +542,13 @@ const StylePage: React.FC = () => {
         ),
       },
     ],
-    [],
+    [
+      betaAvailableRange.max,
+      betaAvailableRange.min,
+      betaDraft,
+      betaRange,
+      sortState,
+    ],
   );
 
   return (
@@ -430,6 +609,13 @@ const StylePage: React.FC = () => {
             tableLayout="fixed"
             scroll={{ x: 'max-content' }}
             rowClassName={(_, idx) => (idx % 2 === 1 ? styles.rowAlt : '')}
+            onChange={(_, __, sorter) => {
+              if (Array.isArray(sorter)) return;
+              const order = (sorter.order ?? null) as SortOrder;
+              const field =
+                typeof sorter.field === 'string' ? sorter.field : '';
+              setSortState({ field: field || undefined, order });
+            }}
             pagination={{
               showQuickJumper: true,
               showSizeChanger: true,

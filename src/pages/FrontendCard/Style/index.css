@@ -69,6 +69,9 @@
 .styleTable :global(.ant-table) {
   font-size: 12px;
 }
+.styleTable :global(.ant-table-column-sorter) {
+  display: none;
+}
 .styleTable :global(.ant-table-thead > tr > th) {
   background: #f3f5f7;
   color: rgba(0, 0, 0, 0.65);
@@ -131,6 +134,78 @@
   border-radius: 2px;
   font-size: 12px;
   font-variant-numeric: tabular-nums;
+}
+.metricFilterIcon {
+  font-size: 12px;
+  margin-left: 6px;
+  color: rgba(0, 0, 0, 0.25);
+}
+.metricFilterIconActive {
+  font-size: 12px;
+  margin-left: 6px;
+  color: #ff4d4f;
+}
+.metricDropdown {
+  width: 240px;
+  padding: 12px 12px 10px;
+}
+.metricSortRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.metricSortBtn {
+  appearance: none;
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.65);
+  cursor: pointer;
+}
+.metricSortBtnActive {
+  appearance: none;
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ff4d4f;
+  cursor: pointer;
+}
+.metricRangeLabel {
+  margin-top: 10px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.65);
+}
+.metricRangeInputs {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.metricRangeInput {
+  width: 92px;
+}
+.metricRangeSep {
+  color: rgba(0, 0, 0, 0.45);
+}
+.metricRangeHint {
+  margin-top: 8px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+}
+.metricDropdownActions {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.metricActionBtn {
+  border-radius: 2px;
 }
 .footerNote {
   padding: 0 12px 12px;
