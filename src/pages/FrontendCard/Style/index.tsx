@@ -196,7 +196,7 @@ const MOCK_ROWS: StyleRow[] = Array.from({ length: 35 }).map((_, i) => {
 const getMetricBadgeStyle = (value: number): React.CSSProperties => {
   const safe = Number.isFinite(value) ? value : 0;
   if (safe === 0)
-    return { backgroundColor: 'rgba(0, 0, 0, 0.08)', color: '#595959' };
+    return { backgroundColor: 'rgb(255, 255, 255)', color: '#484B59' };
 
   const clamped = Math.max(-2, Math.min(2, safe));
   const abs = Math.abs(clamped);
