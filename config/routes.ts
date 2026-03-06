@@ -88,6 +88,11 @@ export default [
         path: '/frontend-card/industry',
         component: './FrontendCard/Industry',
       },
+      {
+        name: '主题',
+        path: '/frontend-card/theme',
+        component: './FrontendCard/Theme',
+      },
     ],
   },
   {

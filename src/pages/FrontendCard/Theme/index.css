@@ -1,0 +1,206 @@
+.filterCard {
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+  padding: 14px 16px;
+}
+.filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+}
+.filterItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.filterLabel {
+  font-size: 12px;
+  color: #595959;
+  white-space: nowrap;
+}
+.filterInput {
+  width: 180px;
+  border-radius: 2px;
+}
+.topNWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.topNText {
+  font-size: 12px;
+  color: #595959;
+}
+.topNInput {
+  width: 64px;
+  border-radius: 2px;
+}
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.resetBtn {
+  border-radius: 2px;
+}
+.queryBtn {
+  border-radius: 2px;
+}
+.tableCard {
+  padding: 20px;
+  margin-top: 12px;
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.tableHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.titleBlock {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.title {
+  font-family: Source Han Sans CN;
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 24px;
+  letter-spacing: normal;
+  color: #1d1e26;
+}
+.subtitle {
+  font-family: Source Han Sans CN;
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 20px;
+  text-align: justify;
+  /* 浏览器可能不支持 */
+  letter-spacing: normal;
+  color: #777b8c;
+}
+.exportBtn {
+  border-radius: 2px;
+  flex: 0 0 auto;
+}
+.industryTable {
+  margin-top: 16px;
+}
+.industryText {
+  color: #595959;
+}
+.indexCodeText {
+  color: #8c8c8c;
+}
+.weightBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  min-width: 64px;
+  padding: 0 10px;
+  border-radius: 2px;
+  background: rgba(234, 134, 139, 0.1);
+  color: #595959;
+  font-weight: 500;
+}
+.linkText {
+  color: #1677ff;
+  cursor: pointer;
+}
+.footerNote {
+  font-size: 12px;
+  color: #8c8c8c;
+  line-height: 1.4;
+  position: absolute;
+  left: 36px;
+  bottom: 44px;
+  right: 340px;
+  pointer-events: none;
+}
+.pagination {
+  margin: 0;
+}
+:global(.ant-table) {
+  color: #595959;
+}
+:global(.ant-table-wrapper .ant-table-thead > tr > th) {
+  background: #f5f6f8;
+  color: #595959;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 10px 16px;
+  border-bottom: 1px solid #e6e8eb;
+}
+:global(.ant-table-wrapper .ant-table-tbody > tr > td) {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: middle;
+  font-size: 12px;
+}
+:global(.ant-table-wrapper .ant-table-tbody > tr:hover > td) {
+  background: #fafafa;
+}
+:global(.ant-pagination) {
+  color: #8c8c8c;
+  font-size: 12px;
+}
+:global(.ant-pagination .ant-pagination-item-active) {
+  border-color: #ff4d4f;
+}
+:global(.ant-pagination .ant-pagination-item-active a) {
+  color: #ff4d4f;
+}
+:global(.ant-pagination .ant-pagination-item a) {
+  color: #8c8c8c;
+}
+:global(.ant-pagination .ant-pagination-prev .ant-pagination-item-link),
+:global(.ant-pagination .ant-pagination-next .ant-pagination-item-link) {
+  color: #8c8c8c;
+}
+@media (max-width: 768px) {
+  .container {
+    padding-top: 56px;
+  }
+  .filterInput {
+    width: 160px;
+  }
+  .actions {
+    margin-left: 0;
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .industryTable {
+    padding: 0 12px;
+  }
+}
+@media (max-width: 576px) {
+  .filterCard {
+    padding: 12px;
+  }
+  .filterItem {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .filterInput {
+    width: 220px;
+    max-width: 62vw;
+  }
+  .pagination {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .footerNote {
+    left: 36px;
+    right: 36px;
+    bottom: 58px;
+  }
+}
