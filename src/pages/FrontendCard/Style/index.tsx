@@ -371,46 +371,44 @@ const StylePage: React.FC = () => {
 
   return (
     <div className={styles.page}>
-      <div className={styles.filterCard}>
-        <Form<FilterValues>
-          form={form}
-          initialValues={{ keyword: '' }}
-          className={styles.filters}
-          onFinish={(values) => setKeyword(values.keyword || '')}
-        >
-          <div className={styles.filterItem}>
-            <div className={styles.filterLabel}>ETF名称/代码</div>
-            <Form.Item name="keyword" noStyle>
-              <Input
-                placeholder="请输入ETF名称/代码"
-                allowClear
-                className={styles.filterInput}
-              />
-            </Form.Item>
-          </div>
+      <Form<FilterValues>
+        form={form}
+        initialValues={{ keyword: '' }}
+        className={styles.filters}
+        onFinish={(values) => setKeyword(values.keyword || '')}
+      >
+        <div className={styles.filterItem}>
+          <div className={styles.filterLabel}>ETF名称/代码</div>
+          <Form.Item name="keyword" noStyle>
+            <Input
+              placeholder="请输入ETF名称/代码"
+              allowClear
+              className={styles.filterInput}
+            />
+          </Form.Item>
+        </div>
 
-          <div className={styles.actions}>
-            <Button
-              danger
-              className={styles.resetBtn}
-              onClick={() => {
-                form.resetFields();
-                setKeyword('');
-              }}
-            >
-              重置
-            </Button>
-            <Button
-              type="primary"
-              danger
-              className={styles.queryBtn}
-              htmlType="submit"
-            >
-              查询
-            </Button>
-          </div>
-        </Form>
-      </div>
+        <div className={styles.actions}>
+          <Button
+            danger
+            className={styles.resetBtn}
+            onClick={() => {
+              form.resetFields();
+              setKeyword('');
+            }}
+          >
+            重置
+          </Button>
+          <Button
+            type="primary"
+            danger
+            className={styles.queryBtn}
+            htmlType="submit"
+          >
+            查询
+          </Button>
+        </div>
+      </Form>
 
       <div className={styles.tableCard}>
         <div className={styles.tableHeader}>
