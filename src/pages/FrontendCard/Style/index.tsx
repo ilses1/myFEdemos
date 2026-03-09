@@ -227,6 +227,9 @@ const StylePage: React.FC = () => {
     field?: string;
     order: SortOrder;
   }>({ field: undefined, order: null });
+  const [metricDropdownOffsetX, setMetricDropdownOffsetX] = useState<
+    Partial<Record<MetricField, number>>
+  >({});
 
   const metrics = useMemo(
     () =>
@@ -331,6 +334,7 @@ const StylePage: React.FC = () => {
       const range = metricRanges[field];
       const draft = metricDrafts[field];
       const available = metricAvailableRanges[field];
+      const offsetX = metricDropdownOffsetX[field] ?? 0;
       const filtered =
         typeof range.min === 'number' || typeof range.max === 'number';
       const sorted = sortState.field === field && !!sortState.order;
@@ -346,15 +350,39 @@ const StylePage: React.FC = () => {
         sorter: (a: StyleRow, b: StyleRow) => a[field] - b[field],
         sortOrder: sortState.field === field ? sortState.order : null,
         filterIcon: ({ filtered: isFiltered }: { filtered: boolean }) => (
-          <CaretDownOutlined
-            className={
-              isFiltered
-                ? styles.metricFilterIconActive
-                : styles.metricFilterIcon
-            }
-          />
+          <span
+            data-metric-field={field}
+            onMouseDown={(e) => {
+              const trigger = e.currentTarget as HTMLElement;
+              const th = trigger.closest('th') as HTMLElement | null;
+              if (!th) return;
+              const thRect = th.getBoundingClientRect();
+              const triggerRect = trigger.getBoundingClientRect();
+              const nextOffset = Math.round(
+                thRect.left +
+                  thRect.width / 2 -
+                  (triggerRect.left + triggerRect.width / 2),
+              );
+              setMetricDropdownOffsetX((prev) =>
+                prev[field] === nextOffset
+                  ? prev
+                  : { ...prev, [field]: nextOffset },
+              );
+            }}
+          >
+            <CaretDownOutlined
+              className={
+                isFiltered
+                  ? styles.metricFilterIconActive
+                  : styles.metricFilterIcon
+              }
+            />
+          </span>
         ),
         filterDropdownProps: {
+          placement: 'bottomCenter',
+          align: { offset: [offsetX, 0] },
+          overlayClassName: styles.metricDropdownOverlay,
           onOpenChange: (open: boolean) => {
             if (!open) return;
             setMetricDrafts((prev) => ({
@@ -556,7 +584,14 @@ const StylePage: React.FC = () => {
       },
       ...metrics.map((m) => buildMetricColumn(m.field, m.title, m.width)),
     ];
-  }, [metricAvailableRanges, metricDrafts, metricRanges, metrics, sortState]);
+  }, [
+    metricAvailableRanges,
+    metricDrafts,
+    metricDropdownOffsetX,
+    metricRanges,
+    metrics,
+    sortState,
+  ]);
 
   return (
     <div className={styles.page}>

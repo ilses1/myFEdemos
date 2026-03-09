@@ -185,6 +185,9 @@
   border-radius: 4px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
 }
+:global(.metricDropdownOverlay.ant-dropdown) {
+  transform-origin: top center;
+}
 .metricSortRow {
   display: flex;
   align-items: center;
@@ -211,6 +214,7 @@
   flex: 1 1 auto;
   display: flex;
   align-items: center;
+  justify-content: flex-start;
 }
 .metricSortDivider {
   flex: 0 0 auto;
@@ -250,8 +254,10 @@
 .metricSortBtnContent {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
 }
 .metricSortBtnIcon {
+  display: block;
   width: 16px;
   height: 16px;
   margin-right: 4px;
