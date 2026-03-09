@@ -346,7 +346,9 @@ const StylePage: React.FC = () => {
         key: field,
         width,
         align: 'center' as const,
-        className: headerActive ? styles.metricHeaderCellActive : '',
+        className: headerActive
+          ? `${styles.metricHeaderCell} ${styles.metricHeaderCellActive}`
+          : styles.metricHeaderCell,
         sorter: (a: StyleRow, b: StyleRow) => a[field] - b[field],
         sortOrder: sortState.field === field ? sortState.order : null,
         filterIcon: ({ filtered: isFiltered }: { filtered: boolean }) => (

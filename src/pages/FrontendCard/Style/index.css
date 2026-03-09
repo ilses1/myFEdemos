@@ -72,9 +72,17 @@
 .styleTable :global(.ant-table-column-sorter) {
   display: none;
 }
+.styleTable :global(.ant-table-filter-column) {
+  display: flex;
+  justify-content: center;
+}
+.styleTable :global(.ant-table-column-title) {
+  display: inline-block;
+  flex: none !important;
+}
 .styleTable :global(.ant-table-filter-trigger) {
   padding: 0;
-  margin-left: 2px;
+  margin-left: 4px;
   display: inline-flex;
   align-items: center;
   background: transparent;
