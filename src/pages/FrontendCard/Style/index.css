@@ -139,20 +139,26 @@
   background: #fafbfc;
 }
 .linkText {
-  font-size: 12px;
+  font-family: Source Han Sans;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: normal;
+  letter-spacing: normal;
   color: #005e91;
   cursor: pointer;
 }
 .metricBadge {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  min-width: 44px;
-  height: 24px;
+  min-width: 58px;
+  height: 32px;
   padding: 0 8px;
-  border-radius: 2px;
-  font-size: 12px;
   font-variant-numeric: tabular-nums;
+  font-family: Source Han Sans;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: normal;
+  letter-spacing: normal;
 }
 .metricFilterIcon {
   display: inline-flex;
@@ -176,8 +182,8 @@
 .styleTable :global(.ant-table-thead > tr > th).metricHeaderCellActive::after {
   content: '';
   position: absolute;
-  left: 10%;
-  right: 10%;
+  left: 26%;
+  right: 20%;
   top: 0;
   height: 4px;
   background: rgba(191, 0, 8, 0.3);
