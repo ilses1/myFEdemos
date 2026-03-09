@@ -293,6 +293,7 @@ const MultiFilterPage: React.FC = () => {
           padding: 20,
           backgroundColor: '#fff',
         }}
+        className={`${styles.checkbox18Scope} ${styles.controlScope}`}
       >
         <Form<FormValues>
           form={form}
@@ -581,7 +582,7 @@ const MultiFilterPage: React.FC = () => {
           padding: 20,
           backgroundColor: '#fff',
         }}
-        className={styles.resultSection}
+        className={`${styles.resultSection} ${styles.checkbox18Scope}`}
       >
         <div className={styles.resultHeader}>
           <div className={styles.titleTabs}>
