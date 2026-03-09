@@ -243,7 +243,7 @@ const StylePage: React.FC = () => {
         { field: 'value', title: '价值', width: 86 },
         { field: 'dividend', title: '红利', width: 86 },
         { field: 'turnover', title: '换手', width: 86 },
-        { field: 'eventValue', title: '事件性价比', width: 108 },
+        { field: 'eventValue', title: '非线性市值', width: 108 },
       ] as const satisfies readonly {
         field: MetricField;
         title: string;

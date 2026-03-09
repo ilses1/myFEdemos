@@ -179,12 +179,21 @@
 .styleTable :global(.ant-table-thead > tr > th).metricHeaderCellActive {
   position: relative;
 }
-.styleTable :global(.ant-table-thead > tr > th).metricHeaderCellActive::after {
+.styleTable
+  :global(.ant-table-thead > tr > th).metricHeaderCellActive
+  :global(.ant-table-filter-column) {
+  position: relative;
+  width: fit-content;
+  margin: 0 auto;
+}
+.styleTable
+  :global(.ant-table-thead > tr > th).metricHeaderCellActive
+  :global(.ant-table-filter-column)::after {
   content: '';
   position: absolute;
-  left: 26%;
-  right: 20%;
-  top: 0;
+  left: 0;
+  right: -10px;
+  top: -10px;
   height: 4px;
   background: rgba(191, 0, 8, 0.3);
   z-index: 1;
