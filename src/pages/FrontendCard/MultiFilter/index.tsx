@@ -275,7 +275,7 @@ const MultiFilterPage: React.FC = () => {
       dataIndex: 'desc',
       key: 'desc',
       render: (text: string) => (
-        <Tooltip title={text}>
+        <Tooltip title={text} classNames={{ root: styles.customTooltip }}>
           <Typography.Text className={styles.descText} ellipsis>
             {text}
           </Typography.Text>
@@ -395,7 +395,10 @@ const MultiFilterPage: React.FC = () => {
                 >
                   亿
                 </Typography.Text>
-                <Tooltip title="截至上一日，ETF基金规模(不含联接基金)，单位亿元">
+                <Tooltip
+                  title="截至上一日，ETF基金规模(不含联接基金)，单位亿元"
+                  classNames={{ root: styles.customTooltip }}
+                >
                   <InfoCircleOutlined />
                 </Tooltip>
               </div>
@@ -459,7 +462,10 @@ const MultiFilterPage: React.FC = () => {
                 >
                   万
                 </Typography.Text>
-                <Tooltip title="截至上一日，ETF基金规模(不含联接基金)，单位亿元">
+                <Tooltip
+                  title="截至上一日，ETF基金规模(不含联接基金)，单位亿元"
+                  classNames={{ root: styles.customTooltip }}
+                >
                   <InfoCircleOutlined />
                 </Tooltip>
               </div>
@@ -499,7 +505,10 @@ const MultiFilterPage: React.FC = () => {
                 >
                   规模或流动性领先
                 </Typography.Text>
-                <Tooltip title="截至上一日，ETF基金规模(不含联接基金)，单位亿元">
+                <Tooltip
+                  title="截至上一日，ETF基金规模(不含联接基金)，单位亿元"
+                  classNames={{ root: styles.customTooltip }}
+                >
                   <InfoCircleOutlined />
                 </Tooltip>
               </div>

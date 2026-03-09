@@ -299,3 +299,17 @@
   width: 100%;
   color: rgba(0, 0, 0, 0.65);
 }
+.customTooltip :global(.ant-tooltip-inner) {
+  padding: 4px 8px;
+  font-family: 'Source Han Sans CN';
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 19px;
+  text-align: justify;
+  white-space: nowrap;
+  letter-spacing: normal;
+  max-width: 308px;
+  width: fit-content;
+  color: #484b59;
+  background: #fff;
+}
