@@ -192,7 +192,7 @@
   border-radius: 2px;
 }
 .viewTabActive {
-  color: #3d61a9;
+  color: #1677ff;
   font-weight: 600;
 }
 .viewTabDivider {
@@ -228,26 +228,10 @@
   background: #fafbfc;
 }
 .linkText {
-  font-size: 14px;
+  font-size: 12px;
 }
 .codeLink {
-  font-size: 14px;
-}
-:global(a.ant-typography).linkText,
-:global(a.ant-typography).codeLink {
-  color: #005e91;
-}
-:global(a.ant-typography:hover).linkText,
-:global(a.ant-typography:hover).codeLink {
-  color: #005e91;
-}
-.codeSeparator {
-  display: inline-block;
-  width: 1px;
-  height: 14px;
-  background: #d7dae0;
-  margin: 0 4px;
-  vertical-align: middle;
+  font-size: 12px;
 }
 .descText {
   display: inline-block;
@@ -328,13 +312,4 @@
   width: fit-content;
   color: #484b59;
   background: #fff;
-}
-.dataDate {
-  font-family: Source Han Sans CN;
-  font-size: 12px;
-  font-weight: normal;
-  line-height: 20px;
-  text-align: justify;
-  letter-spacing: normal;
-  color: #777b8c;
 }

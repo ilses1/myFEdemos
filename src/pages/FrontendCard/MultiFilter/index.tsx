@@ -242,7 +242,7 @@ const MultiFilterPage: React.FC = () => {
       dataIndex: 'latestScale',
       key: 'latestScale',
       width: 140,
-      align: 'left',
+      align: 'right',
       sorter: (a, b) => a.latestScale - b.latestScale,
       render: (v: number) => v.toFixed(2),
     },
@@ -251,7 +251,7 @@ const MultiFilterPage: React.FC = () => {
       dataIndex: 'dailyAvgAmount',
       key: 'dailyAvgAmount',
       width: 180,
-      align: 'left',
+      align: 'right',
       sorter: (a, b) => a.dailyAvgAmount - b.dailyAvgAmount,
       render: (v: number) => v.toFixed(2),
     },
@@ -259,16 +259,13 @@ const MultiFilterPage: React.FC = () => {
       title: '联接基金代码',
       dataIndex: 'linkedCodes',
       key: 'linkedCodes',
-      width: 200,
+      width: 170,
       render: (codes: string[]) => (
-        <Space size={0} wrap>
-          {codes.map((c, idx) => (
-            <React.Fragment key={c}>
-              {idx > 0 ? (
-                <span className={styles.codeSeparator} aria-hidden="true" />
-              ) : null}
-              <Typography.Link className={styles.codeLink}>{c}</Typography.Link>
-            </React.Fragment>
+        <Space size={10} wrap>
+          {codes.map((c) => (
+            <Typography.Link key={c} className={styles.codeLink}>
+              {c}
+            </Typography.Link>
           ))}
         </Space>
       ),
@@ -601,7 +598,6 @@ const MultiFilterPage: React.FC = () => {
             <Typography.Text className={styles.resultTitle}>
               ETF产品
             </Typography.Text>
-            <span className={styles.dataDate}>数据截止日期：2025-07-31</span>
             <div
               className={styles.viewTabs}
               role="tablist"
@@ -658,7 +654,7 @@ const MultiFilterPage: React.FC = () => {
               rowClassName={(_, index) =>
                 index % 2 === 1 ? styles.rowAlt : ''
               }
-              scroll={{ x: 'max-content' }}
+              scroll={{ x: 1180 }}
             />
           </div>
         ) : (
@@ -711,19 +707,11 @@ const MultiFilterPage: React.FC = () => {
                     <Typography.Text className={styles.metaLabel}>
                       联接基金代码：
                     </Typography.Text>
-                    <Space size={0} wrap>
-                      {item.linkedCodes.map((c, idx) => (
-                        <React.Fragment key={c}>
-                          {idx > 0 ? (
-                            <span
-                              className={styles.codeSeparator}
-                              aria-hidden="true"
-                            />
-                          ) : null}
-                          <Typography.Link className={styles.codeLink}>
-                            {c}
-                          </Typography.Link>
-                        </React.Fragment>
+                    <Space size={10} wrap>
+                      {item.linkedCodes.map((c) => (
+                        <Typography.Link key={c} className={styles.codeLink}>
+                          {c}
+                        </Typography.Link>
                       ))}
                     </Space>
                   </div>
