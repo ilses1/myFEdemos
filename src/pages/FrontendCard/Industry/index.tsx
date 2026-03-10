@@ -297,7 +297,6 @@ const IndustryPage: React.FC = () => {
 
         <div className={styles.actions}>
           <Button
-            danger
             className={styles.resetBtn}
             onClick={() => {
               form.resetFields();
