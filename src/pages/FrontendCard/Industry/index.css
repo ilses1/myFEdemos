@@ -127,16 +127,22 @@
   font-weight: 500;
 }
 .linkText {
-  color: #1677ff;
+  font-family: Source Han Sans;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  color: #005e91;
   cursor: pointer;
 }
 .fundAreaCell {
-  padding: 0 !important;
-  background: #f9f9fc;
+  padding: 4px 0 !important;
+  background: transparent;
   vertical-align: middle;
 }
 .fundArea {
   width: 100%;
+  background: #f9f9fc;
 }
 .fundAreaScroller {
   --fund-row-height: 40px;
