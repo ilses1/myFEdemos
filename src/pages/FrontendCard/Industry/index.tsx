@@ -22,9 +22,7 @@ type TableRow = {
   industryLabel: string;
   exposureWeight: number;
   indexCode: string;
-  fundName: string;
-  fundCode: string;
-  fundScaleYi: number;
+  funds: FundItem[];
 };
 
 type FilterFormValues = {
@@ -74,10 +72,13 @@ const MOCK_GROUPS: IndustryGroup[] = [
   },
 ];
 
-const TOP_N_OPTIONS = Array.from({ length: 10 }, (_, i) => ({
-  value: i + 1,
-  label: i + 1,
-}));
+const TOP_N_OPTIONS = [
+  { value: 0, label: '全部' },
+  ...Array.from({ length: 10 }, (_, i) => ({
+    value: i + 1,
+    label: i + 1,
+  })),
+];
 
 const getWeightOpacity = (weight: number) => {
   const safe = Number.isFinite(weight) ? weight : 0;
@@ -86,26 +87,12 @@ const getWeightOpacity = (weight: number) => {
   return Math.min(1, Math.ceil(clamped / 10) / 10);
 };
 
-const buildTableRows = (groups: IndustryGroup[]): TableRow[] => {
-  return groups.flatMap((group, groupIdx) =>
-    group.funds.map((fund, idx) => ({
-      key: `${groupIdx}-${group.indexCode}-${fund.code}-${idx}`,
-      industryLabel: group.industryLabel,
-      exposureWeight: group.exposureWeight,
-      indexCode: group.indexCode,
-      fundName: fund.name,
-      fundCode: fund.code,
-      fundScaleYi: fund.scaleYi,
-    })),
-  );
-};
-
 const IndustryPage: React.FC = () => {
   const [form] = Form.useForm<FilterFormValues>();
 
   const [industryKeyword, setIndustryKeyword] = useState('');
   const [fundKeyword, setFundKeyword] = useState('');
-  const [topN, setTopN] = useState<number>(1);
+  const [topN, setTopN] = useState<number>(0);
   const [weightSortOrder, setWeightSortOrder] = useState<
     'ascend' | 'descend' | undefined
   >('descend');
@@ -136,7 +123,6 @@ const IndustryPage: React.FC = () => {
       return { ...g, funds: sortedFunds };
     });
 
-    const topCount = Math.max(1, topN || 1);
     return prepared
       .filter((g) => g.funds.length > 0)
       .sort((a, b) =>
@@ -144,43 +130,27 @@ const IndustryPage: React.FC = () => {
           ? a.exposureWeight - b.exposureWeight
           : b.exposureWeight - a.exposureWeight,
       )
-      .slice(0, topCount);
+      .slice(0, topN > 0 ? topN : prepared.length);
   }, [fundKeyword, industryKeyword, topN, weightSortOrder]);
 
-  const allRows = useMemo(
-    () => buildTableRows(filteredGroups),
+  const allRows = useMemo<TableRow[]>(
+    () =>
+      filteredGroups.map((g) => ({
+        key: `${g.industryLabel}__${g.indexCode}__${g.exposureWeight}`,
+        industryLabel: g.industryLabel,
+        exposureWeight: g.exposureWeight,
+        indexCode: g.indexCode,
+        funds: g.funds,
+      })),
     [filteredGroups],
   );
 
   const total = allRows.length;
 
-  const currentPageRows = useMemo(() => {
-    const start = (page - 1) * pageSize;
-    return allRows.slice(start, start + pageSize);
-  }, [allRows, page, pageSize]);
-
   useEffect(() => {
     const maxPage = Math.max(1, Math.ceil(total / pageSize));
     if (page > maxPage) setPage(maxPage);
   }, [page, pageSize, total]);
-
-  const getRowSpanForIndustry = (index: number) => {
-    const row = currentPageRows[index];
-    if (!row) return 1;
-
-    const groupKey = `${row.industryLabel}__${row.indexCode}`;
-    const prev = currentPageRows[index - 1];
-    if (prev && `${prev.industryLabel}__${prev.indexCode}` === groupKey)
-      return 0;
-
-    let span = 1;
-    for (let i = index + 1; i < currentPageRows.length; i += 1) {
-      const next = currentPageRows[i];
-      if (`${next.industryLabel}__${next.indexCode}` !== groupKey) break;
-      span += 1;
-    }
-    return span;
-  };
 
   const columns: ColumnsType<TableRow> = useMemo(
     () => [
@@ -189,10 +159,7 @@ const IndustryPage: React.FC = () => {
         dataIndex: 'industryLabel',
         key: 'industryLabel',
         width: 260,
-        render: (text, _record, index) => ({
-          children: <span className={styles.industryText}>{text}</span>,
-          props: { rowSpan: getRowSpanForIndustry(index) },
-        }),
+        render: (text) => <span className={styles.industryText}>{text}</span>,
       },
       {
         title: (
@@ -208,58 +175,71 @@ const IndustryPage: React.FC = () => {
         sorter: true,
         sortIcon,
         width: 120,
-        render: (value: number, _record, index) => ({
-          children: (
-            <span
-              className={styles.weightBadge}
-              style={{
-                backgroundColor: `rgba(234, 134, 139, ${getWeightOpacity(
-                  value,
-                )})`,
-              }}
-            >
-              {value.toFixed(3)}
-            </span>
-          ),
-          props: { rowSpan: getRowSpanForIndustry(index) },
-        }),
+        render: (value: number) => (
+          <span
+            className={styles.weightBadge}
+            style={{
+              backgroundColor: `rgba(234, 134, 139, ${getWeightOpacity(
+                value,
+              )})`,
+            }}
+          >
+            {value.toFixed(3)}
+          </span>
+        ),
       },
       {
         title: '基金跟踪指数代码',
         dataIndex: 'indexCode',
         key: 'indexCode',
         width: 160,
-        render: (text, _record, index) => ({
-          children: <span className={styles.indexCodeText}>{text}</span>,
-          props: { rowSpan: getRowSpanForIndustry(index) },
-        }),
+        render: (text) => <span className={styles.indexCodeText}>{text}</span>,
       },
       {
         title: '基金简称',
-        dataIndex: 'fundName',
-        key: 'fundName',
+        dataIndex: 'funds',
+        key: 'funds',
         width: 240,
-        render: (text) => <span className={styles.linkText}>{text}</span>,
+        render: (funds: FundItem[]) => ({
+          children: (
+            <div className={styles.fundArea}>
+              <div className={styles.fundAreaScroller}>
+                {funds.map((fund, idx) => (
+                  <div className={styles.fundRow} key={`${fund.code}-${idx}`}>
+                    <div className={styles.fundName}>
+                      <span className={styles.linkText}>{fund.name}</span>
+                    </div>
+                    <div className={styles.fundCode}>
+                      <span className={styles.linkText}>{fund.code}</span>
+                    </div>
+                    <div className={styles.fundScale}>
+                      <span className={styles.linkText}>
+                        {fund.scaleYi.toFixed(2)}亿
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ),
+          props: { colSpan: 3, className: styles.fundAreaCell },
+        }),
       },
       {
         title: '基金代码',
-        dataIndex: 'fundCode',
         key: 'fundCode',
         width: 140,
-        render: (text) => <span className={styles.linkText}>{text}</span>,
+        render: () => ({ children: null, props: { colSpan: 0 } }),
       },
       {
         title: '基金规模',
-        dataIndex: 'fundScaleYi',
         key: 'fundScaleYi',
         align: 'right',
         width: 140,
-        render: (value: number) => (
-          <span className={styles.linkText}>{value.toFixed(2)}亿</span>
-        ),
+        render: () => ({ children: null, props: { colSpan: 0 } }),
       },
     ],
-    [currentPageRows, sortIcon, weightSortOrder],
+    [sortIcon, weightSortOrder],
   );
 
   const handleTableChange: TableProps<TableRow>['onChange'] = (
@@ -284,12 +264,12 @@ const IndustryPage: React.FC = () => {
     <div className={styles.page}>
       <Form<FilterFormValues>
         form={form}
-        initialValues={{ industryKeyword: '', fundKeyword: '', topN: 1 }}
+        initialValues={{ industryKeyword: '', fundKeyword: '', topN: 0 }}
         className={styles.filters}
         onFinish={(values) => {
           setIndustryKeyword(values.industryKeyword || '');
           setFundKeyword(values.fundKeyword || '');
-          setTopN(values.topN || 1);
+          setTopN(values.topN ?? 0);
           setPage(1);
         }}
       >
@@ -335,7 +315,7 @@ const IndustryPage: React.FC = () => {
               form.resetFields();
               setIndustryKeyword('');
               setFundKeyword('');
-              setTopN(1);
+              setTopN(0);
               setPage(1);
             }}
           >

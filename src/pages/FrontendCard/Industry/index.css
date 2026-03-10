@@ -122,6 +122,44 @@
   color: #1677ff;
   cursor: pointer;
 }
+.fundAreaCell {
+  padding: 0 !important;
+  background: #f7f8fa;
+  vertical-align: top;
+}
+.fundArea {
+  width: 100%;
+}
+.fundAreaScroller {
+  --fund-row-height: 40px;
+  max-height: calc(var(--fund-row-height) * 3);
+  overflow-y: auto;
+}
+.fundRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 140px 140px;
+  align-items: center;
+  min-height: var(--fund-row-height);
+  padding: 10px 16px;
+  border-bottom: 1px solid #e6e8eb;
+}
+.fundRow:last-child {
+  border-bottom: 0;
+}
+.fundName {
+  min-width: 0;
+  padding-right: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fundCode {
+  padding: 0 12px;
+}
+.fundScale {
+  padding-left: 12px;
+  text-align: right;
+}
 .footerNote {
   font-size: 12px;
   color: #8c8c8c;
@@ -151,9 +189,13 @@
 }
 :global(.ant-table-wrapper .ant-table-tbody > tr > td) {
   padding: 14px 16px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #e6e8eb;
+  border-right: 1px solid #e6e8eb;
   vertical-align: middle;
   font-size: 12px;
+}
+:global(.ant-table-wrapper .ant-table-tbody > tr > td:last-child) {
+  border-right: 0;
 }
 .sorterIcon {
   display: inline-flex;
@@ -184,6 +226,9 @@
 }
 :global(.ant-table-wrapper .ant-table-tbody > tr:hover > td) {
   background: #fafafa;
+}
+:global(.ant-table-wrapper .ant-table-tbody > tr:hover > td).fundAreaCell {
+  background: #f7f8fa;
 }
 :global(.ant-pagination) {
   color: #8c8c8c;
