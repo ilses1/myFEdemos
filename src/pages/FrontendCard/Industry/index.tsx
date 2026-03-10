@@ -200,6 +200,7 @@ const IndustryPage: React.FC = () => {
         dataIndex: 'funds',
         key: 'funds',
         width: 240,
+        align: 'center',
         render: (funds: FundItem[]) => ({
           children: (
             <div className={styles.fundArea}>
@@ -228,13 +229,14 @@ const IndustryPage: React.FC = () => {
       {
         title: '基金代码',
         key: 'fundCode',
+        align: 'center',
         width: 140,
         render: () => ({ children: null, props: { colSpan: 0 } }),
       },
       {
         title: '基金规模',
         key: 'fundScaleYi',
-        align: 'right',
+        align: 'center',
         width: 140,
         render: () => ({ children: null, props: { colSpan: 0 } }),
       },

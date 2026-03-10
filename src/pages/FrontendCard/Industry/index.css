@@ -125,7 +125,7 @@
 .fundAreaCell {
   padding: 0 !important;
   background: #f7f8fa;
-  vertical-align: top;
+  vertical-align: middle;
 }
 .fundArea {
   width: 100%;
@@ -140,7 +140,7 @@
   grid-template-columns: minmax(0, 1fr) 140px 140px;
   align-items: center;
   min-height: var(--fund-row-height);
-  padding: 10px 16px;
+  padding: 10px 0;
   border-bottom: 1px solid #e6e8eb;
 }
 .fundRow:last-child {
@@ -148,17 +148,21 @@
 }
 .fundName {
   min-width: 0;
-  padding-right: 12px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  padding: 0 16px;
+  text-align: center;
 }
 .fundCode {
-  padding: 0 12px;
+  border-left: 1px solid #e6e8eb;
+  padding: 0 16px;
+  text-align: center;
 }
 .fundScale {
-  padding-left: 12px;
-  text-align: right;
+  border-left: 1px solid #e6e8eb;
+  padding: 0 16px;
+  text-align: center;
 }
 .footerNote {
   font-size: 12px;
@@ -183,6 +187,17 @@
   font-weight: 500;
   padding: 10px 16px;
   border-bottom: 1px solid #e6e8eb;
+  border-right: 0;
+}
+:global(
+    .ant-table-wrapper
+      .ant-table-thead
+      > tr
+      > th:not(:last-child):not(.ant-table-selection-column):not(
+        .ant-table-row-expand-icon-cell
+      ):not([colspan])::before
+  ) {
+  display: none;
 }
 :global(.ant-table-wrapper .ant-table-column-sorter) {
   margin-left: 6px;
