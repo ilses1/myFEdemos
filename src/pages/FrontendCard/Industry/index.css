@@ -101,21 +101,29 @@
   margin-top: 16px;
 }
 .industryText {
-  color: #595959;
+  font-family: Source Han Sans;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  color: #484b59;
 }
 .indexCodeText {
-  color: #8c8c8c;
+  font-family: Source Han Sans;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  color: #484b59;
 }
 .weightBadge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 26px;
-  min-width: 64px;
-  padding: 0 10px;
-  border-radius: 2px;
+  width: 58px;
+  height: 32px;
   background: rgba(234, 134, 139, 0.1);
-  color: #595959;
+  color: #484b59;
   font-weight: 500;
 }
 .linkText {
@@ -124,7 +132,7 @@
 }
 .fundAreaCell {
   padding: 0 !important;
-  background: #f7f8fa;
+  background: #f9f9fc;
   vertical-align: middle;
 }
 .fundArea {
@@ -141,9 +149,6 @@
   align-items: center;
   min-height: var(--fund-row-height);
   padding: 10px 0;
-  border-bottom: 1px solid #e6e8eb;
-}
-.fundRow:last-child {
   border-bottom: 0;
 }
 .fundName {
@@ -152,15 +157,13 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   padding: 0 16px;
-  text-align: center;
+  text-align: left;
 }
 .fundCode {
-  border-left: 1px solid #e6e8eb;
   padding: 0 16px;
   text-align: center;
 }
 .fundScale {
-  border-left: 1px solid #e6e8eb;
   padding: 0 16px;
   text-align: center;
 }
