@@ -149,6 +149,49 @@
   max-height: calc(var(--fund-row-height) * 3);
   overflow-y: auto;
 }
+.fundAreaScroller::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.fundAreaScroller::-webkit-scrollbar-thumb {
+  background-color: #c5cddb;
+  border-radius: 2px;
+}
+.fundAreaScroller::-webkit-scrollbar-track {
+  background: transparent;
+}
+.fundAreaScroller::-webkit-scrollbar-button {
+  display: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  -webkit-appearance: none;
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+.fundAreaScroller::-webkit-scrollbar-button:single-button,
+.fundAreaScroller::-webkit-scrollbar-button:vertical:decrement,
+.fundAreaScroller::-webkit-scrollbar-button:vertical:increment,
+.fundAreaScroller::-webkit-scrollbar-button:vertical:start:decrement,
+.fundAreaScroller::-webkit-scrollbar-button:vertical:end:increment {
+  display: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  -webkit-appearance: none;
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+.fundAreaScrollerNoScroll {
+  max-height: none;
+  overflow-y: hidden;
+}
 .fundRow {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 140px 140px;

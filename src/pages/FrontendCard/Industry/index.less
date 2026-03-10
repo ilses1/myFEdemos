@@ -172,6 +172,55 @@
   --fund-row-height: 40px;
   max-height: calc(var(--fund-row-height) * 3);
   overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #c5cddb;
+    border-radius: 2px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-button {
+    display: none !important;
+    height: 0 !important;
+    width: 0 !important;
+    -webkit-appearance: none;
+    background: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
+
+  &::-webkit-scrollbar-button:single-button,
+  &::-webkit-scrollbar-button:vertical:decrement,
+  &::-webkit-scrollbar-button:vertical:increment,
+  &::-webkit-scrollbar-button:vertical:start:decrement,
+  &::-webkit-scrollbar-button:vertical:end:increment {
+    display: none !important;
+    height: 0 !important;
+    width: 0 !important;
+    -webkit-appearance: none;
+    background: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
+}
+
+.fundAreaScrollerNoScroll {
+  max-height: none;
+  overflow-y: hidden;
 }
 
 .fundRow {

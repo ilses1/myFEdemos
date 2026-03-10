@@ -43,6 +43,7 @@ const MOCK_GROUPS: IndustryGroup[] = [
       { name: '有色金属ETF基金', code: '516650.SH', scaleYi: 719.72 },
       { name: '黄金股ETF', code: '516650.SH', scaleYi: 719.72 },
       { name: '现金流500ETF', code: '516650.SH', scaleYi: 719.72 },
+      { name: '500ETF', code: '5160.SH', scaleYi: 719.72 },
     ],
   },
   {
@@ -206,7 +207,11 @@ const IndustryPage: React.FC = () => {
         render: (funds: FundItem[]) => ({
           children: (
             <div className={styles.fundArea}>
-              <div className={styles.fundAreaScroller}>
+              <div
+                className={`${styles.fundAreaScroller} ${
+                  funds.length <= 3 ? styles.fundAreaScrollerNoScroll : ''
+                }`}
+              >
                 {funds.map((fund, idx) => (
                   <div className={styles.fundRow} key={`${fund.code}-${idx}`}>
                     <div className={styles.fundName}>
