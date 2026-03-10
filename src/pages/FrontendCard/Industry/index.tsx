@@ -1,6 +1,6 @@
 import { ExportOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Select, Table, Tooltip } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import type { ColumnsType, TableProps } from 'antd/es/table';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './index.less';
 
@@ -106,9 +106,19 @@ const IndustryPage: React.FC = () => {
   const [industryKeyword, setIndustryKeyword] = useState('');
   const [fundKeyword, setFundKeyword] = useState('');
   const [topN, setTopN] = useState<number>(1);
+  const [weightSortOrder, setWeightSortOrder] = useState<
+    'ascend' | 'descend' | undefined
+  >('descend');
 
   const pageSize = 5;
   const [page, setPage] = useState(1);
+
+  const sortIcon = ({ sortOrder }: { sortOrder?: 'ascend' | 'descend' }) => (
+    <span className={styles.sorterIcon} data-order={sortOrder ?? 'none'}>
+      <span className={styles.sorterUp} />
+      <span className={styles.sorterDown} />
+    </span>
+  );
 
   const filteredGroups = useMemo(() => {
     const prepared = MOCK_GROUPS.filter((g) => {
@@ -129,9 +139,13 @@ const IndustryPage: React.FC = () => {
     const topCount = Math.max(1, topN || 1);
     return prepared
       .filter((g) => g.funds.length > 0)
-      .sort((a, b) => b.exposureWeight - a.exposureWeight)
+      .sort((a, b) =>
+        weightSortOrder === 'ascend'
+          ? a.exposureWeight - b.exposureWeight
+          : b.exposureWeight - a.exposureWeight,
+      )
       .slice(0, topCount);
-  }, [fundKeyword, industryKeyword, topN]);
+  }, [fundKeyword, industryKeyword, topN, weightSortOrder]);
 
   const allRows = useMemo(
     () => buildTableRows(filteredGroups),
@@ -191,7 +205,10 @@ const IndustryPage: React.FC = () => {
         ),
         dataIndex: 'exposureWeight',
         key: 'exposureWeight',
-        sorter: (a, b) => b.exposureWeight - a.exposureWeight,
+        sorter: true,
+        sortOrder: weightSortOrder,
+        sortDirections: ['descend', 'ascend'],
+        sortIcon,
         width: 120,
         render: (value: number, _record, index) => ({
           children: (
@@ -244,8 +261,26 @@ const IndustryPage: React.FC = () => {
         ),
       },
     ],
-    [currentPageRows],
+    [currentPageRows, sortIcon, weightSortOrder],
   );
+
+  const handleTableChange: TableProps<TableRow>['onChange'] = (
+    pagination,
+    _filters,
+    sorter,
+    extra,
+  ) => {
+    if (extra.action === 'paginate') {
+      setPage(pagination.current ?? 1);
+      return;
+    }
+
+    if (extra.action === 'sort') {
+      const nextOrder = Array.isArray(sorter) ? sorter[0]?.order : sorter.order;
+      setWeightSortOrder((nextOrder ?? 'descend') as 'ascend' | 'descend');
+      setPage(1);
+    }
+  };
 
   return (
     <div className={styles.page}>
@@ -338,13 +373,13 @@ const IndustryPage: React.FC = () => {
           rowKey="key"
           columns={columns}
           dataSource={allRows}
+          onChange={handleTableChange}
           pagination={{
             current: page,
             pageSize,
             total,
             showSizeChanger: false,
             showQuickJumper: false,
-            onChange: (p) => setPage(p),
             showTotal: (t) => `总共 ${t} 个项目`,
             className: styles.pagination,
           }}
