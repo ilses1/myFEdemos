@@ -16,7 +16,7 @@ import {
   Typography,
   message,
 } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import type { ColumnsType, TableProps } from 'antd/es/table';
 import React from 'react';
 import styles from './index.less';
 
@@ -157,6 +157,50 @@ const MultiFilterPage: React.FC = () => {
   const screens = Grid.useBreakpoint();
   const [activeView, setActiveView] = React.useState<'card' | 'list'>('list');
 
+  const sortIcon = ({ sortOrder }: { sortOrder?: 'ascend' | 'descend' }) => (
+    <span className={styles.sorterIcon} data-order={sortOrder ?? 'none'}>
+      <span className={styles.sorterUp} />
+      <span className={styles.sorterDown} />
+    </span>
+  );
+
+  const handleTableChange: TableProps<EtfRecord>['onChange'] = (
+    pagination,
+    filters,
+    sorter,
+    extra,
+  ) => {
+    if (extra.action === 'paginate') {
+      console.log('[Table] 分页变化', {
+        current: pagination.current,
+        pageSize: pagination.pageSize,
+        total: pagination.total,
+      });
+    }
+
+    if (extra.action === 'sort') {
+      const sorterInfo = Array.isArray(sorter)
+        ? sorter.map(({ field, order, columnKey }) => ({
+            field,
+            order,
+            columnKey,
+          }))
+        : {
+            field: sorter.field,
+            order: sorter.order,
+            columnKey: sorter.columnKey,
+          };
+
+      console.log('[Table] 排序变化', sorterInfo);
+    }
+
+    if (extra.action === 'filter') {
+      console.log('[Table] 筛选变化', filters);
+    }
+
+    console.log('[Table] action', extra.action);
+  };
+
   const handleFinish = (values: FormValues) => {
     const filters: Record<string, unknown> = {};
 
@@ -244,6 +288,7 @@ const MultiFilterPage: React.FC = () => {
       width: 140,
       align: 'left',
       sorter: (a, b) => a.latestScale - b.latestScale,
+      sortIcon,
       render: (v: number) => v.toFixed(2),
     },
     {
@@ -253,6 +298,7 @@ const MultiFilterPage: React.FC = () => {
       width: 180,
       align: 'left',
       sorter: (a, b) => a.dailyAvgAmount - b.dailyAvgAmount,
+      sortIcon,
       render: (v: number) => v.toFixed(2),
     },
     {
@@ -645,7 +691,7 @@ const MultiFilterPage: React.FC = () => {
               rowKey="id"
               columns={columns}
               dataSource={MOCK_DATA}
-              size="middle"
+              onChange={handleTableChange}
               pagination={{
                 total: MOCK_DATA.length,
                 defaultPageSize: 10,
@@ -655,9 +701,6 @@ const MultiFilterPage: React.FC = () => {
                 showTotal: (total, range) =>
                   `第${range[0]}-${range[1]}条 / 共${total}条`,
               }}
-              rowClassName={(_, index) =>
-                index % 2 === 1 ? styles.rowAlt : ''
-              }
               scroll={{ x: 'max-content' }}
             />
           </div>
