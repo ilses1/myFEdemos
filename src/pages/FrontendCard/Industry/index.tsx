@@ -206,8 +206,6 @@ const IndustryPage: React.FC = () => {
         dataIndex: 'exposureWeight',
         key: 'exposureWeight',
         sorter: true,
-        sortOrder: weightSortOrder,
-        sortDirections: ['descend', 'ascend'],
         sortIcon,
         width: 120,
         render: (value: number, _record, index) => ({
