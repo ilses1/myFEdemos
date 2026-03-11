@@ -1,4 +1,4 @@
-import { Card, Space, Tooltip, Typography } from 'antd';
+import { Card, Space, Tooltip } from 'antd';
 import React from 'react';
 import styles from './index.less';
 
@@ -281,16 +281,14 @@ const FundBlockView: React.FC<{ fund: FundBlock; showDivider: boolean }> = ({
         </Tooltip>
       </div>
       <div className={styles.masonryInvestRow}>
-        <span className={styles.masonryInvestLabel}>可投资基金</span>
+        <span className={styles.masonryInvestLabel}>联接基金</span>
         <span className={styles.masonryInvestCodes}>
           {fund.investCodes.map((c, idx) => (
             <React.Fragment key={`${fund.id}-${c}-${idx}`}>
               {idx > 0 ? (
                 <span className={styles.masonryCodeGap} aria-hidden="true" />
               ) : null}
-              <Typography.Link className={styles.masonryCodeLink}>
-                {c}
-              </Typography.Link>
+              <span className={styles.masonryCodeLink}>{c}</span>
             </React.Fragment>
           ))}
         </span>
