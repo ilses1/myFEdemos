@@ -304,7 +304,7 @@ const MasonryFundCards: React.FC = () => {
       <div className={styles.masonryCols}>
         {CARDS.map((card) => (
           <div key={card.id} className={styles.masonryItem}>
-            <Card className={styles.masonryCard} bordered={false}>
+            <Card className={styles.masonryCard} variant="borderless">
               <div className={styles.masonryRibbon}>
                 <span className={styles.masonryRibbonText}>
                   {card.boardLabel}
