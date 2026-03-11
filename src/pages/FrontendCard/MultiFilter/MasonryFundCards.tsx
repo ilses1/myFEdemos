@@ -1,4 +1,4 @@
-import { Card, Space, Typography } from 'antd';
+import { Card, Space, Tooltip, Typography } from 'antd';
 import React from 'react';
 import styles from './index.less';
 
@@ -266,6 +266,7 @@ const FundBlockView: React.FC<{ fund: FundBlock; showDivider: boolean }> = ({
             {fund.latestScaleYi.toFixed(1)}
           </span>
         </div>
+        <div className={styles.masonryMetricLine}></div>
         <div className={styles.masonryMetricItem}>
           <span className={styles.masonryMetricLabel}>日均成交额(万元)：</span>
           <span className={styles.masonryMetricValue}>
@@ -275,7 +276,9 @@ const FundBlockView: React.FC<{ fund: FundBlock; showDivider: boolean }> = ({
       </div>
       <div className={styles.masonryDescRow}>
         <span className={styles.masonryDescLabel}>说明：</span>
-        <span className={styles.masonryDescText}>{fund.desc}</span>
+        <Tooltip title={fund.desc}>
+          <span className={styles.masonryDescText}>{fund.desc}</span>
+        </Tooltip>
       </div>
       <div className={styles.masonryInvestRow}>
         <span className={styles.masonryInvestLabel}>可投资基金</span>

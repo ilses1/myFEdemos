@@ -522,11 +522,12 @@
 }
 
 .masonryMetrics {
-  margin-top: 8px;
+  margin-top: 12px;
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
-  gap: 12px 16px;
-  color: rgba(0, 0, 0, 0.65);
+  row-gap: 2px;
+  column-gap: 10px;
 }
 
 .masonryMetricItem {
@@ -546,25 +547,30 @@
   }
 }
 
+.masonryMetricLine {
+  width: 1px;
+  height: 16px;
+  background: #d7dae0;
+}
+
 .masonryDescRow {
-  margin-top: 8px;
+  margin-top: 12px;
   display: flex;
-  gap: 6px;
-  font-size: 12px;
-  line-height: 18px;
-  color: rgba(0, 0, 0, 0.65);
-}
-
-.masonryDescLabel {
-  flex: none;
-  color: rgba(0, 0, 0, 0.45);
-}
-
-.masonryDescText {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  color: #1d1e26;
+  font-family: Microsoft YaHei;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 22px;
+  letter-spacing: normal;
+  .masonryDescLabel {
+    flex: none;
+  }
+  .masonryDescText {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 .masonryInvestRow {
