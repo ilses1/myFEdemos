@@ -2,12 +2,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 22px;
-  padding: 0 8px;
-  border-radius: 4px;
+  height: 20px;
+  padding: 0 4px;
+  border-radius: 2px;
   background: #fff;
   font-size: 12px;
-  font-weight: 500;
   box-sizing: border-box;
   white-space: nowrap;
 }
@@ -428,7 +427,7 @@
   border: 1px solid #f7a09c;
 
   :global(.ant-card-body) {
-    padding: 16px 16px 14px;
+    padding: 44px 20px 20px 20px;
   }
   &::before {
     content: '';
@@ -497,7 +496,7 @@
 }
 
 .masonryFundBlock:first-child {
-  padding-top: 8px;
+  padding-top: 0px;
 }
 
 .masonryFundBlockWithDivider {
@@ -505,15 +504,21 @@
 }
 
 .masonryFundTitle {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 20px;
-  color: rgba(0, 0, 0, 0.88);
+  font-family: Source Han Sans CN;
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 24px;
+  letter-spacing: normal;
+  color: #1d1e26;
+  cursor: pointer;
+
+  &:hover {
+    color: #bf0008;
+  }
 }
 
 .masonryBadges {
-  margin-top: 8px;
+  margin-top: 12px;
 }
 
 .masonryMetrics {
@@ -527,20 +532,18 @@
 .masonryMetricItem {
   display: inline-flex;
   align-items: baseline;
-  gap: 4px;
-}
-
-.masonryMetricLabel {
-  font-size: 12px;
-  line-height: 18px;
-  color: rgba(0, 0, 0, 0.45);
-}
-
-.masonryMetricValue {
-  font-size: 12px;
-  line-height: 18px;
-  color: rgba(0, 0, 0, 0.88);
-  font-weight: 600;
+  .masonryMetricLabel {
+    font-family: Microsoft YaHei;
+    font-weight: 400;
+    font-size: 12px;
+    color: rgba(119, 123, 140, 1);
+  }
+  .masonryMetricValue {
+    font-family: Microsoft YaHei;
+    font-weight: 400;
+    font-size: 14px;
+    color: rgba(29, 30, 38, 1);
+  }
 }
 
 .masonryDescRow {

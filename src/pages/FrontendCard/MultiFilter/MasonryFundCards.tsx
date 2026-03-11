@@ -249,11 +249,9 @@ const FundBlockView: React.FC<{ fund: FundBlock; showDivider: boolean }> = ({
         showDivider ? styles.masonryFundBlockWithDivider : ''
       }`}
     >
-      <Typography.Text className={styles.masonryFundTitle}>
-        {fund.title}
-      </Typography.Text>
+      <div className={styles.masonryFundTitle}>{fund.title}</div>
       <div className={styles.masonryBadges}>
-        <Space size={6} wrap>
+        <Space size={8} wrap>
           {fund.badges.map((k) => (
             <span key={k} className={badgeClassMap[k]}>
               {badgeLabelMap[k]}
