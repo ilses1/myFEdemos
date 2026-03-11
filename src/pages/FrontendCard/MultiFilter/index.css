@@ -151,7 +151,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 .titleTabs {
   display: flex;
@@ -350,8 +350,33 @@
   letter-spacing: normal;
   color: #777b8c;
 }
-.masonryArea {
-  margin-top: 8px;
+.masonrySectionHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 40px;
+  border-radius: 2px;
+  height: 40px;
+  background: #f7f7fa;
+  position: relative;
+  overflow: hidden;
+}
+.masonrySectionHeader .masonrySectionTitle {
+  font-family: Source Han Sans;
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 24px;
+  letter-spacing: normal;
+  color: #0f0f0f;
+  padding-left: 16px;
+}
+.masonrySectionHeader::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 4px;
+  height: 100%;
+  background: #bf0008;
 }
 .masonryCols {
   column-count: 4;

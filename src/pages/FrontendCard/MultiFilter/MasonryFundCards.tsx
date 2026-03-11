@@ -300,6 +300,9 @@ const FundBlockView: React.FC<{ fund: FundBlock; showDivider: boolean }> = ({
 const MasonryFundCards: React.FC = () => {
   return (
     <div className={styles.masonryArea}>
+      <div className={styles.masonrySectionHeader}>
+        <span className={styles.masonrySectionTitle}>宽基</span>
+      </div>
       <div className={styles.masonryCols}>
         {CARDS.map((card) => (
           <div key={card.id} className={styles.masonryItem}>
