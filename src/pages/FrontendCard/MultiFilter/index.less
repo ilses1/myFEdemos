@@ -395,7 +395,7 @@
   column-gap: 18px;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1500px) {
   .masonryCols {
     column-count: 3;
   }
@@ -500,7 +500,8 @@
 }
 
 .masonryFundBlockWithDivider {
-  border-top: 1px dashed rgba(191, 0, 8, 0.24);
+  margin-top: 16px;
+  border-top: 1px dashed rgba(247, 160, 156, 1);
 }
 
 .masonryFundTitle {
@@ -514,6 +515,7 @@
 
   &:hover {
     color: #bf0008;
+    text-decoration: underline;
   }
 }
 
@@ -577,8 +579,9 @@
   margin-top: 10px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  column-gap: 12px;
   flex-wrap: wrap;
+  row-gap: 4px;
 }
 
 .masonryInvestLabel {
@@ -604,8 +607,16 @@
 }
 
 .masonryCodeGap {
-  display: inline-block;
-  width: 10px;
+  display: inline-flex;
+  align-items: center;
+  margin: 0 8px;
+  color: rgba(215, 218, 224, 1);
+  line-height: 16px;
+  font-size: 12px;
+}
+
+.masonryCodeGap::before {
+  content: '|';
 }
 
 .masonryCodeLink {
@@ -615,12 +626,13 @@
   line-height: 16px;
   letter-spacing: normal;
   color: #005e91;
+  cursor: pointer;
 }
 
 :global(a.ant-typography).masonryCodeLink {
-  color: #005e91;
+  color: #1677ff;
 }
 
 :global(a.ant-typography:hover).masonryCodeLink {
-  color: #005e91;
+  color: #0958d9;
 }
