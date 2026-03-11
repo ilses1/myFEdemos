@@ -291,8 +291,11 @@
   vertical-align: middle;
   font-size: 12px;
 }
+.page :global(.ant-table-wrapper .ant-table-tbody > tr > td:first-child) {
+  border-left: 1px solid #d7dae0;
+}
 .page :global(.ant-table-wrapper .ant-table-tbody > tr > td:last-child) {
-  border-right: 0;
+  border-right: 1px solid #d7dae0;
 }
 .page :global(.ant-table-wrapper .ant-table-tbody > tr > td.noColDividerAfter) {
   border-right: 0 !important;
