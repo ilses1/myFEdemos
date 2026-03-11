@@ -1,14 +1,10 @@
 import { ExportOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import {
   Button,
-  Card,
   Checkbox,
-  Col,
   Form,
-  Grid,
   Input,
   InputNumber,
-  Row,
   Select,
   Space,
   Table,
@@ -18,6 +14,7 @@ import {
 } from 'antd';
 import type { ColumnsType, TableProps } from 'antd/es/table';
 import React from 'react';
+import MasonryFundCards from './MasonryFundCards';
 import styles from './index.less';
 
 type FormValues = {
@@ -154,7 +151,6 @@ const MOCK_DATA: EtfRecord[] = Array.from({ length: 35 }).map((_, i) => {
 
 const MultiFilterPage: React.FC = () => {
   const [form] = Form.useForm<FormValues>();
-  const screens = Grid.useBreakpoint();
   const [activeView, setActiveView] = React.useState<'card' | 'list'>('list');
 
   const sortIcon = ({ sortOrder }: { sortOrder?: 'ascend' | 'descend' }) => (
@@ -332,8 +328,6 @@ const MultiFilterPage: React.FC = () => {
       ),
     },
   ];
-
-  const cardCols = screens.xl ? 6 : screens.lg ? 8 : screens.md ? 12 : 24;
 
   return (
     <>
@@ -705,78 +699,7 @@ const MultiFilterPage: React.FC = () => {
             />
           </div>
         ) : (
-          <Row gutter={[12, 12]} className={styles.cardGrid}>
-            {MOCK_DATA.map((item) => (
-              <Col key={item.id} span={cardCols}>
-                <Card className={styles.etfCard} bordered>
-                  <div className={styles.cardHeader}>
-                    <Typography.Link className={styles.cardName}>
-                      {item.name}
-                    </Typography.Link>
-                    <Typography.Link className={styles.cardCode}>
-                      {item.code}
-                    </Typography.Link>
-                  </div>
-                  <div className={styles.cardHighlights}>
-                    <Space size={6} wrap>
-                      {item.highlights.map((k) => (
-                        <span key={k} className={styles[`${k}Tag`]}>
-                          {highlightLabelMap[k]}
-                        </span>
-                      ))}
-                    </Space>
-                  </div>
-                  <div className={styles.cardMeta}>
-                    <div className={styles.metaItem}>
-                      <Typography.Text className={styles.metaLabel}>
-                        最新规模
-                      </Typography.Text>
-                      <Typography.Text className={styles.metaValue}>
-                        {item.latestScale.toFixed(2)}
-                      </Typography.Text>
-                      <Typography.Text className={styles.metaUnit}>
-                        亿
-                      </Typography.Text>
-                    </div>
-                    <div className={styles.metaItem}>
-                      <Typography.Text className={styles.metaLabel}>
-                        月日均成交金额
-                      </Typography.Text>
-                      <Typography.Text className={styles.metaValue}>
-                        {item.dailyAvgAmount.toFixed(2)}
-                      </Typography.Text>
-                      <Typography.Text className={styles.metaUnit}>
-                        万
-                      </Typography.Text>
-                    </div>
-                  </div>
-                  <div className={styles.cardLinks}>
-                    <Typography.Text className={styles.metaLabel}>
-                      联接基金代码：
-                    </Typography.Text>
-                    <Space size={0} wrap>
-                      {item.linkedCodes.map((c, idx) => (
-                        <React.Fragment key={c}>
-                          {idx > 0 ? (
-                            <span
-                              className={styles.codeSeparator}
-                              aria-hidden="true"
-                            />
-                          ) : null}
-                          <Typography.Link className={styles.codeLink}>
-                            {c}
-                          </Typography.Link>
-                        </React.Fragment>
-                      ))}
-                    </Space>
-                  </div>
-                  <Typography.Text className={styles.cardDesc} ellipsis>
-                    {item.desc}
-                  </Typography.Text>
-                </Card>
-              </Col>
-            ))}
-          </Row>
+          <MasonryFundCards />
         )}
       </div>
     </>
