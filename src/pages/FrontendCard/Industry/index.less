@@ -163,6 +163,38 @@
   vertical-align: middle;
 }
 
+.fundHeaderCell {
+  padding: 10px 0 !important;
+}
+
+.fundHeader {
+  width: 100%;
+  padding-right: var(--fund-scrollbar-width, 0px);
+  box-sizing: border-box;
+}
+
+.fundHeaderInner {
+  display: grid;
+  grid-template-columns: 240px 140px 140px;
+  align-items: center;
+  width: calc(100% + var(--fund-scrollbar-width, 0px));
+}
+
+.fundHeaderName {
+  padding: 0 16px 0 50px;
+  text-align: left;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fundHeaderCode,
+.fundHeaderScale {
+  padding: 0 16px;
+  text-align: center;
+}
+
 .fundArea {
   width: 100%;
   background: #f9f9fc;
@@ -172,6 +204,9 @@
   --fund-row-height: 40px;
   max-height: calc(var(--fund-row-height) * 3);
   overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: var(--fund-scrollbar-width, 0px);
+  box-sizing: border-box;
 
   scrollbar-width: auto !important;
   scrollbar-color: auto !important;
@@ -255,9 +290,13 @@
   overflow-y: hidden;
 }
 
+.fundAreaInner {
+  width: calc(100% + var(--fund-scrollbar-width, 0px));
+}
+
 .fundRow {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 140px 140px;
+  grid-template-columns: 240px 140px 140px;
   align-items: center;
   min-height: var(--fund-row-height);
   padding: 10px 0;
@@ -269,7 +308,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  padding: 0 16px;
+  padding: 0 16px 0 50px;
   text-align: left;
 }
 

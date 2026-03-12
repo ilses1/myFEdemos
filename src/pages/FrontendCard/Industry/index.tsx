@@ -94,6 +94,7 @@ const IndustryPage: React.FC = () => {
   const [industryKeyword, setIndustryKeyword] = useState('');
   const [fundKeyword, setFundKeyword] = useState('');
   const [topN, setTopN] = useState<number>(0);
+  const [fundScrollbarWidth, setFundScrollbarWidth] = useState(0);
   const [weightSortOrder, setWeightSortOrder] = useState<
     'ascend' | 'descend' | undefined
   >('descend');
@@ -153,6 +154,24 @@ const IndustryPage: React.FC = () => {
     if (page > maxPage) setPage(maxPage);
   }, [page, pageSize, total]);
 
+  // 计算基金跟踪指数基金列表区域的滚动条宽度
+  useEffect(() => {
+    const el = document.createElement('div');
+    el.className = styles.fundAreaScroller;
+    el.style.position = 'absolute';
+    el.style.top = '-9999px';
+    el.style.left = '0';
+    el.style.width = '100px';
+    el.style.height = '100px';
+    el.style.overflowY = 'scroll';
+    el.style.overflowX = 'hidden';
+    el.style.paddingRight = '0px';
+    document.body.appendChild(el);
+    const sbw = Math.max(0, el.offsetWidth - el.clientWidth);
+    document.body.removeChild(el);
+    setFundScrollbarWidth(sbw);
+  }, []);
+
   const columns: ColumnsType<TableRow> = useMemo(
     () => [
       {
@@ -173,7 +192,6 @@ const IndustryPage: React.FC = () => {
         ),
         dataIndex: 'exposureWeight',
         key: 'exposureWeight',
-        className: 'noColDividerAfter',
         sorter: true,
         sortIcon,
         width: 120,
@@ -194,24 +212,47 @@ const IndustryPage: React.FC = () => {
         title: '基金跟踪指数代码',
         dataIndex: 'indexCode',
         key: 'indexCode',
-        className: 'noColDividerAfter',
         width: 160,
         render: (text) => <span className={styles.indexCodeText}>{text}</span>,
       },
       {
-        title: '基金简称',
+        title: (
+          <div
+            className={styles.fundHeader}
+            style={
+              {
+                ['--fund-scrollbar-width' as any]: `${fundScrollbarWidth}px`,
+              } as React.CSSProperties
+            }
+          >
+            <div className={styles.fundHeaderInner}>
+              <div className={styles.fundHeaderName}>基金简称</div>
+              <div className={styles.fundHeaderCode}>基金代码</div>
+              <div className={styles.fundHeaderScale}>基金规模</div>
+            </div>
+          </div>
+        ),
         dataIndex: 'funds',
         key: 'funds',
-        width: 240,
+        width: 520,
         align: 'center',
-        render: (funds: FundItem[]) => ({
-          children: (
-            <div className={styles.fundArea}>
-              <div
-                className={`${styles.fundAreaScroller} ${
-                  funds.length <= 3 ? styles.fundAreaScrollerNoScroll : ''
-                }`}
-              >
+        onHeaderCell: () => ({ className: styles.fundHeaderCell }),
+        onCell: () => ({ className: styles.fundAreaCell }),
+        render: (funds: FundItem[]) => (
+          <div
+            className={styles.fundArea}
+            style={
+              {
+                ['--fund-scrollbar-width' as any]: `${fundScrollbarWidth}px`,
+              } as React.CSSProperties
+            }
+          >
+            <div
+              className={`${styles.fundAreaScroller} ${
+                funds.length <= 3 ? styles.fundAreaScrollerNoScroll : ''
+              }`}
+            >
+              <div className={styles.fundAreaInner}>
                 {funds.map((fund, idx) => (
                   <div className={styles.fundRow} key={`${fund.code}-${idx}`}>
                     <div className={styles.fundName}>
@@ -229,26 +270,11 @@ const IndustryPage: React.FC = () => {
                 ))}
               </div>
             </div>
-          ),
-          props: { colSpan: 3, className: styles.fundAreaCell },
-        }),
-      },
-      {
-        title: '基金代码',
-        key: 'fundCode',
-        align: 'center',
-        width: 140,
-        render: () => ({ children: null, props: { colSpan: 0 } }),
-      },
-      {
-        title: '基金规模',
-        key: 'fundScaleYi',
-        align: 'center',
-        width: 140,
-        render: () => ({ children: null, props: { colSpan: 0 } }),
+          </div>
+        ),
       },
     ],
-    [sortIcon, weightSortOrder],
+    [fundScrollbarWidth, sortIcon, weightSortOrder],
   );
 
   const handleTableChange: TableProps<TableRow>['onChange'] = (
