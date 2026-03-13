@@ -10,11 +10,15 @@ type FundItem = {
   scaleYi: number;
 };
 
-type IndustryGroup = {
-  industryLabel: string;
+type IndexExposure = {
   exposureWeight: number;
   indexCode: string;
   funds: FundItem[];
+};
+
+type IndustryGroup = {
+  industryLabel: string;
+  indices: IndexExposure[];
 };
 
 type TableRow = {
@@ -37,39 +41,45 @@ const SOURCE_NOTE =
 const MOCK_GROUPS: IndustryGroup[] = [
   {
     industryLabel: '有色金属(申万801050.SI)',
-    exposureWeight: 95.861,
-    indexCode: '000811.CSI',
-    funds: [
-      { name: '有色金属ETF基金', code: '516650.SH', scaleYi: 719.72 },
-      { name: '黄金股ETF', code: '516650.SH', scaleYi: 719.72 },
-      { name: '现金流500ETF', code: '516650.SH', scaleYi: 719.72 },
-      { name: '500ETF', code: '5160.SH', scaleYi: 719.72 },
-    ],
-  },
-  {
-    industryLabel: '有色金属(申万801050.SI)',
-    exposureWeight: 65.031,
-    indexCode: '000811.CSI',
-    funds: [
-      { name: '有色金属ETF基金', code: '516650.SH', scaleYi: 719.72 },
-      { name: '黄金股ETF', code: '516650.SH', scaleYi: 719.72 },
-      { name: '现金流500ETF', code: '516650.SH', scaleYi: 719.72 },
-    ],
-  },
-  {
-    industryLabel: '魔法',
-    exposureWeight: 18.054,
-    indexCode: '000811.CSI',
-    funds: [
-      { name: '有色金属ETF基金', code: '516650.SH', scaleYi: 719.72 },
-      { name: '现金流500ETF', code: '516650.SH', scaleYi: 719.72 },
+    indices: [
+      {
+        exposureWeight: 95.861,
+        indexCode: '000811.CSI',
+        funds: [
+          { name: '有色金属ETF基金', code: '516650.SH', scaleYi: 719.72 },
+          { name: '黄金股ETF', code: '159937.SZ', scaleYi: 719.72 },
+          { name: '现金流500ETF', code: '563210.SH', scaleYi: 719.72 },
+          { name: '500ETF', code: '510500.SH', scaleYi: 719.72 },
+        ],
+      },
+      {
+        exposureWeight: 65.031,
+        indexCode: '930705.CSI',
+        funds: [
+          { name: '有色金属ETF基金', code: '516650.SH', scaleYi: 719.72 },
+          { name: '黄金股ETF', code: '159937.SZ', scaleYi: 719.72 },
+          { name: '现金流500ETF', code: '563210.SH', scaleYi: 719.72 },
+        ],
+      },
     ],
   },
   {
     industryLabel: '魔法',
-    exposureWeight: 18.054,
-    indexCode: '000811.CSI',
-    funds: [{ name: '现金流500ETF', code: '516650.SH', scaleYi: 719.72 }],
+    indices: [
+      {
+        exposureWeight: 18.054,
+        indexCode: '000811.CSI',
+        funds: [
+          { name: '有色金属ETF基金', code: '516650.SH', scaleYi: 719.72 },
+          { name: '现金流500ETF', code: '563210.SH', scaleYi: 719.72 },
+        ],
+      },
+      {
+        exposureWeight: 12.6,
+        indexCode: '931477.CSI',
+        funds: [{ name: '现金流500ETF', code: '563210.SH', scaleYi: 719.72 }],
+      },
+    ],
   },
 ];
 
@@ -87,6 +97,9 @@ const getWeightOpacity = (weight: number) => {
   if (clamped <= 10) return 0.1;
   return Math.min(1, Math.ceil(clamped / 10) / 10);
 };
+
+const getIndustryMaxExposureWeight = (industry: IndustryGroup) =>
+  industry.indices.reduce((max, item) => Math.max(max, item.exposureWeight), 0);
 
 const IndustryPage: React.FC = () => {
   const [form] = Form.useForm<FilterFormValues>();
@@ -109,50 +122,87 @@ const IndustryPage: React.FC = () => {
     </span>
   );
 
-  const filteredGroups = useMemo(() => {
-    const prepared = MOCK_GROUPS.filter((g) => {
-      const kw = industryKeyword.trim();
-      if (!kw) return true;
-      return g.industryLabel.includes(kw) || g.indexCode.includes(kw);
-    }).map((g) => {
-      const kw = fundKeyword.trim();
-      const funds = kw
-        ? g.funds.filter((f) => f.name.includes(kw) || f.code.includes(kw))
-        : g.funds;
+  const filteredIndustries = useMemo(() => {
+    const industryKw = industryKeyword.trim();
+    const fundKw = fundKeyword.trim();
 
-      const sortedFunds = [...funds].sort((a, b) => b.scaleYi - a.scaleYi);
+    const prepared = MOCK_GROUPS.map((industry) => {
+      const isLabelMatched = industryKw
+        ? industry.industryLabel.includes(industryKw)
+        : true;
 
-      return { ...g, funds: sortedFunds };
+      const indices = industry.indices
+        .filter((item) => {
+          if (!industryKw) return true;
+          if (isLabelMatched) return true;
+          return item.indexCode.includes(industryKw);
+        })
+        .map((item) => {
+          const funds = fundKw
+            ? item.funds.filter(
+                (f) => f.name.includes(fundKw) || f.code.includes(fundKw),
+              )
+            : item.funds;
+
+          const sortedFunds = [...funds].sort((a, b) => b.scaleYi - a.scaleYi);
+          return { ...item, funds: sortedFunds };
+        })
+        .filter((item) => item.funds.length > 0)
+        .sort((a, b) => b.exposureWeight - a.exposureWeight);
+
+      return { ...industry, indices };
+    }).filter((industry) => industry.indices.length > 0);
+
+    const sorted = [...prepared].sort((a, b) => {
+      const aMax = getIndustryMaxExposureWeight(a);
+      const bMax = getIndustryMaxExposureWeight(b);
+      return weightSortOrder === 'ascend' ? aMax - bMax : bMax - aMax;
     });
 
-    return prepared
-      .filter((g) => g.funds.length > 0)
-      .sort((a, b) =>
-        weightSortOrder === 'ascend'
-          ? a.exposureWeight - b.exposureWeight
-          : b.exposureWeight - a.exposureWeight,
-      )
-      .slice(0, topN > 0 ? topN : prepared.length);
+    return topN > 0 ? sorted.slice(0, topN) : sorted;
   }, [fundKeyword, industryKeyword, topN, weightSortOrder]);
 
   const allRows = useMemo<TableRow[]>(
     () =>
-      filteredGroups.map((g) => ({
-        key: `${g.industryLabel}__${g.indexCode}__${g.exposureWeight}`,
-        industryLabel: g.industryLabel,
-        exposureWeight: g.exposureWeight,
-        indexCode: g.indexCode,
-        funds: g.funds,
-      })),
-    [filteredGroups],
+      filteredIndustries.flatMap((industry) =>
+        industry.indices.map((item, idx) => ({
+          key: `${industry.industryLabel}__${item.indexCode}__${item.exposureWeight}__${idx}`,
+          industryLabel: industry.industryLabel,
+          exposureWeight: item.exposureWeight,
+          indexCode: item.indexCode,
+          funds: item.funds,
+        })),
+      ),
+    [filteredIndustries],
   );
 
   const total = allRows.length;
+
+  const currentPageRows = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return allRows.slice(start, start + pageSize);
+  }, [allRows, page, pageSize]);
 
   useEffect(() => {
     const maxPage = Math.max(1, Math.ceil(total / pageSize));
     if (page > maxPage) setPage(maxPage);
   }, [page, pageSize, total]);
+
+  const getRowSpanForIndustry = (index: number) => {
+    const row = currentPageRows[index];
+    if (!row) return 1;
+
+    const prev = currentPageRows[index - 1];
+    if (prev && prev.industryLabel === row.industryLabel) return 0;
+
+    let span = 1;
+    for (let i = index + 1; i < currentPageRows.length; i += 1) {
+      const next = currentPageRows[i];
+      if (next.industryLabel !== row.industryLabel) break;
+      span += 1;
+    }
+    return span;
+  };
 
   // 计算基金跟踪指数基金列表区域的滚动条宽度
   useEffect(() => {
@@ -179,7 +229,10 @@ const IndustryPage: React.FC = () => {
         dataIndex: 'industryLabel',
         key: 'industryLabel',
         width: 260,
-        render: (text) => <span className={styles.industryText}>{text}</span>,
+        render: (text, _record, index) => ({
+          children: <span className={styles.industryText}>{text}</span>,
+          props: { rowSpan: getRowSpanForIndustry(index) },
+        }),
       },
       {
         title: (
@@ -192,6 +245,7 @@ const IndustryPage: React.FC = () => {
         ),
         dataIndex: 'exposureWeight',
         key: 'exposureWeight',
+        className: 'noColDividerAfter',
         sorter: true,
         sortIcon,
         width: 120,
@@ -274,7 +328,7 @@ const IndustryPage: React.FC = () => {
         ),
       },
     ],
-    [fundScrollbarWidth, sortIcon, weightSortOrder],
+    [currentPageRows, fundScrollbarWidth, sortIcon],
   );
 
   const handleTableChange: TableProps<TableRow>['onChange'] = (
