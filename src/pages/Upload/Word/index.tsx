@@ -9,6 +9,7 @@ const WordUpload: React.FC = () => {
       accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
       allowedExtensions={['.doc', '.docx']}
       kind="word"
+      maxSizeMB={20}
     />
   );
 };

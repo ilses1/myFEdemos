@@ -13,11 +13,13 @@
   "dependencies": {
     "@ant-design/icons": "^5.0.1",
     "@ant-design/pro-components": "^2.4.4",
+    "@jvmr/pptx-to-html": "^1.0.1",
     "@types/react-syntax-highlighter": "^15.5.13",
     "@umijs/max": "^4.6.23",
     "antd": "^5.4.0",
     "classnames": "^2.5.1",
     "dayjs": "^1.11.19",
+    "docx-preview": "^0.3.7",
     "echarts": "^6.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

@@ -3,17 +3,20 @@ import type {
   UploadDocumentResult,
 } from '@/services/uploadDocument';
 import { mockUploadDocument } from '@/services/uploadDocument';
+import { pptxToHtml } from '@jvmr/pptx-to-html';
 import type { UploadProps } from 'antd';
 import {
   Button,
   Card,
   Descriptions,
+  Progress,
   Space,
   Typography,
   Upload,
   message,
 } from 'antd';
-import React, { useEffect, useMemo, useState } from 'react';
+import { renderAsync } from 'docx-preview';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 type FileMeta = {
   name: string;
@@ -28,6 +31,7 @@ type DocumentUploadPreviewProps = {
   accept: string;
   allowedExtensions: string[];
   kind: DocumentKind;
+  maxSizeMB?: number;
 };
 
 const formatBytes = (size: number) => {
@@ -56,17 +60,29 @@ const DocumentUploadPreview: React.FC<DocumentUploadPreviewProps> = ({
   accept,
   allowedExtensions,
   kind,
+  maxSizeMB = 20,
 }) => {
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [fileMeta, setFileMeta] = useState<FileMeta | null>(null);
+  const [lastFile, setLastFile] = useState<File | null>(null);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+  const [fileBuffer, setFileBuffer] = useState<ArrayBuffer | null>(null);
+  const [pptSlidesHtml, setPptSlidesHtml] = useState<string[]>([]);
   const [uploadResult, setUploadResult] = useState<UploadDocumentResult | null>(
     null,
   );
+  const wordContainerRef = useRef<HTMLDivElement>(null);
 
   const extTip = useMemo(
     () => buildExtTip(allowedExtensions),
     [allowedExtensions],
+  );
+  const maxSizeBytes = useMemo(
+    () => Math.max(0, maxSizeMB) * 1024 * 1024,
+    [maxSizeMB],
   );
 
   useEffect(() => {
@@ -92,11 +108,75 @@ const DocumentUploadPreview: React.FC<DocumentUploadPreviewProps> = ({
       message.error(`请上传 ${extTip} 文件`);
       return Upload.LIST_IGNORE;
     }
+    if (maxSizeBytes > 0 && file.size > maxSizeBytes) {
+      message.error(`文件大小不能超过 ${maxSizeMB} MB`);
+      return Upload.LIST_IGNORE;
+    }
     return true;
   };
 
+  const preparePreview = async (file: File) => {
+    resetPreviewUrl(file);
+    setPreviewError(null);
+    setPptSlidesHtml([]);
+    setFileBuffer(null);
+    setFileMeta({
+      name: file.name,
+      size: file.size,
+      type: file.type || '-',
+      lastModified: file.lastModified,
+    });
+
+    const buffer = await file.arrayBuffer();
+    setFileBuffer(buffer);
+  };
+
+  const runUpload = async (
+    file: File,
+    onSuccess?: UploadProps['customRequest'] extends (options: infer T) => any
+      ? T['onSuccess']
+      : undefined,
+    onError?: UploadProps['customRequest'] extends (options: infer T) => any
+      ? T['onError']
+      : undefined,
+    onProgress?: UploadProps['customRequest'] extends (options: infer T) => any
+      ? T['onProgress']
+      : undefined,
+  ) => {
+    setUploading(true);
+    setUploadProgress(0);
+    setUploadError(null);
+    setLastFile(file);
+
+    let percent = 0;
+    const timer = window.setInterval(() => {
+      percent = Math.min(percent + 6 + Math.random() * 10, 92);
+      setUploadProgress(percent);
+      onProgress?.({ percent }, file);
+    }, 240);
+
+    try {
+      const result = await mockUploadDocument(file, kind);
+      window.clearInterval(timer);
+      setUploadProgress(100);
+      onProgress?.({ percent: 100 }, file);
+      setUploadResult(result);
+      message.success('上传成功（模拟接口）');
+      onSuccess?.(result, file);
+    } catch (e) {
+      window.clearInterval(timer);
+      const err = e instanceof Error ? e : new Error('上传失败');
+      setUploadError(err.message);
+      setUploadProgress(0);
+      message.error(err.message);
+      onError?.(err);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const customRequest: UploadProps['customRequest'] = async (options) => {
-    const { file, onError, onSuccess } = options;
+    const { file, onError, onSuccess, onProgress } = options;
     if (!(file instanceof File)) {
       const err = new Error('文件类型不正确');
       message.error(err.message);
@@ -105,28 +185,50 @@ const DocumentUploadPreview: React.FC<DocumentUploadPreviewProps> = ({
     }
 
     setUploadResult(null);
-    resetPreviewUrl(file);
-    setFileMeta({
-      name: file.name,
-      size: file.size,
-      type: file.type || '-',
-      lastModified: file.lastModified,
-    });
+    setUploadProgress(0);
+    setUploadError(null);
 
-    setUploading(true);
     try {
-      const result = await mockUploadDocument(file, kind);
-      setUploadResult(result);
-      message.success('上传成功（模拟接口）');
-      onSuccess?.(result, file);
+      await preparePreview(file);
     } catch (e) {
-      const err = e instanceof Error ? e : new Error('上传失败');
+      const err = e instanceof Error ? e : new Error('文件解析失败');
+      setPreviewError(err.message);
       message.error(err.message);
       onError?.(err);
-    } finally {
-      setUploading(false);
+      return;
     }
+    await runUpload(file, onSuccess, onError, onProgress);
   };
+
+  useEffect(() => {
+    if (kind !== 'word' || !fileBuffer || !wordContainerRef.current) return;
+    setPreviewError(null);
+    wordContainerRef.current.innerHTML = '';
+    renderAsync(fileBuffer, wordContainerRef.current)
+      .then(() => {})
+      .catch((e) => {
+        const err = e instanceof Error ? e : new Error('文档渲染失败');
+        setPreviewError(err.message);
+      });
+  }, [fileBuffer, kind]);
+
+  useEffect(() => {
+    if (kind !== 'ppt' || !fileBuffer) return;
+    setPreviewError(null);
+    pptxToHtml(fileBuffer, {
+      width: 960,
+      height: 540,
+      scaleToFit: true,
+      letterbox: true,
+    })
+      .then((slides) => {
+        setPptSlidesHtml(slides);
+      })
+      .catch((e) => {
+        const err = e instanceof Error ? e : new Error('PPT 渲染失败');
+        setPreviewError(err.message);
+      });
+  }, [fileBuffer, kind]);
 
   return (
     <div style={{ padding: 24 }}>
@@ -135,7 +237,7 @@ const DocumentUploadPreview: React.FC<DocumentUploadPreviewProps> = ({
           <Space direction="vertical" size={8}>
             <Typography.Text>{description}</Typography.Text>
             <Typography.Text type="secondary">
-              支持格式：{extTip}
+              支持格式：{extTip}，大小限制：{maxSizeMB} MB
             </Typography.Text>
           </Space>
         </Card>
@@ -161,6 +263,29 @@ const DocumentUploadPreview: React.FC<DocumentUploadPreviewProps> = ({
             ) : null}
           </Space>
         </Upload.Dragger>
+
+        {(uploadProgress > 0 || uploading || uploadError) && (
+          <Card size="small" title="上传进度">
+            <Space direction="vertical" size={8} style={{ width: '100%' }}>
+              <Progress
+                percent={uploadProgress}
+                status={
+                  uploadError ? 'exception' : uploading ? 'active' : 'normal'
+                }
+              />
+              {uploadError && lastFile && !uploading ? (
+                <Button
+                  type="primary"
+                  onClick={() =>
+                    runUpload(lastFile, undefined, undefined, undefined)
+                  }
+                >
+                  重试上传
+                </Button>
+              ) : null}
+            </Space>
+          </Card>
+        )}
 
         {fileMeta && (
           <Card size="small" title="文件信息">
@@ -194,18 +319,66 @@ const DocumentUploadPreview: React.FC<DocumentUploadPreviewProps> = ({
               <Typography.Text type="secondary">
                 {kind === 'pdf'
                   ? 'PDF 预览由浏览器内置能力提供。'
-                  : 'Word/PPT 预览依赖浏览器插件能力，若显示空白请下载本地查看。'}
+                  : kind === 'word'
+                  ? 'Word 预览由 docx 解析渲染完成。'
+                  : 'PPT 预览由 pptx 转 HTML 渲染完成。'}
               </Typography.Text>
-              <iframe
-                src={previewUrl}
-                title={`${kind}-preview`}
-                style={{
-                  width: '100%',
-                  height: 620,
-                  border: '1px solid #f0f0f0',
-                  borderRadius: 4,
-                }}
-              />
+              {previewError ? (
+                <Typography.Text type="danger">{previewError}</Typography.Text>
+              ) : null}
+              {kind === 'pdf' ? (
+                <iframe
+                  src={previewUrl}
+                  title={`${kind}-preview`}
+                  style={{
+                    width: '100%',
+                    height: 620,
+                    border: '1px solid #f0f0f0',
+                    borderRadius: 4,
+                  }}
+                />
+              ) : null}
+              {kind === 'word' ? (
+                <div
+                  ref={wordContainerRef}
+                  style={{
+                    width: '100%',
+                    minHeight: 620,
+                    border: '1px solid #f0f0f0',
+                    borderRadius: 4,
+                    padding: 16,
+                    overflow: 'auto',
+                  }}
+                />
+              ) : null}
+              {kind === 'ppt' ? (
+                <div
+                  style={{
+                    width: '100%',
+                    minHeight: 620,
+                    border: '1px solid #f0f0f0',
+                    borderRadius: 4,
+                    padding: 16,
+                    display: 'grid',
+                    gap: 16,
+                    background: '#fafafa',
+                  }}
+                >
+                  {pptSlidesHtml.map((html, idx) => (
+                    <div
+                      key={`slide_${idx}`}
+                      style={{
+                        background: '#fff',
+                        border: '1px solid #e9e9e9',
+                        borderRadius: 4,
+                        padding: 8,
+                        overflow: 'auto',
+                      }}
+                      dangerouslySetInnerHTML={{ __html: html }}
+                    />
+                  ))}
+                </div>
+              ) : null}
             </Space>
           </Card>
         )}

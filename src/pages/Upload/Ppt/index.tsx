@@ -9,6 +9,7 @@ const PptUpload: React.FC = () => {
       accept=".ppt,.pptx,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation"
       allowedExtensions={['.ppt', '.pptx']}
       kind="ppt"
+      maxSizeMB={50}
     />
   );
 };
