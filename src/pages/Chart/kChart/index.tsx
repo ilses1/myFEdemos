@@ -1,4 +1,4 @@
-import { DatePicker, Select } from 'antd';
+import { DatePicker, Select, Spin } from 'antd';
 import dayjs from 'dayjs';
 import * as echarts from 'echarts';
 import React, {
@@ -8,8 +8,15 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { response } from './const';
 import styles from './index.less';
+
+type KLineResponse = {
+  securityId: string;
+  securityCode: string;
+  securityName: string;
+  klineValueList: KLineItem[];
+  messageList?: MessageItem[];
+};
 
 const { RangePicker } = DatePicker;
 
@@ -86,6 +93,25 @@ const KChart: React.FC = () => {
   const chartInstance = useRef<echarts.ECharts | null>(null);
   const isChartUpdating = useRef(false);
 
+  const [response, setResponse] = useState<KLineResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    setLoadError(null);
+    fetch('/kchart-data.json')
+      .then((res) => res.json())
+      .then((data: KLineResponse) => {
+        setResponse(data);
+        setLoading(false);
+      })
+      .catch((e) => {
+        setLoadError(e instanceof Error ? e.message : '数据加载失败');
+        setLoading(false);
+      });
+  }, []);
+
   const getCompareClass = (
     value: number | null | undefined,
     base: number | null | undefined,
@@ -130,10 +156,11 @@ const KChart: React.FC = () => {
   );
 
   const rawData = useMemo<KLineItem[]>(() => {
+    if (!response) return [];
     return [...(response.klineValueList as KLineItem[])].sort(
       (a, b) => dayjs(a.marketDate).valueOf() - dayjs(b.marketDate).valueOf(),
     );
-  }, []);
+  }, [response]);
 
   const prevClose = useMemo(() => {
     if (!currentInfo) return null;
@@ -173,7 +200,7 @@ const KChart: React.FC = () => {
       highByDate.set(d.marketDate, d.highValue);
     });
 
-    const list = (response.messageList as MessageItem[] | undefined) ?? [];
+    const list = (response?.messageList as MessageItem[] | undefined) ?? [];
     return list.flatMap((msg) => {
       const y = highByDate.get(msg.messageDate);
       if (y === undefined) return [];
@@ -184,7 +211,7 @@ const KChart: React.FC = () => {
         },
       ];
     });
-  }, [rawData]);
+  }, [rawData, response]);
 
   const maSeries = useMemo(() => {
     return MA_CONFIG.flatMap((ma) => {
@@ -529,36 +556,46 @@ const KChart: React.FC = () => {
       <div className={styles.header}>
         <div className={styles.topRow}>
           <div className={styles.securityInfo}>
-            <span className={styles.code}>{response.securityCode}</span>
-            <span className={styles.name}>{response.securityName}</span>
+            <span className={styles.code}>
+              {response?.securityCode ?? '--'}
+            </span>
+            <span className={styles.name}>
+              {response?.securityName ?? '--'}
+            </span>
           </div>
-          <RangePicker
-            value={dateRange}
-            disabledDate={disabledDate}
-            onChange={handleDateChange}
-            size="small"
-            style={{ width: 220 }}
-            allowClear={false}
-            renderExtraFooter={() => (
-              <div
-                className={styles.presets}
-                style={{
-                  marginLeft: 6,
-                  padding: '8px 0',
-                }}
-              >
-                {DATE_PRESETS.map((p) => (
-                  <span
-                    key={p.value}
-                    className={styles.presetLink}
-                    onClick={() => handlePresetClick(p.value)}
+          {loading ? (
+            <Spin size="small" />
+          ) : (
+            dataBounds && (
+              <RangePicker
+                value={dateRange}
+                disabledDate={disabledDate}
+                onChange={handleDateChange}
+                size="small"
+                style={{ width: 220 }}
+                allowClear={false}
+                renderExtraFooter={() => (
+                  <div
+                    className={styles.presets}
+                    style={{
+                      marginLeft: 6,
+                      padding: '8px 0',
+                    }}
                   >
-                    {p.label}
-                  </span>
-                ))}
-              </div>
-            )}
-          />
+                    {DATE_PRESETS.map((p) => (
+                      <span
+                        key={p.value}
+                        className={styles.presetLink}
+                        onClick={() => handlePresetClick(p.value)}
+                      >
+                        {p.label}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              />
+            )
+          )}
         </div>
 
         {currentInfo && (
@@ -658,6 +695,11 @@ const KChart: React.FC = () => {
         className={styles.chartContainer}
         onMouseLeave={restoreToLastVisible}
       />
+      {loadError && (
+        <div style={{ paddingTop: 12, color: '#ff4d4f', fontSize: 12 }}>
+          {loadError}
+        </div>
+      )}
     </div>
   );
 };
