@@ -47,6 +47,21 @@ export default [
         path: '/upload/rebalance',
         component: './Upload/Rebalance',
       },
+      {
+        name: 'PDF 预览',
+        path: '/upload/pdf',
+        component: './Upload/Pdf',
+      },
+      {
+        name: 'Word 预览',
+        path: '/upload/word',
+        component: './Upload/Word',
+      },
+      {
+        name: 'PPT 预览',
+        path: '/upload/ppt',
+        component: './Upload/Ppt',
+      },
     ],
   },
   {
