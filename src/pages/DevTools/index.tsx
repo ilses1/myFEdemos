@@ -1,7 +1,7 @@
+import { openExternalUrl } from '@/utils/openExternalUrl';
 import { PageContainer } from '@ant-design/pro-components';
 import { Affix, Anchor, Avatar, Card, Col, Row, Typography } from 'antd';
 import React from 'react';
-import { openExternalUrl } from '@/utils/openExternalUrl';
 import { toolsData } from './data';
 
 const { Title } = Typography;

@@ -149,16 +149,118 @@ const MOCK_DATA: EtfRecord[] = Array.from({ length: 35 }).map((_, i) => {
   };
 });
 
+const sortIcon = ({
+  sortOrder,
+}: {
+  sortOrder?: 'ascend' | 'descend' | null;
+}) => (
+  <span className={styles.sorterIcon} data-order={sortOrder ?? 'none'}>
+    <span className={styles.sorterUp} />
+    <span className={styles.sorterDown} />
+  </span>
+);
+
+const columns: ColumnsType<EtfRecord> = [
+  {
+    title: '类型',
+    dataIndex: 'category',
+    key: 'category',
+    width: 80,
+  },
+  {
+    title: '赛道',
+    dataIndex: 'track',
+    key: 'track',
+    width: 90,
+  },
+  {
+    title: '简称',
+    dataIndex: 'name',
+    key: 'name',
+    width: 120,
+    render: (text: string) => (
+      <Typography.Link className={styles.linkText}>{text}</Typography.Link>
+    ),
+  },
+  {
+    title: '代码',
+    dataIndex: 'code',
+    key: 'code',
+    width: 90,
+    render: (text: string) => (
+      <Typography.Link className={styles.linkText}>{text}</Typography.Link>
+    ),
+  },
+  {
+    title: '产品亮点',
+    dataIndex: 'highlights',
+    key: 'highlights',
+    width: 160,
+    render: (keys: HighlightKey[]) => (
+      <Space size={6} wrap>
+        {keys.map((k) => (
+          <span key={k} className={styles[`${k}Tag`]}>
+            {highlightLabelMap[k]}
+          </span>
+        ))}
+      </Space>
+    ),
+  },
+  {
+    title: '最新规模（亿元）',
+    dataIndex: 'latestScale',
+    key: 'latestScale',
+    width: 140,
+    align: 'left',
+    sorter: (a, b) => a.latestScale - b.latestScale,
+    sortIcon,
+    render: (v: number) => v.toFixed(2),
+  },
+  {
+    title: '月日均成交金额（万元）',
+    dataIndex: 'dailyAvgAmount',
+    key: 'dailyAvgAmount',
+    width: 180,
+    align: 'left',
+    sorter: (a, b) => a.dailyAvgAmount - b.dailyAvgAmount,
+    sortIcon,
+    render: (v: number) => v.toFixed(2),
+  },
+  {
+    title: '联接基金代码',
+    dataIndex: 'linkedCodes',
+    key: 'linkedCodes',
+    width: 200,
+    render: (codes: string[]) => (
+      <Space size={0} wrap>
+        {codes.map((c, idx) => (
+          <React.Fragment key={c}>
+            {idx > 0 ? (
+              <span className={styles.codeSeparator} aria-hidden="true" />
+            ) : null}
+            <Typography.Link className={styles.codeLink}>{c}</Typography.Link>
+          </React.Fragment>
+        ))}
+      </Space>
+    ),
+  },
+  {
+    title: '说明',
+    dataIndex: 'desc',
+    key: 'desc',
+    render: (text: string) => (
+      <Tooltip title={text} classNames={{ root: styles.customTooltip }}>
+        <Typography.Text className={styles.descText} ellipsis>
+          {text}
+        </Typography.Text>
+      </Tooltip>
+    ),
+  },
+];
+
 const MultiFilterPage: React.FC = () => {
   const [form] = Form.useForm<FormValues>();
   const [activeView, setActiveView] = React.useState<'card' | 'list'>('list');
-
-  const sortIcon = ({ sortOrder }: { sortOrder?: 'ascend' | 'descend' }) => (
-    <span className={styles.sorterIcon} data-order={sortOrder ?? 'none'}>
-      <span className={styles.sorterUp} />
-      <span className={styles.sorterDown} />
-    </span>
-  );
 
   const handleTableChange: TableProps<EtfRecord>['onChange'] = (
     pagination,
@@ -230,104 +332,6 @@ const MultiFilterPage: React.FC = () => {
   const handleExport = () => {
     message.success('已导出数据');
   };
-
-  const columns: ColumnsType<EtfRecord> = [
-    {
-      title: '类型',
-      dataIndex: 'category',
-      key: 'category',
-      width: 80,
-    },
-    {
-      title: '赛道',
-      dataIndex: 'track',
-      key: 'track',
-      width: 90,
-    },
-    {
-      title: '简称',
-      dataIndex: 'name',
-      key: 'name',
-      width: 120,
-      render: (text: string) => (
-        <Typography.Link className={styles.linkText}>{text}</Typography.Link>
-      ),
-    },
-    {
-      title: '代码',
-      dataIndex: 'code',
-      key: 'code',
-      width: 90,
-      render: (text: string) => (
-        <Typography.Link className={styles.linkText}>{text}</Typography.Link>
-      ),
-    },
-    {
-      title: '产品亮点',
-      dataIndex: 'highlights',
-      key: 'highlights',
-      width: 160,
-      render: (keys: HighlightKey[]) => (
-        <Space size={6} wrap>
-          {keys.map((k) => (
-            <span key={k} className={styles[`${k}Tag`]}>
-              {highlightLabelMap[k]}
-            </span>
-          ))}
-        </Space>
-      ),
-    },
-    {
-      title: '最新规模（亿元）',
-      dataIndex: 'latestScale',
-      key: 'latestScale',
-      width: 140,
-      align: 'left',
-      sorter: (a, b) => a.latestScale - b.latestScale,
-      sortIcon,
-      render: (v: number) => v.toFixed(2),
-    },
-    {
-      title: '月日均成交金额（万元）',
-      dataIndex: 'dailyAvgAmount',
-      key: 'dailyAvgAmount',
-      width: 180,
-      align: 'left',
-      sorter: (a, b) => a.dailyAvgAmount - b.dailyAvgAmount,
-      sortIcon,
-      render: (v: number) => v.toFixed(2),
-    },
-    {
-      title: '联接基金代码',
-      dataIndex: 'linkedCodes',
-      key: 'linkedCodes',
-      width: 200,
-      render: (codes: string[]) => (
-        <Space size={0} wrap>
-          {codes.map((c, idx) => (
-            <React.Fragment key={c}>
-              {idx > 0 ? (
-                <span className={styles.codeSeparator} aria-hidden="true" />
-              ) : null}
-              <Typography.Link className={styles.codeLink}>{c}</Typography.Link>
-            </React.Fragment>
-          ))}
-        </Space>
-      ),
-    },
-    {
-      title: '说明',
-      dataIndex: 'desc',
-      key: 'desc',
-      render: (text: string) => (
-        <Tooltip title={text} classNames={{ root: styles.customTooltip }}>
-          <Typography.Text className={styles.descText} ellipsis>
-            {text}
-          </Typography.Text>
-        </Tooltip>
-      ),
-    },
-  ];
 
   return (
     <>

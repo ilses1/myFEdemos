@@ -58,64 +58,70 @@ const TablePage: React.FC = () => {
     return data;
   }, [searchText]);
 
-  const marketColumns: ColumnsType<any> = [
-    {
-      title: '',
-      dataIndex: 'securityName',
-      key: 'securityName',
-      render: (text) => (
-        <Tooltip title={text}>
-          <span className={styles.assetName}>{text}</span>
-        </Tooltip>
-      ),
-      minWidth: 90,
-    },
-    {
-      title: '涨跌',
-      dataIndex: marketPeriod === '1w' ? 'priceChange1w' : 'priceChange1m',
-      key: 'priceChange',
-      align: 'right',
-      sorter: (a, b) => {
-        const field = marketPeriod === '1w' ? 'priceChange1w' : 'priceChange1m';
-        return a[field] - b[field];
+  const marketColumns: ColumnsType<any> = useMemo(
+    () => [
+      {
+        title: '',
+        dataIndex: 'securityName',
+        key: 'securityName',
+        render: (text: string) => (
+          <Tooltip title={text}>
+            <span className={styles.assetName}>{text}</span>
+          </Tooltip>
+        ),
+        minWidth: 90,
       },
-      sortOrder:
-        marketSorter.columnKey === 'priceChange'
-          ? marketSorter.order
-          : undefined,
-      render: (value) => {
-        if (value === null || value === undefined) {
-          return <span>--</span>;
-        }
-        return <span className={getColorClass(value)}>{value.toFixed(2)}</span>;
+      {
+        title: '涨跌',
+        dataIndex: marketPeriod === '1w' ? 'priceChange1w' : 'priceChange1m',
+        key: 'priceChange',
+        align: 'right',
+        sorter: (a: any, b: any) => {
+          const field =
+            marketPeriod === '1w' ? 'priceChange1w' : 'priceChange1m';
+          return a[field] - b[field];
+        },
+        sortOrder:
+          marketSorter.columnKey === 'priceChange'
+            ? marketSorter.order
+            : undefined,
+        render: (value: number | null) => {
+          if (value === null || value === undefined) {
+            return <span>--</span>;
+          }
+          return (
+            <span className={getColorClass(value)}>{value.toFixed(2)}</span>
+          );
+        },
       },
-    },
-    {
-      title: '涨跌幅',
-      dataIndex:
-        marketPeriod === '1w' ? 'percentageChange1w' : 'percentageChange1m',
-      key: 'percentageChange',
-      minWidth: 60,
-      align: 'right',
-      sorter: (a, b) => {
-        const field =
-          marketPeriod === '1w' ? 'percentageChange1w' : 'percentageChange1m';
-        return a[field] - b[field];
+      {
+        title: '涨跌幅',
+        dataIndex:
+          marketPeriod === '1w' ? 'percentageChange1w' : 'percentageChange1m',
+        key: 'percentageChange',
+        minWidth: 60,
+        align: 'right',
+        sorter: (a: any, b: any) => {
+          const field =
+            marketPeriod === '1w' ? 'percentageChange1w' : 'percentageChange1m';
+          return a[field] - b[field];
+        },
+        sortOrder:
+          marketSorter.columnKey === 'percentageChange'
+            ? marketSorter.order
+            : undefined,
+        render: (value: number | null) => {
+          if (value === null || value === undefined) {
+            return <span>--</span>;
+          }
+          return (
+            <span className={getColorClass(value)}>{formatPercent(value)}</span>
+          );
+        },
       },
-      sortOrder:
-        marketSorter.columnKey === 'percentageChange'
-          ? marketSorter.order
-          : undefined,
-      render: (value) => {
-        if (value === null || value === undefined) {
-          return <span>--</span>;
-        }
-        return (
-          <span className={getColorClass(value)}>{formatPercent(value)}</span>
-        );
-      },
-    },
-  ];
+    ],
+    [marketPeriod, marketSorter],
+  );
 
   const correlationData = useMemo(() => {
     return correlationType === 'high'

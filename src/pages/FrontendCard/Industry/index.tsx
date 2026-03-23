@@ -1,7 +1,7 @@
 import { ExportOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Select, Table, Tooltip } from 'antd';
 import type { ColumnsType, TableProps } from 'antd/es/table';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styles from './index.less';
 
 type FundItem = {
@@ -115,11 +115,14 @@ const IndustryPage: React.FC = () => {
   const pageSize = 5;
   const [page, setPage] = useState(1);
 
-  const sortIcon = ({ sortOrder }: { sortOrder?: 'ascend' | 'descend' }) => (
-    <span className={styles.sorterIcon} data-order={sortOrder ?? 'none'}>
-      <span className={styles.sorterUp} />
-      <span className={styles.sorterDown} />
-    </span>
+  const sortIcon = useCallback(
+    ({ sortOrder }: { sortOrder?: 'ascend' | 'descend' | null }) => (
+      <span className={styles.sorterIcon} data-order={sortOrder ?? 'none'}>
+        <span className={styles.sorterUp} />
+        <span className={styles.sorterDown} />
+      </span>
+    ),
+    [],
   );
 
   const filteredIndustries = useMemo(() => {

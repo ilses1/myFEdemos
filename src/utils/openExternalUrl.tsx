@@ -1,5 +1,5 @@
-import React from 'react';
 import { Checkbox, Modal, Typography } from 'antd';
+import React from 'react';
 
 const EXTERNAL_LINK_DISCLAIMER_STORAGE_KEY = 'external_link_disclaimer_skip';
 
@@ -11,7 +11,10 @@ export type OpenExternalUrlOptions = {
   enableDontAskAgain?: boolean;
 };
 
-export const openExternalUrl = async (url: string, options?: OpenExternalUrlOptions) => {
+export const openExternalUrl = async (
+  url: string,
+  options?: OpenExternalUrlOptions,
+) => {
   if (!url) return;
 
   let resolvedUrl: URL | null = null;
@@ -22,7 +25,9 @@ export const openExternalUrl = async (url: string, options?: OpenExternalUrlOpti
   }
 
   const finalUrl = resolvedUrl?.toString() ?? url;
-  const isExternal = resolvedUrl ? resolvedUrl.origin !== window.location.origin : true;
+  const isExternal = resolvedUrl
+    ? resolvedUrl.origin !== window.location.origin
+    : true;
 
   const openInNewTab = () => {
     const nextWindow = window.open(finalUrl, '_blank', 'noopener,noreferrer');
@@ -35,7 +40,10 @@ export const openExternalUrl = async (url: string, options?: OpenExternalUrlOpti
   }
 
   const enableDontAskAgain = options?.enableDontAskAgain !== false;
-  if (enableDontAskAgain && localStorage.getItem(EXTERNAL_LINK_DISCLAIMER_STORAGE_KEY) === '1') {
+  if (
+    enableDontAskAgain &&
+    localStorage.getItem(EXTERNAL_LINK_DISCLAIMER_STORAGE_KEY) === '1'
+  ) {
     openInNewTab();
     return;
   }
@@ -49,12 +57,16 @@ export const openExternalUrl = async (url: string, options?: OpenExternalUrlOpti
       cancelText: options?.cancelText ?? '取消',
       content: (
         <div>
-          <Typography.Paragraph style={{ marginBottom: enableDontAskAgain ? 12 : 0 }}>
+          <Typography.Paragraph
+            style={{ marginBottom: enableDontAskAgain ? 12 : 0 }}
+          >
             {options?.message ??
               '你将离开本站并访问第三方网站，第三方内容与服务由其自身负责，本站不对其内容、隐私与安全性承担责任。是否继续？'}
           </Typography.Paragraph>
           {enableDontAskAgain ? (
-            <Checkbox onChange={(e) => (dontAskAgain = e.target.checked)}>不再提示</Checkbox>
+            <Checkbox onChange={(e) => (dontAskAgain = e.target.checked)}>
+              不再提示
+            </Checkbox>
           ) : null}
         </div>
       ),
@@ -69,4 +81,3 @@ export const openExternalUrl = async (url: string, options?: OpenExternalUrlOpti
     });
   });
 };
-

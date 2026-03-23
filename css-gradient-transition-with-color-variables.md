@@ -75,7 +75,7 @@
 }
 
 .box::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
@@ -171,13 +171,13 @@ CSS 自定义属性（变量）给了我们这个机会。
 
 ```css
 @property --g1 {
-  syntax: "<color>";
+  syntax: '<color>';
   inherits: false;
   initial-value: #1e90ff;
 }
 
 @property --g2 {
-  syntax: "<color>";
+  syntax: '<color>';
   inherits: false;
   initial-value: #00c9a7;
 }
@@ -207,24 +207,26 @@ CSS 自定义属性（变量）给了我们这个机会。
 在真实项目中，渐变可能并不只有一个。例如：
 
 ```css
-background:
-  linear-gradient(0deg, rgba(255, 239, 212, 0.4), rgba(255, 239, 212, 0.4)),
-  radial-gradient(94% 100% at 80% 0%, #ffdFAA 0%, rgba(255, 255, 255, 0) 100%);
+background: linear-gradient(
+    0deg,
+    rgba(255, 239, 212, 0.4),
+    rgba(255, 239, 212, 0.4)
+  ), radial-gradient(94% 100% at 80% 0%, #ffdfaa 0%, rgba(255, 255, 255, 0) 100%);
 ```
 
 这里包含了一个线性渐变和一个径向渐变。我们可以分别为这两层里的关键颜色定义变量：
 
 ```css
 @property --th-linear-color {
-  syntax: "<color>";
+  syntax: '<color>';
   inherits: false;
   initial-value: rgba(255, 239, 212, 0.4);
 }
 
 @property --th-radial-color {
-  syntax: "<color>";
+  syntax: '<color>';
   inherits: false;
-  initial-value: #ffdFAA;
+  initial-value: #ffdfaa;
 }
 ```
 
@@ -233,11 +235,18 @@ background:
 ```css
 .tableHeader {
   --th-linear-color: rgba(255, 239, 212, 0.4);
-  --th-radial-color: #ffdFAA;
+  --th-radial-color: #ffdfaa;
 
-  background:
-    linear-gradient(0deg, var(--th-linear-color), var(--th-linear-color)),
-    radial-gradient(94% 100% at 80% 0%, var(--th-radial-color) 0%, rgba(255, 255, 255, 0) 100%);
+  background: linear-gradient(
+      0deg,
+      var(--th-linear-color),
+      var(--th-linear-color)
+    ), radial-gradient(94% 100% at 80% 0%, var(--th-radial-color) 0%, rgba(
+          255,
+          255,
+          255,
+          0
+        ) 100%);
 
   transition: --th-linear-color 0.4s ease, --th-radial-color 0.4s ease;
 }
@@ -269,15 +278,15 @@ background:
 
 ```less
 @property --th-linear-color {
-  syntax: "<color>";
+  syntax: '<color>';
   inherits: false;
   initial-value: rgba(255, 239, 212, 0.4);
 }
 
 @property --th-radial-color {
-  syntax: "<color>";
+  syntax: '<color>';
   inherits: false;
-  initial-value: #ffdFAA;
+  initial-value: #ffdfaa;
 }
 
 .tableHeader {
@@ -287,11 +296,18 @@ background:
   border-bottom: 1px solid #ffe7ba;
 
   --th-linear-color: rgba(255, 239, 212, 0.4);
-  --th-radial-color: #ffdFAA;
+  --th-radial-color: #ffdfaa;
 
-  background:
-    linear-gradient(0deg, var(--th-linear-color), var(--th-linear-color)),
-    radial-gradient(94% 100% at 80% 0%, var(--th-radial-color) 0%, rgba(255, 255, 255, 0) 100%);
+  background: linear-gradient(
+      0deg,
+      var(--th-linear-color),
+      var(--th-linear-color)
+    ), radial-gradient(94% 100% at 80% 0%, var(--th-radial-color) 0%, rgba(
+          255,
+          255,
+          255,
+          0
+        ) 100%);
 
   transition: --th-linear-color 0.4s ease, --th-radial-color 0.4s ease;
 }
@@ -341,4 +357,3 @@ background:
 - 需要精细颜色过渡时，用颜色变量配合 `@property`
 
 从而写出既优雅又可控的渐变动画效果。
-
