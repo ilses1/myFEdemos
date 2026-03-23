@@ -4,6 +4,10 @@ import type {
 } from '@/services/uploadDocument';
 import { mockUploadDocument } from '@/services/uploadDocument';
 import { pptxToHtml } from '@jvmr/pptx-to-html';
+import { Viewer, Worker } from '@react-pdf-viewer/core';
+import '@react-pdf-viewer/core/lib/styles/index.css';
+import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
+import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 import type { UploadProps } from 'antd';
 import {
   Button,
@@ -33,6 +37,9 @@ type DocumentUploadPreviewProps = {
   kind: DocumentKind;
   maxSizeMB?: number;
 };
+
+const PDF_WORKER_URL =
+  'https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
 
 const formatBytes = (size: number) => {
   if (!Number.isFinite(size) || size <= 0) return '0 B';
@@ -84,6 +91,7 @@ const DocumentUploadPreview: React.FC<DocumentUploadPreviewProps> = ({
     () => Math.max(0, maxSizeMB) * 1024 * 1024,
     [maxSizeMB],
   );
+  const pdfLayoutPlugin = defaultLayoutPlugin();
 
   useEffect(() => {
     return () => {
@@ -318,7 +326,7 @@ const DocumentUploadPreview: React.FC<DocumentUploadPreviewProps> = ({
             <Space direction="vertical" size={8} style={{ width: '100%' }}>
               <Typography.Text type="secondary">
                 {kind === 'pdf'
-                  ? 'PDF 预览由浏览器内置能力提供。'
+                  ? 'PDF 预览由第三方组件渲染。'
                   : kind === 'word'
                   ? 'Word 预览由 docx 解析渲染完成。'
                   : 'PPT 预览由 pptx 转 HTML 渲染完成。'}
@@ -327,16 +335,19 @@ const DocumentUploadPreview: React.FC<DocumentUploadPreviewProps> = ({
                 <Typography.Text type="danger">{previewError}</Typography.Text>
               ) : null}
               {kind === 'pdf' ? (
-                <iframe
-                  src={previewUrl}
-                  title={`${kind}-preview`}
+                <div
                   style={{
                     width: '100%',
                     height: 620,
                     border: '1px solid #f0f0f0',
                     borderRadius: 4,
+                    overflow: 'hidden',
                   }}
-                />
+                >
+                  <Worker workerUrl={PDF_WORKER_URL}>
+                    <Viewer fileUrl={previewUrl} plugins={[pdfLayoutPlugin]} />
+                  </Worker>
+                </div>
               ) : null}
               {kind === 'word' ? (
                 <div
