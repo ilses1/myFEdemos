@@ -116,6 +116,32 @@ export default [
     ],
   },
   {
+    name: '博客',
+    path: '/blog',
+    icon: 'BookOutlined',
+    routes: [
+      {
+        path: '/blog',
+        redirect: '/blog/scrollbar-button-fix',
+      },
+      {
+        name: '滚动条按钮隐藏修复',
+        path: '/blog/scrollbar-button-fix',
+        component: './Blog/ScrollbarButtonFix',
+      },
+      {
+        name: 'CSS 渐变过渡与颜色变量',
+        path: '/blog/css-gradient-transition',
+        component: './Blog/CssGradientTransition',
+      },
+      {
+        name: 'ECharts Legend 对齐实战',
+        path: '/blog/echarts-legend-align',
+        component: './Blog/EchartsLegendAlign',
+      },
+    ],
+  },
+  {
     name: '图表',
     path: '/chart',
     routes: [

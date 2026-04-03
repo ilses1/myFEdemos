@@ -1,0 +1,120 @@
+.blogListContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.headerSection {
+  margin-bottom: 48px;
+  text-align: center;
+}
+
+.mainTitle {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.45);
+  margin-bottom: 0;
+}
+
+.articleCard {
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.cardCover {
+  height: 140px;
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(0, 0, 0, 0.08) 100%
+    );
+  }
+}
+
+.cardCoverOverlay {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  gap: 6px;
+  z-index: 1;
+}
+
+.tag {
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 12px;
+  padding: 2px 8px;
+}
+
+.cardBody {
+  padding: 20px;
+}
+
+.cardTitle {
+  margin: 0 0 12px;
+  font-size: 16px;
+  line-height: 1.5;
+  min-height: 48px;
+}
+
+.cardExcerpt {
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.metaInfo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+
+  span {
+    margin-right: 4px;
+  }
+}
+
+.readMoreIcon {
+  font-size: 16px;
+  color: #1890ff;
+  transition: transform 0.2s ease;
+
+  .articleCard:hover & {
+    transform: translateX(4px);
+  }
+}

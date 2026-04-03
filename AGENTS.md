@@ -35,15 +35,16 @@ npx stylelint "src/**/*.less"  # Stylelint 检查
 
 ```
 config/         # Umi 配置 (config.ts, routes.ts)
+mock/           # Mock 数据 (Umi 内置 mock)
 src/
   pages/        # 文件路由 — 每个页面一个文件夹
-  components/   # 共享组件 (目前为空)
+  components/   # 共享组件
   models/       # Umi dva 模型 (全局状态)
   services/     # API 请求函数
   utils/        # 工具函数
   constants/    # 共享常量
   assets/       # 静态资源 (SVG, 图片)
-  app.ts        # 运行时配置: 布局、初始状态、主题
+  app.ts        # 运行时配置: 布局、初始状态、主题 (ThemeProvider)
   access.ts     # 权限定义
 ```
 
@@ -51,7 +52,7 @@ src/
 
 ### 导入规范
 
-- React 默认导入: `import React from 'react'` (显式导入，不使用解构)
+- React 默认导入: `import React from 'react'`
 - 命名导入: `import { useEffect, useRef, useState } from 'react'`
 - 分组顺序: 1) 第三方库, 2) `@umijs/max` / `@ant-design/*`, 3) `@/` 别名, 4) 相对路径 (`./`)
 - Prettier 插件 `prettier-plugin-organize-imports` 自动排序，无需手动调整
@@ -64,9 +65,9 @@ src/
 
 ### TypeScript 规范
 
-- 避免 `any`，使用具体类型或泛型
+- 避免 `any`，使用具体类型或泛型；Umi 运行时配置回调 (如 `layout`) 中可使用 `any`
 - 使用 `type` 定义类型别名 (如 `type ThemeMode = 'light' | 'dark'`)
-- Umi 运行时配置回调中可使用 `any` (当类型复杂时)
+- `tsconfig.json` 继承 `src/.umi/tsconfig.json` (Umi 自动生成)
 
 ### 命名约定
 
@@ -87,7 +88,7 @@ src/
 
 ### 状态与数据
 
-- 全局状态通过 Umi models (`src/models/`)
+- 全局状态通过 Umi models (`src/models/`) 和 `getInitialState()` (`src/app.ts`)
 - 本地状态: `useState`，DOM/实例使用 `useRef`
 - 昂贵计算使用 `useMemo` (如 mock 数据生成)
 - 添加事件监听器时，effects 必须返回清理函数
@@ -98,29 +99,37 @@ src/
 - 对可能为 undefined 的值使用可选链 (`?.`)
 - 无全局错误边界，在组件中本地处理错误
 
-### UI 库
+### UI 库与第三方依赖
 
-- Ant Design v5 (`antd`)
-- ProComponents (`@ant-design/pro-components`)，如 `PageContainer`
-- 图标: `@ant-design/icons`
-- 图表: `echarts` (v6)
+- **UI**: Ant Design v5 (`antd`), ProComponents (`@ant-design/pro-components`)
+- **图标**: `@ant-design/icons`
+- **图表**: `echarts` (v6)
+- **文档预览**: `docx-preview`, `pdfjs-dist` + `@react-pdf-viewer/*`, `@jvmr/pptx-to-html`
+- **其他**: `xlsx` (Excel), `react-syntax-highlighter`, `dayjs`, `classnames`
 
 ### 路由
 
-- 在 `config/routes.ts` 中配置，使用 hash 路由
+- 在 `config/routes.ts` 中配置，使用 hash 路由 (`history.type: 'hash'`)
 - 页面从 `src/pages/` 目录自动发现
-- 使用 `devOnly: true` 标记仅开发环境显示的路由
+- 使用 `devOnly: true` 标记仅开发环境显示的路由 (生产构建时自动过滤)
+
+### 构建配置
+
+- 生产构建使用 `terser` (JS 压缩) + `cssnano` (CSS 压缩)
+- 代码分割策略: `granularChunks`
+- 生产环境 `publicPath` 设为 `./` (相对路径，适配 Vercel 部署)
 
 ## 代码约定总结
 
-| 方面       | 约定                             |
-| ---------- | -------------------------------- |
-| 包管理器   | pnpm                             |
-| 格式化工具 | Prettier (80 列，单引号，尾逗号) |
-| 样式文件   | LESS 模块 (`.less`)              |
-| 导出方式   | 文件底部默认导出                 |
-| 组件类型   | `React.FC`                       |
-| 提交信息   | 无强制约定                       |
+| 方面       | 约定                                             |
+| ---------- | ------------------------------------------------ |
+| 包管理器   | pnpm                                             |
+| 格式化工具 | Prettier (80 列，单引号，尾逗号)                 |
+| 样式文件   | LESS 模块 (`.less`)                              |
+| 导出方式   | 文件底部默认导出                                 |
+| 组件类型   | `React.FC`                                       |
+| 主题系统   | `ThemeProvider` in `app.ts`, localStorage 持久化 |
+| 提交信息   | 无强制约定                                       |
 
 ## 关键配置文件
 
@@ -133,3 +142,4 @@ src/
 | `tsconfig.json`    | 继承 Umi 生成的 TypeScript 配置        |
 | `config/config.ts` | Umi 主配置: 插件、布局、构建选项       |
 | `config/routes.ts` | 路由定义，支持嵌套和 `devOnly`         |
+| `src/app.ts`       | 运行时配置: 主题、布局、初始状态       |
