@@ -142,6 +142,11 @@ export default [
     ],
   },
   {
+    name: 'FigJam 基础',
+    path: '/figjam-basics',
+    component: './FigJamBasics',
+  },
+  {
     name: '图表',
     path: '/chart',
     routes: [
