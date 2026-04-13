@@ -12,23 +12,25 @@
   bottom: 20px;
   z-index: 1000;
   width: auto;
-  min-width: 48px;
+  min-width: 32px;
 }
 .searchBar {
   display: flex;
   align-items: center;
-  width: 320px;
-  height: 40px;
+  width: 240px;
+  height: 32px;
   padding: 0 12px;
   background: #fff;
-  border: 1px solid #5b7edb;
-  border-radius: 4px;
+  border: 1px solid #3d61a9;
+  border-radius: 2px;
   transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-  box-shadow: 0 2px 8px rgba(91, 126, 219, 0.15);
+}
+.searchBar.focused {
+  width: 341px;
 }
 .searchBar.collapsed {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   padding: 0;
   border-radius: 50%;
   cursor: pointer;
@@ -41,28 +43,28 @@
   box-shadow: 0 4px 12px rgba(91, 126, 219, 0.25);
 }
 .searchBar .searchIcon {
-  font-size: 18px;
-  color: #5b7edb;
+  font-size: 16px;
+  color: #3d61a9;
   margin-right: 8px;
 }
 .searchBar input {
   flex: 1;
   height: 100%;
   padding: 0;
-  font-size: 16px;
+  font-size: 14px;
   color: #333;
   background: transparent;
   border: none;
   outline: none;
 }
 .searchBar input::placeholder {
-  color: #5b7edb;
+  color: #3d61a9;
   opacity: 0.8;
 }
 .searchBar .collapseIcon {
   margin-left: 8px;
-  font-size: 14px;
-  color: #5b7edb;
+  font-size: 16px;
+  color: #3d61a9;
   cursor: pointer;
   transition: transform 0.3s;
 }
@@ -73,14 +75,15 @@
   position: absolute;
   bottom: calc(100% + 8px);
   left: 0;
-  width: 320px;
+  width: 342px;
   background: #fff;
   border-radius: 4px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12),
-    0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0px 8px 20px 0px rgba(0, 0, 0, 0.08),
+    0px -1px 10px 0px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   z-index: 10;
   animation: slideUp 0.2s ease-out;
+  padding: 4px;
 }
 @keyframes slideUp {
   from {
@@ -100,7 +103,11 @@
   transition: background 0.2s;
 }
 .listItem:hover {
-  background-color: #f5f7ff;
+  background-color: #f5f6f7;
+}
+.listItem:hover .fundCode,
+.listItem:hover .fundName {
+  color: #3d61a9;
 }
 .listItem .reitsTag {
   display: inline-flex;
@@ -108,29 +115,24 @@
   justify-content: center;
   height: 18px;
   padding: 0 4px;
-  margin-right: 12px;
-  font-size: 10px;
-  color: #f5222d;
+  margin-right: 8px;
+  font-size: 12px;
+  color: #db5656;
   line-height: 1;
-  border: 1px solid #f5222d;
+  border: 1px solid #db5656;
   border-radius: 2px;
 }
 .listItem .fundCode {
-  margin-right: 12px;
+  margin-right: 16px;
   font-size: 14px;
-  color: #5b7edb;
+  color: #2f394d;
   font-weight: 500;
 }
 .listItem .fundName {
   flex: 1;
   font-size: 14px;
-  color: #333;
+  color: #2f394d;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-.historyHeader {
-  padding: 8px 12px 4px;
-  font-size: 12px;
-  color: #999;
 }

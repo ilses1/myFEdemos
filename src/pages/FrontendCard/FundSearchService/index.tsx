@@ -39,10 +39,6 @@ const FundSearchService: React.FC = () => {
 
   const handleExpand = () => {
     setCollapsed(false);
-    // 延迟聚焦以等待动画
-    setTimeout(() => {
-      inputRef.current?.focus();
-    }, 100);
   };
 
   const renderListItem = (item: FundItem) => (
@@ -75,10 +71,7 @@ const FundSearchService: React.FC = () => {
             )
           ) : (
             // 历史搜索记录
-            <>
-              <div className={styles.historyHeader}>历史搜索记录</div>
-              {history.map(renderListItem)}
-            </>
+            <>{history.map(renderListItem)}</>
           )}
         </div>
       )}
@@ -87,6 +80,7 @@ const FundSearchService: React.FC = () => {
       <div
         className={classNames(styles.searchBar, {
           [styles.collapsed]: collapsed,
+          [styles.focused]: focused && !collapsed,
         })}
         onClick={collapsed ? handleExpand : undefined}
       >
