@@ -1,5 +1,4 @@
 import { DoubleRightOutlined, SearchOutlined } from '@ant-design/icons';
-import { PageContainer } from '@ant-design/pro-components';
 import classNames from 'classnames';
 import React, { useMemo, useRef, useState } from 'react';
 import styles from './index.less';
@@ -55,77 +54,69 @@ const FundSearchService: React.FC = () => {
   );
 
   return (
-    <PageContainer
-      header={{ title: '基金检索服务' }}
-      className={styles.container}
-    >
-      <div className={styles.searchWrapper}>
-        {/* 弹出列表：聚焦时显示 */}
-        {focused && (
-          <div className={styles.popupList}>
-            {searchValue ? (
-              // 实时搜索结果
-              searchResults.length > 0 ? (
-                searchResults.map(renderListItem)
-              ) : (
-                <div
-                  style={{
-                    padding: '12px',
-                    color: '#999',
-                    textAlign: 'center',
-                  }}
-                >
-                  暂无匹配数据
-                </div>
-              )
+    <div className={styles.searchWrapper}>
+      {/* 弹出列表：聚焦时显示 */}
+      {focused && (
+        <div className={styles.popupList}>
+          {searchValue ? (
+            // 实时搜索结果
+            searchResults.length > 0 ? (
+              searchResults.map(renderListItem)
             ) : (
-              // 历史搜索记录
-              <>
-                <div className={styles.historyHeader}>历史搜索记录</div>
-                {history.map(renderListItem)}
-              </>
-            )}
-          </div>
-        )}
-
-        {/* 搜索框主体 */}
-        <div
-          className={classNames(styles.searchBar, {
-            [styles.collapsed]: collapsed,
-          })}
-          onClick={collapsed ? handleExpand : undefined}
-        >
-          {!collapsed ? (
-            <>
-              <SearchOutlined className={styles.searchIcon} />
-              <input
-                ref={inputRef}
-                placeholder={focused ? '' : '搜索基金'}
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                onFocus={() => setFocused(true)}
-                onBlur={() => {
-                  // 延迟关闭以允许点击列表项
-                  setTimeout(() => setFocused(false), 200);
+              <div
+                style={{
+                  padding: '12px',
+                  color: '#999',
+                  textAlign: 'center',
                 }}
-              />
-              <DoubleRightOutlined
-                className={styles.collapseIcon}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setCollapsed(true);
-                }}
-              />
-            </>
+              >
+                暂无匹配数据
+              </div>
+            )
           ) : (
-            <SearchOutlined
-              className={styles.searchIcon}
-              style={{ margin: 0 }}
-            />
+            // 历史搜索记录
+            <>
+              <div className={styles.historyHeader}>历史搜索记录</div>
+              {history.map(renderListItem)}
+            </>
           )}
         </div>
+      )}
+
+      {/* 搜索框主体 */}
+      <div
+        className={classNames(styles.searchBar, {
+          [styles.collapsed]: collapsed,
+        })}
+        onClick={collapsed ? handleExpand : undefined}
+      >
+        {!collapsed ? (
+          <>
+            <SearchOutlined className={styles.searchIcon} />
+            <input
+              ref={inputRef}
+              placeholder={focused ? '' : '搜索基金'}
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              onFocus={() => setFocused(true)}
+              onBlur={() => {
+                // 延迟关闭以允许点击列表项
+                setTimeout(() => setFocused(false), 200);
+              }}
+            />
+            <DoubleRightOutlined
+              className={styles.collapseIcon}
+              onClick={(e) => {
+                e.stopPropagation();
+                setCollapsed(true);
+              }}
+            />
+          </>
+        ) : (
+          <SearchOutlined className={styles.searchIcon} style={{ margin: 0 }} />
+        )}
       </div>
-    </PageContainer>
+    </div>
   );
 };
 

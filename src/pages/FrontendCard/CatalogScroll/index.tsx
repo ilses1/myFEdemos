@@ -13,6 +13,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import FundSearchService from '../FundSearchService';
 import CatalogSection from './components/CatalogSection';
 import { cx } from './components/cx';
 import { renderNodeContent } from './components/registry';
@@ -241,6 +242,7 @@ const CatalogScrollPage: React.FC = () => {
           {renderNodes(menuStructure)}
         </div>
       </div>
+      <FundSearchService />
     </div>
   );
 };

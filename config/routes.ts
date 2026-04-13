@@ -113,11 +113,6 @@ export default [
         path: '/frontend-card/style',
         component: './FrontendCard/Style',
       },
-      {
-        name: '基金检索服务',
-        path: '/frontend-card/fund-search-service',
-        component: './FrontendCard/FundSearchService',
-      },
     ],
   },
   {
