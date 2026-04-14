@@ -1,0 +1,255 @@
+@text: #2e3643;
+@subText: #6b7686;
+@bg: #ffffff;
+@canvas: #f6f8fc;
+@bar: #3e62ae;
+@assetBorder: #f2a0a0;
+@assetBg: #fff2f2;
+@productBorder: #f4c08a;
+@productBg: #fff4e6;
+@dashedBorder: #93a7d6;
+@nodeBg: #f3f6ff;
+@nodeBorder: #a8b7e4;
+@infoBg: #eaf1ff;
+@infoBorder: #9ab3ea;
+@arrow: #8fa2c9;
+@assetAccent: #e06a6a;
+@productAccent: #d08a3a;
+
+.container {
+  width: 100%;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: @subText;
+  font-size: 13px;
+  line-height: 20px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.titleMain {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: @text;
+  font-size: 18px;
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.titleIcon {
+  width: 4px;
+  height: 16px;
+  border-radius: 999px;
+  display: inline-block;
+  flex: 0 0 auto;
+  background: linear-gradient(180deg, #4f6faf 0 58%, #e67676 58% 100%);
+}
+
+.titleBadge {
+  display: inline-flex;
+  align-items: center;
+  background: #eef1f6;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 13px;
+  color: @subText;
+  white-space: nowrap;
+}
+
+.titleDate {
+  color: @subText;
+  white-space: nowrap;
+}
+
+.wrap {
+  width: 100%;
+  background: @bg;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: @text;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.headerDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background: @bar;
+  display: inline-block;
+  flex: 0 0 auto;
+}
+
+.canvas {
+  background: @canvas;
+  border-radius: 10px;
+  padding: 16px;
+  overflow-x: auto;
+}
+
+.diagram {
+  min-width: 860px;
+}
+
+.bar {
+  height: 34px;
+  border-radius: 4px;
+  background: @bar;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 160px 1fr;
+  gap: 16px;
+  margin-top: 14px;
+  align-items: start;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.topArrow {
+  color: @arrow;
+  font-size: 16px;
+  line-height: 1;
+  user-select: none;
+}
+
+.labelBox {
+  width: 100%;
+  height: 34px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.labelAsset {
+  background: @assetBg;
+  border: 1px solid @assetAccent;
+  color: @assetAccent;
+}
+
+.labelProduct {
+  background: @productBg;
+  border: 1px solid @productAccent;
+  color: @productAccent;
+}
+
+.dashed {
+  width: 100%;
+  border-radius: 4px;
+  border: 1px dashed @dashedBorder;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.dashedInnerRow {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.node {
+  flex: 0 0 auto;
+  min-width: 170px;
+  height: 34px;
+  border-radius: 4px;
+  background: @nodeBg;
+  border: 1px solid @nodeBorder;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4866b6;
+}
+
+.nodeWide {
+  min-width: 220px;
+}
+
+.info {
+  width: 100%;
+  min-height: 34px;
+  border-radius: 4px;
+  background: @infoBg;
+  border: 1px solid @infoBorder;
+  padding: 8px 12px;
+  color: #5d77b6;
+  font-size: 12px;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.middleWrap {
+  display: flex;
+  justify-content: center;
+}
+
+.middle {
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 22px;
+  color: @subText;
+  font-size: 12px;
+  font-weight: 600;
+  user-select: none;
+}
+
+.middleLine {
+  width: 52px;
+  height: 2px;
+  border-radius: 999px;
+}
+
+.middleLineAsset {
+  background: @assetAccent;
+}
+
+.middleLineArrow {
+  background: @arrow;
+}
+
+.middleArrow {
+  color: @arrow;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.spacer {
+  height: 6px;
+}

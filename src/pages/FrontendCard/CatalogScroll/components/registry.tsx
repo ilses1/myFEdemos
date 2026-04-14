@@ -14,7 +14,9 @@ import VolRiskReturn from './Volatility/VolRiskReturn';
 import ReturnDecomposition from './Yield/ReturnDecomposition';
 import Yield from './Yield/Yield';
 import YieldDividend from './Yield/YieldDividend';
+import YieldFundamental from './Yield/YieldFundamental';
 import YieldSource from './Yield/YieldSource';
+import YieldValuation from './Yield/YieldValuation';
 
 /**
  * 内容区块渲染注册表：
@@ -33,6 +35,8 @@ const nodeRegistry: Record<string, NodeRenderer> = {
   yield: Yield,
   'yield-source': YieldSource,
   'yield-dividend': YieldDividend,
+  'yield-fundamental': YieldFundamental,
+  'yield-valuation': YieldValuation,
   'return-decomposition': ReturnDecomposition,
   volatility: Volatility,
   'vol-hist': VolHist,

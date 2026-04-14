@@ -1,0 +1,198 @@
+@border: #e9eef8;
+@text: #2e3643;
+@subText: #6b7686;
+@blue: #3e62ae;
+@canvas: #f6f8fc;
+
+.wrap {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid @border;
+  border-radius: 12px;
+  padding: 14px 14px 12px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.headerDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background: @blue;
+  flex: 0 0 auto;
+}
+
+.headerTitle {
+  color: @text;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+.controlsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.toggleGroup {
+  display: inline-flex;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #d6dfef;
+}
+
+.toggleBtn {
+  border: none;
+  outline: none;
+  background: #ffffff;
+  color: #5f6977;
+  height: 30px;
+  padding: 0 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  &:not(:last-child) {
+    border-right: 1px solid #d6dfef;
+  }
+}
+
+.active {
+  color: #2f5eb5;
+  background: #f4f8ff;
+}
+
+.infoIcon {
+  font-size: 12px;
+  color: #94a3c1;
+}
+
+.selectsRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.selectItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.controlLabel {
+  color: @subText;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.assetSelect {
+  width: 140px;
+}
+
+.xAxisSelect {
+  width: 220px;
+}
+
+.assetSelect,
+.xAxisSelect {
+  :global {
+    .ant-select-selector {
+      border-radius: 4px !important;
+      height: 30px !important;
+      padding: 0 10px !important;
+      border-color: #d6dfef !important;
+    }
+
+    .ant-select-selection-item {
+      line-height: 30px !important;
+      font-size: 13px;
+      color: #2b3340;
+    }
+  }
+}
+
+.metricRow {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.metricLabel {
+  color: #6f7a8b;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.legendRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.legendItem {
+  color: #667085;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.legendDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex: 0 0 auto;
+}
+
+.screenshotButton {
+  border-radius: 6px;
+  border-color: transparent;
+  color: #4f6fae;
+  background: transparent;
+}
+
+.chartWrap {
+  border-radius: 0;
+  background: @canvas;
+  border: 1px solid #e6ecfb;
+  padding: 0;
+}
+
+.axisHint {
+  color: #6f7a8b;
+  font-size: 12px;
+  padding: 8px 10px 0;
+}
+
+.chart {
+  height: 340px;
+  width: 100%;
+}
+
+@media (max-width: 960px) {
+  .controlsRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .metricRow {
+    grid-template-columns: 1fr;
+    align-items: flex-start;
+  }
+}

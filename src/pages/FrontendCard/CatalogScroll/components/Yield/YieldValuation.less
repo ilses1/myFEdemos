@@ -1,0 +1,164 @@
+@border: #e9eef8;
+@text: #2e3643;
+@subText: #6b7686;
+@blue: #3e62ae;
+@canvas: #f6f8fc;
+
+.wrap {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid @border;
+  border-radius: 12px;
+  padding: 14px 14px 12px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.headerDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background: @blue;
+  flex: 0 0 auto;
+}
+
+.headerTitle {
+  color: @text;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+.controlsRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.controlItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.controlLabel {
+  color: @subText;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.assetSelect {
+  width: 140px;
+}
+
+.rangeSelect {
+  width: 170px;
+}
+
+.assetSelect,
+.rangeSelect {
+  :global {
+    .ant-select-selector {
+      border-radius: 4px !important;
+      height: 30px !important;
+      padding: 0 10px !important;
+      border-color: #d6dfef !important;
+    }
+
+    .ant-select-selection-item {
+      line-height: 30px !important;
+      font-size: 13px;
+      color: #2b3340;
+    }
+  }
+}
+
+.descriptionRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.metricTitle {
+  color: #4f5f7e;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 28px;
+  white-space: nowrap;
+}
+
+.quoteIcon {
+  color: #8aa3d6;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.descriptionText {
+  color: #6b7686;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.legendRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  overflow: hidden;
+}
+
+.legendItem {
+  color: #677487;
+  font-size: 12px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.legendDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex: 0 0 auto;
+}
+
+.screenshotButton {
+  margin-left: auto;
+  border-radius: 6px;
+  border-color: transparent;
+  color: #4f6fae;
+  background: transparent;
+}
+
+.chartWrap {
+  border: 1px solid #e6ecfb;
+  background: @canvas;
+}
+
+.chart {
+  width: 100%;
+  height: 340px;
+}
+
+@media (max-width: 980px) {
+  .controlsRow {
+    flex-wrap: wrap;
+  }
+
+  .descriptionRow {
+    align-items: flex-start;
+  }
+
+  .metricTitle {
+    font-size: 16px;
+    line-height: 20px;
+  }
+}
