@@ -39,4 +39,13 @@ export default defineConfig({
   codeSplitting: {
     jsStrategy: 'granularChunks',
   },
+  alias: {
+    path: require.resolve('path-browserify'),
+    stream: require.resolve('stream-browserify'),
+    process: require.resolve('process/browser'),
+  },
+  headScripts: [
+    `window.process = { env: { NODE_ENV: '${process.env.NODE_ENV}' } };`,
+    `window.Buffer = require('buffer').Buffer;`,
+  ],
 });

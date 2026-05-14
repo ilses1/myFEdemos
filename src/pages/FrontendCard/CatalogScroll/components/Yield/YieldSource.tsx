@@ -47,13 +47,10 @@ const YieldSource: React.FC<LeafProps> = ({ title }) => {
 
               <div aria-hidden="true" className={styles.middleWrap}>
                 <div className={styles.middle}>
-                  <div
-                    className={`${styles.middleLine} ${styles.middleLineAsset}`}
-                  />
+                  <span className={styles.middleArrow}>←</span>
+                  <div className={styles.middleLine} />
                   <span>基础</span>
-                  <div
-                    className={`${styles.middleLine} ${styles.middleLineArrow}`}
-                  />
+                  <div className={styles.middleLine} />
                   <span className={styles.middleArrow}>→</span>
                 </div>
               </div>

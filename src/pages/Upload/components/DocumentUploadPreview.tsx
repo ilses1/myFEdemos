@@ -21,6 +21,10 @@ import {
 } from 'antd';
 import { renderAsync } from 'docx-preview';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import Ppt2Viewer from './Ppt2Viewer';
+import Ppt3Viewer from './Ppt3Viewer';
+import Ppt4Viewer from './Ppt4Viewer';
+import Ppt5Viewer from './Ppt5Viewer';
 
 type FileMeta = {
   name: string;
@@ -329,7 +333,15 @@ const DocumentUploadPreview: React.FC<DocumentUploadPreviewProps> = ({
                   ? 'PDF 预览由第三方组件渲染。'
                   : kind === 'word'
                   ? 'Word 预览由 docx 解析渲染完成。'
-                  : 'PPT 预览由 pptx 转 HTML 渲染完成。'}
+                  : kind === 'ppt'
+                  ? 'PPT 预览由 pptx 转 HTML 渲染完成。'
+                  : kind === 'ppt2'
+                  ? 'PPT 预览由 pptxviewjs (Canvas) 渲染完成。'
+                  : kind === 'ppt3'
+                  ? 'PPT 预览由 pptx-react-viewer 渲染完成。'
+                  : kind === 'ppt4'
+                  ? 'PPT 预览由 pptx-svg (WASM) 渲染完成。'
+                  : 'PPT 预览由 pptx-to-pdf 转换后由 PDF 查看器渲染完成。'}
               </Typography.Text>
               {previewError ? (
                 <Typography.Text type="danger">{previewError}</Typography.Text>
@@ -389,6 +401,18 @@ const DocumentUploadPreview: React.FC<DocumentUploadPreviewProps> = ({
                     />
                   ))}
                 </div>
+              ) : null}
+              {kind === 'ppt2' && lastFile ? (
+                <Ppt2Viewer file={lastFile} />
+              ) : null}
+              {kind === 'ppt3' && lastFile ? (
+                <Ppt3Viewer file={lastFile} />
+              ) : null}
+              {kind === 'ppt4' && lastFile ? (
+                <Ppt4Viewer file={lastFile} />
+              ) : null}
+              {kind === 'ppt5' && lastFile ? (
+                <Ppt5Viewer file={lastFile} />
               ) : null}
             </Space>
           </Card>

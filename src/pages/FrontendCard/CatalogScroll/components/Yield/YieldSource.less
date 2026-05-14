@@ -94,33 +94,33 @@
 
 .canvas {
   background: @canvas;
-  border-radius: 10px;
-  padding: 16px;
+  border-radius: 8px;
+  padding: 12px 10px;
   overflow-x: auto;
 }
 
 .diagram {
-  min-width: 860px;
+  min-width: 820px;
 }
 
 .bar {
-  height: 34px;
-  border-radius: 4px;
+  height: 26px;
+  border-radius: 2px;
   background: @bar;
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
 }
 
 .row {
   display: grid;
-  grid-template-columns: 1fr 160px 1fr;
-  gap: 16px;
-  margin-top: 14px;
+  grid-template-columns: minmax(0, 1fr) 140px minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 10px;
   align-items: start;
 }
 
@@ -128,24 +128,24 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .topArrow {
   color: @arrow;
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1;
   user-select: none;
 }
 
 .labelBox {
   width: 100%;
-  height: 34px;
-  border-radius: 4px;
+  height: 28px;
+  border-radius: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 700;
 }
 
@@ -163,15 +163,15 @@
 
 .dashed {
   width: 100%;
-  border-radius: 4px;
+  border-radius: 3px;
   border: 1px dashed @dashedBorder;
-  padding: 10px;
-  background: rgba(255, 255, 255, 0.8);
+  padding: 8px 10px;
+  background: #f7f9ff;
 }
 
 .dashedInnerRow {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
@@ -179,33 +179,33 @@
 
 .node {
   flex: 0 0 auto;
-  min-width: 170px;
-  height: 34px;
-  border-radius: 4px;
+  min-width: 176px;
+  height: 32px;
+  border-radius: 3px;
   background: @nodeBg;
   border: 1px solid @nodeBorder;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
-  font-weight: 600;
-  color: #4866b6;
+  font-size: 24px;
+  font-weight: 500;
+  color: #3f5b9b;
 }
 
 .nodeWide {
-  min-width: 220px;
+  min-width: 364px;
 }
 
 .info {
   width: 100%;
-  min-height: 34px;
-  border-radius: 4px;
-  background: @infoBg;
+  min-height: 30px;
+  border-radius: 3px;
+  background: #dbe4f3;
   border: 1px solid @infoBorder;
-  padding: 8px 12px;
-  color: #5d77b6;
-  font-size: 12px;
-  line-height: 1.4;
+  padding: 6px 10px;
+  color: #5b6f98;
+  font-size: 20px;
+  line-height: 1.25;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -218,38 +218,92 @@
 }
 
 .middle {
-  height: 34px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  margin-top: 22px;
-  color: @subText;
-  font-size: 12px;
+  gap: 5px;
+  margin-top: 20px;
+  color: #8f8f8f;
+  font-size: 18px;
   font-weight: 600;
   user-select: none;
+  white-space: nowrap;
 }
 
 .middleLine {
-  width: 52px;
-  height: 2px;
+  width: 24px;
+  height: 1px;
   border-radius: 999px;
-}
-
-.middleLineAsset {
-  background: @assetAccent;
-}
-
-.middleLineArrow {
-  background: @arrow;
+  background: #d98989;
 }
 
 .middleArrow {
-  color: @arrow;
-  font-size: 16px;
+  color: #d98989;
+  font-size: 15px;
   line-height: 1;
 }
 
 .spacer {
   height: 6px;
+}
+
+@media (max-width: 1200px) {
+  .diagram {
+    min-width: 740px;
+  }
+
+  .labelBox {
+    font-size: 16px;
+  }
+
+  .node {
+    min-width: 154px;
+    font-size: 20px;
+  }
+
+  .nodeWide {
+    min-width: 320px;
+  }
+
+  .info {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 900px) {
+  .diagram {
+    min-width: 640px;
+  }
+
+  .row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .middleWrap {
+    order: 2;
+  }
+
+  .middle {
+    margin-top: 0;
+  }
+
+  .col {
+    gap: 6px;
+  }
+
+  .node {
+    width: 100%;
+    min-width: 0;
+    font-size: 18px;
+  }
+
+  .nodeWide {
+    min-width: 0;
+  }
+
+  .info {
+    font-size: 14px;
+  }
 }

@@ -1,4 +1,11 @@
-export type DocumentKind = 'pdf' | 'word' | 'ppt';
+export type DocumentKind =
+  | 'pdf'
+  | 'word'
+  | 'ppt'
+  | 'ppt2'
+  | 'ppt3'
+  | 'ppt4'
+  | 'ppt5';
 
 export type UploadDocumentResult = {
   taskId: string;

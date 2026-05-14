@@ -62,6 +62,26 @@ export default [
         path: '/upload/ppt',
         component: './Upload/Ppt',
       },
+      {
+        name: 'PPT 预览 2',
+        path: '/upload/ppt2',
+        component: './Upload/Ppt2',
+      },
+      {
+        name: 'PPT 预览 3',
+        path: '/upload/ppt3',
+        component: './Upload/Ppt3',
+      },
+      {
+        name: 'PPT 预览 4',
+        path: '/upload/ppt4',
+        component: './Upload/Ppt4',
+      },
+      {
+        name: 'PPT 预览 5',
+        path: '/upload/ppt5',
+        component: './Upload/Ppt5',
+      },
     ],
   },
   {
