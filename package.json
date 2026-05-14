@@ -16,6 +16,7 @@
     "@jvmr/pptx-to-html": "^1.0.1",
     "@react-pdf-viewer/core": "^3.12.0",
     "@react-pdf-viewer/default-layout": "^3.12.0",
+    "@react-pdf-viewer/thumbnail": "3.12.0",
     "@types/react-syntax-highlighter": "^15.5.13",
     "@umijs/max": "^4.6.23",
     "antd": "^5.4.0",

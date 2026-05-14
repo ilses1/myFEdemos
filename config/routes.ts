@@ -53,6 +53,16 @@ export default [
         component: './Upload/Pdf',
       },
       {
+        name: 'PDF 预览 2',
+        path: '/upload/pdf2',
+        component: './Upload/Pdf2',
+      },
+      {
+        name: 'PDF 预览 3',
+        path: '/upload/pdf3',
+        component: './Upload/Pdf3',
+      },
+      {
         name: 'Word 预览',
         path: '/upload/word',
         component: './Upload/Word',

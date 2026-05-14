@@ -1,5 +1,7 @@
 export type DocumentKind =
   | 'pdf'
+  | 'pdf2'
+  | 'pdf3'
   | 'word'
   | 'ppt'
   | 'ppt2'

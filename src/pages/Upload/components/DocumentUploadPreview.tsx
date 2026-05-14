@@ -8,6 +8,8 @@ import { Viewer, Worker } from '@react-pdf-viewer/core';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
+import { thumbnailPlugin } from '@react-pdf-viewer/thumbnail';
+import '@react-pdf-viewer/thumbnail/lib/styles/index.css';
 import type { UploadProps } from 'antd';
 import {
   Button,
@@ -20,7 +22,9 @@ import {
   message,
 } from 'antd';
 import { renderAsync } from 'docx-preview';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import * as React from 'react';
+import { useRef, useState } from 'react';
+import Pdf3Viewer from './Pdf3Viewer';
 import Ppt2Viewer from './Ppt2Viewer';
 import Ppt3Viewer from './Ppt3Viewer';
 import Ppt4Viewer from './Ppt4Viewer';
@@ -87,17 +91,28 @@ const DocumentUploadPreview: React.FC<DocumentUploadPreviewProps> = ({
   );
   const wordContainerRef = useRef<HTMLDivElement>(null);
 
-  const extTip = useMemo(
-    () => buildExtTip(allowedExtensions),
+  const extTip = React.useMemo(
+    () => buildExtTip(allowedExtensions || []),
     [allowedExtensions],
   );
-  const maxSizeBytes = useMemo(
-    () => Math.max(0, maxSizeMB) * 1024 * 1024,
+  const maxSizeBytes = React.useMemo(
+    () => Math.max(0, maxSizeMB || 0) * 1024 * 1024,
     [maxSizeMB],
   );
-  const pdfLayoutPlugin = defaultLayoutPlugin();
+  const pdfLayoutPlugin = React.useMemo(() => {
+    if (typeof defaultLayoutPlugin === 'function') {
+      return defaultLayoutPlugin();
+    }
+    return undefined;
+  }, []);
+  const pdfThumbnailPlugin = React.useMemo(() => {
+    if (typeof thumbnailPlugin === 'function') {
+      return thumbnailPlugin();
+    }
+    return undefined;
+  }, []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     return () => {
       if (previewUrl) {
         URL.revokeObjectURL(previewUrl);
@@ -212,7 +227,7 @@ const DocumentUploadPreview: React.FC<DocumentUploadPreviewProps> = ({
     await runUpload(file, onSuccess, onError, onProgress);
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (kind !== 'word' || !fileBuffer || !wordContainerRef.current) return;
     setPreviewError(null);
     wordContainerRef.current.innerHTML = '';
@@ -224,7 +239,7 @@ const DocumentUploadPreview: React.FC<DocumentUploadPreviewProps> = ({
       });
   }, [fileBuffer, kind]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (kind !== 'ppt' || !fileBuffer) return;
     setPreviewError(null);
     pptxToHtml(fileBuffer, {
@@ -331,6 +346,10 @@ const DocumentUploadPreview: React.FC<DocumentUploadPreviewProps> = ({
               <Typography.Text type="secondary">
                 {kind === 'pdf'
                   ? 'PDF 预览由第三方组件渲染。'
+                  : kind === 'pdf2'
+                  ? 'PDF 预览由浏览器原生插件渲染。'
+                  : kind === 'pdf3'
+                  ? 'PDF 预览由高级交互组件渲染（含缩略图与全屏）。'
                   : kind === 'word'
                   ? 'Word 预览由 docx 解析渲染完成。'
                   : kind === 'ppt'
@@ -357,9 +376,43 @@ const DocumentUploadPreview: React.FC<DocumentUploadPreviewProps> = ({
                   }}
                 >
                   <Worker workerUrl={PDF_WORKER_URL}>
-                    <Viewer fileUrl={previewUrl} plugins={[pdfLayoutPlugin]} />
+                    <Viewer
+                      fileUrl={previewUrl}
+                      plugins={
+                        [pdfLayoutPlugin].filter(
+                          (p) => p !== undefined,
+                        ) as any[]
+                      }
+                    />
                   </Worker>
                 </div>
+              ) : null}
+              {kind === 'pdf2' ? (
+                <div
+                  style={{
+                    width: '100%',
+                    height: 620,
+                    border: '1px solid #f0f0f0',
+                    borderRadius: 4,
+                    overflow: 'hidden',
+                  }}
+                >
+                  <iframe
+                    src={previewUrl}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 'none' }}
+                    title="PDF Native Preview"
+                    allowFullScreen
+                    allow="fullscreen"
+                  />
+                </div>
+              ) : null}
+              {kind === 'pdf3' && previewUrl ? (
+                <Pdf3Viewer
+                  fileUrl={previewUrl}
+                  thumbnailPluginInstance={pdfThumbnailPlugin}
+                />
               ) : null}
               {kind === 'word' ? (
                 <div
