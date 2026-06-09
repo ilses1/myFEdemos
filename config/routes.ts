@@ -190,6 +190,11 @@ export default [
         component: './Chart/LineChart',
       },
       {
+        name: '折线图 2',
+        path: '/chart/line-chart',
+        component: './Chart/LineChart/PercentTrendChart',
+      },
+      {
         name: 'k线图',
         path: '/chart/kchart',
         component: './Chart/kChart',
