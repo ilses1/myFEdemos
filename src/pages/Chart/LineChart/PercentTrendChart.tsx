@@ -140,10 +140,17 @@ const PercentTrendChart: React.FC = () => {
       ],
     } as unknown as echarts.EChartsOption);
 
-    const onResize = () => chart.resize();
-    window.addEventListener('resize', onResize);
+    const resizeChart = () => chart.resize();
+    window.addEventListener('resize', resizeChart);
+
+    const resizeObserver = new ResizeObserver(() => {
+      resizeChart();
+    });
+    resizeObserver.observe(chartRef.current);
+
     return () => {
-      window.removeEventListener('resize', onResize);
+      window.removeEventListener('resize', resizeChart);
+      resizeObserver.disconnect();
       chart.dispose();
       chartInstance.current = null;
     };
